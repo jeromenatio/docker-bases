@@ -22,26 +22,32 @@ spin() {
 }
 
 tnexec() {
-    local command="$1"
+    local command=$1
+    local logfile=$2
     eval "$command" >> "$logfile" 2>&1
 }
 
 install_docker(){
-    (tnexec "apt-get update && apt-get install -y apt-transport-https ca-certificates gnupg lsb-release") & spin "Installing docker dependencies"
-    (tnexec "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg -f") & spin "Downloading and saving docker key"
-    (tnexec "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null") && spin "Modifying repositories source.list"
-    (tnexec "apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io") & spin "Installing docker"
+    local logfile=$1
+    (tnexec "apt-get update && apt-get install -y apt-transport-https ca-certificates gnupg lsb-release" $logfile) & spin "Installing docker dependencies"
+    (tnexec "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg -f" $logfile) & spin "Downloading and saving docker key"
+    (tnexec "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null" $logfile) && spin "Modifying repositories source.list"
+    (tnexec "apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io" $logfile) & spin "Installing docker"
     sleep 0.1 & spin "$(docker --version) installed"
 }
 
 install_docker_compose(){
-    (tnexec "curl -L 'https://github.com/docker/compose/releases/download/$latest_version/docker-compose-$uname_s-$uname_m' -o /usr/local/bin/docker-compose") & spin "Downloading docker-compose deb package"
-    (tnexec "chmod +x /usr/local/bin/docker-compose") & spin "Installing docker-compose"
+    local uname_s=$1
+    local uname_m=$2
+    local latest_version=$3
+    local logfile=$4
+    (tnexec "curl -L 'https://github.com/docker/compose/releases/download/$latest_version/docker-compose-$uname_s-$uname_m' -o /usr/local/bin/docker-compose" $logfile) & spin "Downloading docker-compose deb package"
+    (tnexec "chmod +x /usr/local/bin/docker-compose" $logfile) & spin "Installing docker-compose"
     sleep 0.1 & spin "$(docker-compose --version) installed"
 }
 
 user_confirm() {
-  local question="$1"
+  local question=$1
   local yellow="\033[38;5;220m"
   local darker_yellow="\033[38;5;214m"
   local reset="\033[0m"
@@ -54,17 +60,41 @@ user_confirm() {
   fi
 }
 
-get_latest_release() {
-    repo_owner=$1
-    repo_name=$2
-    url="https://api.github.com/repos/$repo_owner/$repo_name/releases/latest"
-    latest_version=$(curl -s $url | grep -oP '"tag_name": "\K(.*)(?=")')
+user_ask() {
+  local question=$1
+  local default_value=$2
+  local var=$3
+  local yellow="\033[38;5;220m"
+  local darker_yellow="\033[38;5;214m"
+  local reset="\033[0m"
+  echo -en "${yellow}? ${question} ${darker_yellow}(leave blank to use default ${default_value}) ${yellow}?${reset} "
+  read answer
+  if [[ "$answer" == "" ]]; then
+    eval "$var=$default_value"
+  else
+    eval "$var=$answer"
+  fi
+}
+
+get_latest_release(){
+    local repo_owner=$1
+    local repo_name=$2
+    local url="https://api.github.com/repos/$repo_owner/$repo_name/releases/latest"
+    local latest_version=$(curl -s $url | grep -oP '"tag_name": "\K(.*)(?=")')
     echo $latest_version
+}
+
+replace_string(){
+    local old_string=$1
+    local new_string=$2
+    local file=$3
+    sed -i "s/$old_string/$new_string/g" $file
 }
 
 # FILES PATH
 logfile="./install.log"
 envfile="./.env"
+tempfile="./.temp"
 
 # CLEAR LOG FILE
 if test -e $logfile; then
@@ -73,7 +103,7 @@ fi
 
 # INSTALL DEPENDENCIES
 if ! command -v curl > /dev/null 2>&1 || ! command -v id > /dev/null 2>&1 || ! command -v getent > /dev/null 2>&1; then
-    (tnexec "apt-get update && apt-get install -y curl util-linux coreutils") & spin "Installing script dependencies"
+    (tnexec "apt-get update && apt-get install -y curl util-linux coreutils" $logfile) & spin "Installing script dependencies"
 else
    sleep 0.1 & spin "Script dependencies already installed"
 fi
@@ -87,10 +117,10 @@ latest_version=$(get_latest_release $repo_owner $repo_name)
 
 # INSTALL DOCKER
 if ! command -v docker --version > /dev/null 2>&1; then
-   install_docker
+   install_docker $logfile
 else
     if user_confirm "Docker is already installed, would you like a newer version"; then
-        install_docker
+        install_docker $logfile
     else
         sleep 0.1 & spin "Docker already installed"
     fi
@@ -98,10 +128,10 @@ fi
 
 # INSTALL DOCKER-COMPOSE
 if ! command -v docker-compose --version > /dev/null 2>&1; then
-   install_docker_compose
+   install_docker_compose $uname_s $uname_m $latest_version $logfile
 else
     if user_confirm "Docker-compose is already installed, would you like a newer version"; then
-        install_docker_compose
+        install_docker_compose $uname_s $uname_m $latest_version $logfile
     else
         sleep 0.1 & spin "Docker-compose already installed"
     fi
@@ -116,15 +146,18 @@ sleep 0.1 & spin "Getting docker gid : $gid"
 
 # CREATE DOCKER USER AND GET UID
 if ! id -u docker > /dev/null 2>&1; then
-    useradd -g docker docker
+    useradd -u $gid -g docker docker
 fi
 uid=$(id -u docker)
 sleep 0.1 & spin "Getting docker uid : $uid"
 
 # DOWNLOAD .env
-(tnexec "curl -L 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/.env' -o $envfile") & spin "Downloading .env file to config containers"
+(tnexec "curl -Ls 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/.env' -o $envfile" $logfile) & spin "Downloading .env file to config containers"
 
 # ASK USER SOME QUESTIONS AND MODIFY .env
+docker_home="/home/docker" 
+user_ask "Do you want to change docker home directory" $docker_home "docker_home"
+sleep 0.1 & spin "Checking docker home directory : $docker_home"
 
 # CREATE DOCKER DIRECTORIES
 
@@ -133,5 +166,3 @@ sleep 0.1 & spin "Getting docker uid : $uid"
 # DELETE ALL TEMPORARY FILES
 
 # DELETE THIS FILE
-
-# https://raw.githubusercontent.com/jeromenatio/docker-bases/main/nginxproxy.yml
