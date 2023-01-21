@@ -22,7 +22,7 @@ spin() {
 }
 
 # PARAMS
-sleep 10 && spin("Waiting in vain")
+sleep 10 && spin "Waiting in vain"
 
 # INSTALL DEPENDENCIES
 
