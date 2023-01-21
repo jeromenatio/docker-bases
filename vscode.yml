@@ -1,0 +1,26 @@
+version: $DOCKER_VERSION
+services:
+  code-server:
+    image: $VSCODE_IMAGE
+    container_name: $VSCODE_CONTAINER_NAME
+    environment:
+      - PUID=$DOCKER_UID
+      - PGID=$DOCKER_GID
+      - TZ=$DOCKER_TIMEZONE
+      - PASSWORD=$VSCODE_PASSWORD
+      - DEFAULT_WORKSPACE=$VSCODE_DEFAULT_WORKSPACE_DIR
+    networks:
+      - proxies
+      - admin
+    volumes:
+      - $VSCODE_CONFIG_VOLUME
+      - $VSCODE_DOCKER_VOLUME
+    restart: $VSCODE_RESTART
+
+networks:
+  proxies:
+    external: true
+    name: $DOCKER_PROXIES_NETWORK
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
