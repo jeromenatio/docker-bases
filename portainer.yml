@@ -7,7 +7,7 @@ services:
       - proxies
       - admin
     volumes:
-      - $DOCKER_SOCKET_LINK
+      - $DOCKER_SOCKET
       - $PORTAINER_DATA_VOLUME
     restart: $PORTAINER_RESTART
 

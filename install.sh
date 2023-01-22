@@ -60,20 +60,48 @@ user_confirm() {
   fi
 }
 
+generate_password() {
+    echo "OOOABC777"
+}
+
 user_ask() {
-  local question=$1
-  local default_value=$2
-  local var=$3
+  local question="$1"
+  local default_value="$2"
+  local variable="$3"
   local yellow="\033[38;5;220m"
   local darker_yellow="\033[38;5;214m"
   local reset="\033[0m"
-  echo -en "${yellow}? ${question} ${darker_yellow}(leave blank to use default ${default_value}) ${yellow}?${reset} "
+  local default_display="leave blank to use default $default_value"
+  if [[ "$default_value" == "GENPWD" ]]; then
+    default_display="leave blank to generate random password"
+    default_value="$(generate_password)"
+  fi
+  echo -en "${yellow}? ${question} ${darker_yellow}(${default_display}) ${yellow}?${reset} "
   read answer
   if [[ "$answer" == "" ]]; then
-    eval "$var=$default_value"
+    eval "$variable=\"$default_value\""
   else
-    eval "$var=$answer"
+    eval "$variable=\"$answer\""
   fi
+}
+
+ask_questions_from_file() {
+    local file=$1
+    local declare matches
+    while read line; do
+        if [[ $line =~ _ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            matches+=("$line")
+        fi
+    done < $file
+    for match in "${matches[@]}"; do
+        if [[ $match =~ _ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"
+            default_value="${BASH_REMATCH[2]}"
+            question="${BASH_REMATCH[3]}"
+            eval "$variable=\"$default_value\""
+            user_ask "$question" "$default_value" "$variable"
+        fi
+    done
 }
 
 get_latest_release(){
@@ -122,7 +150,7 @@ else
     if user_confirm "Docker is already installed, would you like a newer version"; then
         install_docker $logfile
     else
-        sleep 0.1 & spin "Docker already installed"
+        sleep 0.1 & spin "$(docker --version) installed"
     fi
 fi
 
@@ -133,7 +161,7 @@ else
     if user_confirm "Docker-compose is already installed, would you like a newer version"; then
         install_docker_compose $uname_s $uname_m $latest_version $logfile
     else
-        sleep 0.1 & spin "Docker-compose already installed"
+        sleep 0.1 & spin "$(docker-compose --version) installed"
     fi
 fi
 
@@ -159,31 +187,17 @@ replace_string "\[UID\]" $uid $envfile
 replace_string "\[GID\]" $gid $envfile
 
 # ASK USER SOME QUESTIONS AND MODIFY .env
-docker_home="/home/docker" 
-user_ask "Do you want to change docker home directory" $docker_home "docker_home"
-sleep 0.1 & spin "Checking docker home directory : $docker_home"
-replace_string "\[DOCKER_HOME\]" $docker_home $envfile
-
-docker_timezone="Indian/Reunion" 
-user_ask "Do you want to change docker timezone" $docker_timezone "docker_timezone"
-sleep 0.1 & spin "Checking docker timezone : $docker_timezone"
-replace_string "\[DOCKER_TIMEZONE\]" $docker_timezone $envfile
-
-nginxproxy_db_password="edd85dMps**" 
-user_ask "Do you want to change nginx proxy manager database password" $nginxproxy_db_password "nginxproxy_db_password"
-sleep 0.1 & spin "Checking nginx proxy manager database password : $nginxproxy_db_password"
-replace_string "\[NGINXPROXY_DB_PASSWORD\]" $nginxproxy_db_password $envfile
-
-vscode_access_password="Vscode85dMps**" 
-user_ask "Do you want to change vscode access password" $vscode_access_password "vscode_access_password"
-sleep 0.1 & spin "Checking vscode access password : $vscode_access_password"
-replace_string "\[VSCODE_ACCESS_PASSWORD\]" $vscode_access_password $envfile
+ask_questions_from_file $envfile
+sleep 0.1 & spin "DOCKER_HOME=$DOCKER_HOME"
+sleep 0.1 & spin "DOCKER_TIMEZONE=$DOCKER_TIMEZONE"
+sleep 0.1 & spin "NGINXPROXY_DB_PASSWORD=$NGINXPROXY_DB_PASSWORD"
+sleep 0.1 & spin "VSCODE_ACCESS_PASSWORD=$VSCODE_ACCESS_PASSWORD"
 
 # CREATE DOCKER DIRECTORIES
-(tnexec "mkdir -p $docker_home/administration $docker_home/projects" $logfile) & spin "Creating docker home directories"
+#(tnexec "mkdir -p $docker_home/administration $docker_home/projects" $logfile) & spin "Creating docker home directories"
 
 # COPY .ENV TO DOCKER HOME DIRECTORIES
-(tnexec "cp $envfile $docker_home/administration/.env" $logfile) & spin "Copy .env file to docker home"
+#(tnexec "cp $envfile $docker_home/administration/.env" $logfile) & spin "Copy .env file to docker home"
 
 # INSTALL THE BASES CONTAINERS
 

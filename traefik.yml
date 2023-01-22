@@ -9,7 +9,7 @@ services:
       - $TRAEFIK_NGINX_PORT
       - $TRAEFIK_TELEPORT_PORT
     volumes:
-      - $DOCKER_SOCKET_LINK
+      - $DOCKER_SOCKET
       - $TRAEFIK_FILE_LINK
     networks:
       - proxies
