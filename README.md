@@ -1,6 +1,7 @@
-# DOCKER BASES
+# 🐳 DOCKER BASES
+
 Boiler files and scripts to install a docker based web server.\
-It includes the following containers / services:
+It includes the following containers / services :
 
 - reverse proxies and ssl certification `traefik` `nginx proxy manager`
 - container manager `portainer`
@@ -8,27 +9,32 @@ It includes the following containers / services:
 - shell client `teleport`
 - online code editor `vscode`
 
-The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...`. \
+The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...` \
 For each following steps please replace `/path_to_file/install.sh` with the path of the output file on your system.
 
-## Download install.sh
+## INSTALLATION
+
+##### Download install.sh
 ```bash
 sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path_to_file/install.sh
 ```
 
-## Make it executable
+##### Make it executable
 ```bash
 sudo chmod +x /path_to_file/install.sh
 ```
 
-## Execute and follow instructions
+##### Execute and follow instructions
 ```bash
 sudo /path/tofile/install.sh
 ```
 
-## Single command
+##### All in a single command
 ```bash
 sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path_to_file/install.sh \
 && sudo chmod +x /path_to_file/install.sh \
 && sudo /path_to_file/install.sh
 ```
+
+## CONFIGURATION
+This section wil be updated soon
