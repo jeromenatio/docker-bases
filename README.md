@@ -9,7 +9,7 @@ It includes the following containers / services :
 - shells client `teleport`
 - online code editor `vscode`
 
-All services come with a `graphical user interface` so no code needed after installation et configuration.
+All services come with a `graphical user interface` so no code needed after installation et configuration. \
 The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...` \
 For each following steps please replace `/path_to_file/install.sh` with the path of the output file on your system.
 
@@ -17,7 +17,8 @@ For each following steps please replace `/path_to_file/install.sh` with the path
 
 ##### Download install.sh
 ```bash
-sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path_to_file/install.sh
+sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh \
+-O /path_to_file/install.sh
 ```
 
 ##### Make it executable
@@ -32,7 +33,8 @@ sudo /path/tofile/install.sh
 
 ##### All in a single command
 ```bash
-sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path_to_file/install.sh \
+sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh \
+-O /path_to_file/install.sh \
 && sudo chmod +x /path_to_file/install.sh \
 && sudo /path_to_file/install.sh
 ```
