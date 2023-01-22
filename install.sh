@@ -89,12 +89,12 @@ ask_questions_from_file() {
     local file=$1
     local declare matches
     while read line; do
-        if [[ $line =~ _ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             matches+=("$line")
         fi
     done < $file
     for match in "${matches[@]}"; do
-        if [[ $match =~ _ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
@@ -188,6 +188,9 @@ replace_string "\[GID\]" $gid $envfile
 
 # ASK USER SOME QUESTIONS AND MODIFY .env
 ask_questions_from_file $envfile
+#mod_env_file $envfile
+#create_dirs $envfile
+#copy_files $envfile
 sleep 0.1 & spin "DOCKER_HOME=$DOCKER_HOME"
 sleep 0.1 & spin "DOCKER_TIMEZONE=$DOCKER_TIMEZONE"
 sleep 0.1 & spin "NGINXPROXY_DB_PASSWORD=$NGINXPROXY_DB_PASSWORD"
