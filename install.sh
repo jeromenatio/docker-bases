@@ -88,7 +88,7 @@ replace_string(){
     local old_string=$1
     local new_string=$2
     local file=$3
-    sed -i "s/$old_string/$new_string/g" $file
+    sed -i "s|$old_string|$new_string|g" $file
 }
 
 # FILES PATH
@@ -154,12 +154,36 @@ sleep 0.1 & spin "Getting docker uid : $uid"
 # DOWNLOAD .env
 (tnexec "curl -Ls 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/.env' -o $envfile" $logfile) & spin "Downloading .env file to config containers"
 
+# REPLACE UID & GID
+replace_string "\[UID\]" $uid $envfile
+replace_string "\[GID\]" $gid $envfile
+
 # ASK USER SOME QUESTIONS AND MODIFY .env
 docker_home="/home/docker" 
 user_ask "Do you want to change docker home directory" $docker_home "docker_home"
 sleep 0.1 & spin "Checking docker home directory : $docker_home"
+replace_string "\[DOCKER_HOME\]" $docker_home $envfile
+
+docker_timezone="Indian/Reunion" 
+user_ask "Do you want to change docker timezone" $docker_timezone "docker_timezone"
+sleep 0.1 & spin "Checking docker timezone : $docker_timezone"
+replace_string "\[DOCKER_TIMEZONE\]" $docker_timezone $envfile
+
+nginxproxy_db_password="edd85dMps**" 
+user_ask "Do you want to change nginx proxy manager database password" $nginxproxy_db_password "nginxproxy_db_password"
+sleep 0.1 & spin "Checking nginx proxy manager database password : $nginxproxy_db_password"
+replace_string "\[NGINXPROXY_DB_PASSWORD\]" $nginxproxy_db_password $envfile
+
+vscode_access_password="Vscode85dMps**" 
+user_ask "Do you want to change vscode access password" $vscode_access_password "vscode_access_password"
+sleep 0.1 & spin "Checking vscode access password : $vscode_access_password"
+replace_string "\[VSCODE_ACCESS_PASSWORD\]" $vscode_access_password $envfile
 
 # CREATE DOCKER DIRECTORIES
+(tnexec "mkdir -p $docker_home/administration $docker_home/projects" $logfile) & spin "Creating docker home directories"
+
+# COPY .ENV TO DOCKER HOME DIRECTORIES
+(tnexec "cp $envfile $docker_home/administration/.env" $logfile) & spin "Copy .env file to docker home"
 
 # INSTALL THE BASES CONTAINERS
 
