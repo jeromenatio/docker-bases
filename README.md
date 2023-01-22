@@ -1,7 +1,8 @@
 # DOCKER BASES
 Boiler files and scripts to install a docker based webserver.\
 It includes reverse proxies and ssl certification.\
-The script is for a debian based linux (debian, ubuntu ...)
+The script is for a debian based linux (debian, ubuntu ...). \
+For each following steps please replace "/path_to_file/install.sh" with the path to output file on you system.
 
 ## Download install.sh
 ```bash
