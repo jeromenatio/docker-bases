@@ -1,13 +1,15 @@
 # DOCKER BASES
 Boiler files and scripts to install a docker based web server.\
-It includes the following container / services: \
+It includes the following container / services:
+
 - reverse proxies and ssl certification `traefik` `nginx proxy manager`
 - container manager `portainer`
 - databases client `sqlpad`
 - shell client `teleport`
 - online code editor `vscode`
-The script is for a debian based linux (debian, ubuntu ...). \
-For each following steps please replace "/path_to_file/install.sh" with the path to output file on your system.
+
+The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...`. \
+For each following steps please replace `/path_to_file/install.sh` with the path of the output file on your system.
 
 ## Download install.sh
 ```bash
