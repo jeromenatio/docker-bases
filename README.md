@@ -1,6 +1,7 @@
 # DOCKER BASES
-Boiler files and scripts to install a docker based webserver.\
-It includes reverse proxies and ssl certification.\
+Boiler files and scripts to install a docker based web server.\
+It includes reverse proxies (nginx proxy manager), ssl certification, container manager (portainer), \
+databases client (sqlpad), shell client (teleport) and online code editor (vscode).\
 The script is for a debian based linux (debian, ubuntu ...). \
 For each following steps please replace "/path_to_file/install.sh" with the path to output file on your system.
 
