@@ -1,6 +1,6 @@
 # DOCKER BASES
 Boiler files and scripts to install a docker based web server.\
-It includes the following container / services:
+It includes the following containers / services:
 
 - reverse proxies and ssl certification `traefik` `nginx proxy manager`
 - container manager `portainer`
