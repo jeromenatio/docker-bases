@@ -189,6 +189,39 @@ is_home_empty() {
   done
 }
 
+create_neworks() {
+    local file=$1
+    local network_list=$(docker network ls --format "{{.Name}}")
+    while read line; do
+        if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
+            network_name="${BASH_REMATCH[1]}"
+            if [[ $network_list =~ $network_name ]]; then
+                echo "Network '$network_name' exists."
+            else
+                echo "Network '$network_name' does not exist. Creating it now..."
+                docker network create $network_name
+            fi
+        fi
+    done < $file
+}
+
+install_containers(){
+    local file=$1
+    while read line; do
+        if [[ $line =~ TN_FILE=\[([^|]*)\|([^|]*)\] ]]; then
+            online="${BASH_REMATCH[1]}"
+            local="${BASH_REMATCH[2]}"
+            if [[ "$local" =~ ^.*docker-compose.yml$ ]]; then
+                if [ -s "$local" ]; then
+                    parent_dir=$(dirname $local)
+                    stack_name=$(basename $parent_dir)
+                    eval "docker-compose -f $local --env-file $file up -d --force-recreate"                  
+                fi
+            fi
+        fi
+    done < $file
+}
+
 # FILES PATH
 logfile="./install.log"
 envfile="./.env"
@@ -272,17 +305,21 @@ is_home_empty
 # COPY FILE FROM GITHUB TO PROJECT DIRECTORIES
 (tnexec "copy_files $envfile" $logfile) & spin "Copying files from github to docker home"
 
-# CLEAN .ENV file
-
 # COPY .ENV TO DOCKER HOME DIRECTORIES
 (tnexec "cp $envfile $DOCKER_HOME/administration/.env" $logfile) & spin "Copy .env file to docker home"
 
+# CREATE DOCKER NETWORKS
+(tnexec "create_neworks $envfile" $logfile) && spin "Creating | checking docker networks"
+
 # INSTALL THE BASES CONTAINERS
+#(tnexec "
+install_containers $envfile
+#" $logfile) && spin "Installing docker containers"
 
 # CHANGE OWNER OF DOCKER HOME
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
 
 # DELETE ALL TEMPORARY FILES
-rm $envfile $logfile -R & spin "Cleaning installation files"
+#rm $envfile $logfile -R & spin "Cleaning installation files"
 
 # DELETE THIS FILE
