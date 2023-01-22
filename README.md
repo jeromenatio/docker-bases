@@ -20,7 +20,7 @@ sudo /path/tofile/install.sh
 
 ## Single command
 ```bash
-sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path_to_file/install.sh \\ \
-&& sudo chmod +x /path_to_file/install.sh \\ \
+sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path_to_file/install.sh \
+&& sudo chmod +x /path_to_file/install.sh \
 && sudo /path_to_file/install.sh
 ```
