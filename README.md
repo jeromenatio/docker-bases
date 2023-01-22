@@ -6,9 +6,10 @@ It includes the following containers / services :
 - reverse proxies and ssl certification `traefik` `nginx proxy manager`
 - container manager `portainer`
 - databases client `sqlpad`
-- shell client `teleport`
+- shells client `teleport`
 - online code editor `vscode`
 
+All services has a `gui` so no code needed after installation et configuration.
 The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...` \
 For each following steps please replace `/path_to_file/install.sh` with the path of the output file on your system.
 
