@@ -30,7 +30,7 @@ tnexec() {
 install_docker(){
     local logfile=$1
     (tnexec "apt-get update && apt-get install -y apt-transport-https ca-certificates gnupg lsb-release" $logfile) & spin "Installing docker dependencies"
-    (tnexec "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg -f" $logfile) & spin "Downloading and saving docker key"
+    (tnexec "curl -fsSL -H 'Cache-Control: no-cache' https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg -f" $logfile) & spin "Downloading and saving docker key"
     (tnexec "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null" $logfile) && spin "Modifying repositories source.list"
     (tnexec "apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io" $logfile) & spin "Installing docker"
     sleep 0.1 & spin "$(docker --version) installed"
@@ -41,7 +41,7 @@ install_docker_compose(){
     local uname_m=$2
     local latest_version=$3
     local logfile=$4
-    (tnexec "curl -L 'https://github.com/docker/compose/releases/download/$latest_version/docker-compose-$uname_s-$uname_m' -o /usr/local/bin/docker-compose" $logfile) & spin "Downloading docker-compose deb package"
+    (tnexec "curl -Ls -H 'Cache-Control: no-cache' 'https://github.com/docker/compose/releases/download/$latest_version/docker-compose-$uname_s-$uname_m' -o /usr/local/bin/docker-compose" $logfile) & spin "Downloading docker-compose deb package"
     (tnexec "chmod +x /usr/local/bin/docker-compose" $logfile) & spin "Installing docker-compose"
     sleep 0.1 & spin "$(docker-compose --version) installed"
 }
@@ -61,7 +61,32 @@ user_confirm() {
 }
 
 generate_password() {
-    echo "OOOABC777"
+    LENGTH=$1
+    LOWERCASE_CHARS=(a b c d e f g h j k m n p q r s t u v w x y z)
+    UPPERCASE_CHARS=(A B C D E F G H J K M N P Q R S T U V W X Y Z)
+    NUMBER_CHARS=(0 1 2 3 4 5 6 7 8 9)
+    SPECIAL_CHARS=("!" "*")
+    PASSWORD=""
+    while [[ ${#PASSWORD} -lt $LENGTH ]]; do
+        if [[ ${#PASSWORD} -lt 1 ]]; then
+            PASSWORD+="${LOWERCASE_CHARS[$RANDOM % ${#LOWERCASE_CHARS[@]}]}"
+        elif [[ ${#PASSWORD} -lt 2 ]]; then
+            PASSWORD+="${UPPERCASE_CHARS[$RANDOM % ${#UPPERCASE_CHARS[@]}]}"
+        elif [[ ${#PASSWORD} -lt 3 ]]; then
+            PASSWORD+="${NUMBER_CHARS[$RANDOM % ${#NUMBER_CHARS[@]}]}"
+        elif [[ ${#PASSWORD} -lt 4 ]]; then
+            PASSWORD+="${SPECIAL_CHARS[$RANDOM % ${#SPECIAL_CHARS[@]}]}"
+        else
+            CHAR_POOL=( "${LOWERCASE_CHARS[@]}" "${UPPERCASE_CHARS[@]}" "${NUMBER_CHARS[@]}" "${SPECIAL_CHARS[@]}" )
+            PASSWORD+="${CHAR_POOL[$RANDOM % ${#CHAR_POOL[@]}]}"
+        fi
+    done
+    echo $PASSWORD
+}
+
+generate_dir(){
+    local timestamp=$(date +%s)
+    echo "/home/docker_$timestamp";
 }
 
 user_ask() {
@@ -74,7 +99,11 @@ user_ask() {
   local default_display="leave blank to use default $default_value"
   if [[ "$default_value" == "GENPWD" ]]; then
     default_display="leave blank to generate random password"
-    default_value="$(generate_password)"
+    default_value="$(generate_password 10)"
+  fi
+  if [[ "$default_value" == "GENDIR" ]]; then
+    default_display="leave blank to generate random dir path"
+    default_value="$(generate_dir)"
   fi
   echo -en "${yellow}? ${question} ${darker_yellow}(${default_display}) ${yellow}?${reset} "
   read answer
@@ -108,7 +137,7 @@ get_latest_release(){
     local repo_owner=$1
     local repo_name=$2
     local url="https://api.github.com/repos/$repo_owner/$repo_name/releases/latest"
-    local latest_version=$(curl -s $url | grep -oP '"tag_name": "\K(.*)(?=")')
+    local latest_version=$(curl -s -H 'Cache-Control: no-cache' $url | grep -oP '"tag_name": "\K(.*)(?=")')
     echo $latest_version
 }
 
@@ -117,6 +146,47 @@ replace_string(){
     local new_string=$2
     local file=$3
     sed -i "s|$old_string|$new_string|g" $file
+}
+
+mod_env_file() {
+    local file=$1
+    while read line; do
+        if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"
+            eval "replace_string \"\\[$variable\\]\" \$$variable $file" 
+        fi
+    done < $file
+}
+
+create_dirs(){
+    local file=$1
+    while read line; do
+        if [[ $line =~ TN_DIR=\[(.*)\] ]]; then
+            dir="${BASH_REMATCH[1]}"
+            eval "mkdir -p $dir" 
+        fi
+    done < $file
+}
+
+copy_files(){
+    local file=$1
+    while read line; do
+        if [[ $line =~ TN_FILE=\[([^|]*)\|([^|]*)\] ]]; then
+            online="${BASH_REMATCH[1]}"
+            local="${BASH_REMATCH[2]}"
+            eval "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/$online' -o $local"
+        fi
+    done < $file
+}
+
+is_home_empty() {
+  while true; do
+    if [ ! -d "$DOCKER_HOME" ] || [ -z "$(ls -A $DOCKER_HOME)" ]; then
+      break
+    else
+      user_ask "DOCKER HOME directory is not empty please select another one" "GENDIR" "DOCKER_HOME"
+    fi
+  done
 }
 
 # FILES PATH
@@ -180,30 +250,39 @@ uid=$(id -u docker)
 sleep 0.1 & spin "Getting docker uid : $uid"
 
 # DOWNLOAD .env
-(tnexec "curl -Ls 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/.env' -o $envfile" $logfile) & spin "Downloading .env file to config containers"
+(tnexec "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/.env' -o $envfile" $logfile) & spin "Downloading .env file to config containers"
 
 # REPLACE UID & GID
-replace_string "\[UID\]" $uid $envfile
-replace_string "\[GID\]" $gid $envfile
+(tnexec "replace_string \"\\[UID\\]\" $uid $envfile" $logfile) & spin "Replacing docker uid($uid) in .env file"
+(tnexec "replace_string \"\\[GID\\]\" $gid $envfile" $logfile) & spin "Replacing docker gid($gid) in .env file"
 
-# ASK USER SOME QUESTIONS AND MODIFY .env
+# ASK USER SOME QUESTIONS
 ask_questions_from_file $envfile
-#mod_env_file $envfile
-#create_dirs $envfile
-#copy_files $envfile
-sleep 0.1 & spin "DOCKER_HOME=$DOCKER_HOME"
-sleep 0.1 & spin "DOCKER_TIMEZONE=$DOCKER_TIMEZONE"
-sleep 0.1 & spin "NGINXPROXY_DB_PASSWORD=$NGINXPROXY_DB_PASSWORD"
-sleep 0.1 & spin "VSCODE_ACCESS_PASSWORD=$VSCODE_ACCESS_PASSWORD"
 
-# CREATE DOCKER DIRECTORIES
-#(tnexec "mkdir -p $docker_home/administration $docker_home/projects" $logfile) & spin "Creating docker home directories"
+# CHEK IF DOCKER HOME IS EMPTY (IF NOT ASK QUESTIONS AGAIN)
+is_home_empty
+
+# MODIFY .ENV FILE
+(tnexec "mod_env_file $envfile" $logfile) & spin "Modifying .env file"
+
+# CREATE PROJECT DIRECTORIES
+(tnexec "rm $DOCKER_HOME -R" $logfile) & spin "Cleaning project directories"
+(tnexec "create_dirs $envfile" $logfile) & spin "Creating project directories"
+
+# COPY FILE FROM GITHUB TO PROJECT DIRECTORIES
+(tnexec "copy_files $envfile" $logfile) & spin "Copying files from github to docker home"
+
+# CLEAN .ENV file
 
 # COPY .ENV TO DOCKER HOME DIRECTORIES
-#(tnexec "cp $envfile $docker_home/administration/.env" $logfile) & spin "Copy .env file to docker home"
+(tnexec "cp $envfile $DOCKER_HOME/administration/.env" $logfile) & spin "Copy .env file to docker home"
 
 # INSTALL THE BASES CONTAINERS
 
+# CHANGE OWNER OF DOCKER HOME
+(tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
+
 # DELETE ALL TEMPORARY FILES
+rm $envfile $logfile -R & spin "Cleaning installation files"
 
 # DELETE THIS FILE
