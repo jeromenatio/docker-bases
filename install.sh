@@ -311,8 +311,13 @@ is_home_empty
 # CREATE DOCKER NETWORKS
 (tnexec "create_neworks $envfile" $logfile) & spin "Creating | checking docker networks"
 
+# CHANGE OWNER OF DOCKER HOME
+(tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
+
 # INSTALL THE BASES CONTAINERS
-(tnexec "install_containers $envfile" $logfile) & spin "Installing docker containers"
+#(tnexec "
+install_containers $envfile
+#" $logfile) & spin "Installing docker containers"
 
 # CHANGE OWNER OF DOCKER HOME
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
