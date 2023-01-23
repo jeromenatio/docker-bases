@@ -15,8 +15,6 @@ services:
     volumes:
       - $VSCODE_CONFIG_VOLUME
       - $VSCODE_DOCKER_VOLUME
-    labels:
-      - "traefik.enable=true"
     restart: $VSCODE_RESTART
 
 networks:

@@ -6,8 +6,6 @@ services:
     networks:
       - proxies
       - admin
-    labels:
-      - "traefik.enable=true"
     volumes:
       - $DOCKER_SOCKET
       - $PORTAINER_DATA_VOLUME

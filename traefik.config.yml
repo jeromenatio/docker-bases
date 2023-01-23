@@ -9,38 +9,13 @@ http:
       middlewares:
         - redirect-to-https
       service: nginxproxy
-      priority: 2
-    
-    traefik-dashboard-redirect:
-      entryPoints:
-        - websecure-entry
-      rule: "Host(`traefik.tenru.fr`)"
-      service: traefik-dashboard
-      priority: 0
-
-    nginxproxy-dashboard-redirect:
-      entryPoints:
-        - websecure-entry
-      rule: "Host(`proxy.tenru.fr`)"
-      service: nginxproxy-dashboard
-      priority: 0
       
   services:
 
     nginxproxy:
       loadBalancer:
         servers:
-          - url: "https://nginxproxy:443"
-
-    traefik-dashboard:
-      loadBalancer:
-        servers:
-          - url: "https://traefik:8080"
-
-    nginxproxy-dashboard:
-      loadBalancer:
-        servers:
-          - url: "nginxproxy:81"    
+          - url: "https://google.com"   
 
   middlewares:
 

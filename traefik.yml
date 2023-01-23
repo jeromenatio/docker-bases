@@ -12,8 +12,6 @@ services:
     volumes:
       - $DOCKER_SOCKET
       - $TRAEFIK_CONFIG_VOLUME
-    labels:
-      - "traefik.enable=true"
     networks:
       - proxies
       - admin
