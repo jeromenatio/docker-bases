@@ -10,7 +10,7 @@ services:
       - $TRAEFIK_TELEPORT_PORT
     volumes:
       - $DOCKER_SOCKET
-      - $TRAEFIK_FILE_LINK
+      - $TRAEFIK_CONFIG_VOLUME
     networks:
       - proxies
       - admin

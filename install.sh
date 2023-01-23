@@ -309,17 +309,15 @@ is_home_empty
 (tnexec "cp $envfile $DOCKER_HOME/administration/.env" $logfile) & spin "Copy .env file to docker home"
 
 # CREATE DOCKER NETWORKS
-(tnexec "create_neworks $envfile" $logfile) && spin "Creating | checking docker networks"
+(tnexec "create_neworks $envfile" $logfile) & spin "Creating | checking docker networks"
 
 # INSTALL THE BASES CONTAINERS
-#(tnexec "
-install_containers $envfile
-#" $logfile) && spin "Installing docker containers"
+(tnexec "install_containers $envfile" $logfile) & spin "Installing docker containers"
 
 # CHANGE OWNER OF DOCKER HOME
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
 
 # DELETE ALL TEMPORARY FILES
-#rm $envfile $logfile -R & spin "Cleaning installation files"
+rm $envfile $logfile -R & spin "Cleaning installation files"
 
 # DELETE THIS FILE

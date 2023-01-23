@@ -1,0 +1,29 @@
+global:
+  checkNewVersion: false
+
+log:
+  level: info
+
+entryPoints:
+  web-entry:
+    address: ":80"
+  websecure-entry:
+    address: ":443"
+  nginxproxy-ui-entry:
+    address: ":81"
+  traefik-dashboard-entry:
+    address: ":8080"
+  ftp-entry:
+    address: ":21"
+  teleport-entry:
+    address: ":3020-3080"
+
+api:
+  dashboard: true
+  insecure: true
+  debug: true
+
+file:
+  directory: /etc/traefik
+  watch: true
+  filename: config.yml

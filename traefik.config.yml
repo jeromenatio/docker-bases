@@ -1,0 +1,45 @@
+http:
+  routers:
+    redirect-to-https:
+      rule: "HostRegexp(`{host:.+}`)"
+      middlewares:
+        - redirect-to-https
+      entryPoints:
+        - web-entry
+      priority: 2
+    www-redirect:
+      rule: "Host(`www.{host:.+}`)"
+      middlewares:
+        - redirect-www
+      priority: 1
+      entryPoints:
+        - websecure-entry
+    nginxproxy-dashboard-redirect:
+      rule: "Host(`proxy.tenru.fr`)"
+      service: nginxproxy
+      priority: 0
+      entryPoints:
+        - websecure-entry
+    traefik-dashboard-redirect:
+      rule: "Host(`traefik.tenru.fr`)"
+      service: traefik
+      priority: 0
+      entryPoints:
+        - websecure-entry
+  services:
+    nginxproxy:
+      loadBalancer:
+        servers:
+          - url: "http://nginxproxy:81"
+    traefik:
+      loadBalancer:
+        servers:
+          - url: "http://traefik:8080"
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+    redirect-www:
+      redirectRegex:
+        regex: "^https://www\.(?P<host>.+)$"
+        replacement: "https://${host}"
