@@ -27,7 +27,8 @@ api:
   insecure: true
   debug: true
 
-file:
-  directory: /etc/traefik
-  watch: true
-  filename: config.yml
+providers:
+  file:
+    directory: /etc/traefik
+    watch: true
+    filename: config.yml

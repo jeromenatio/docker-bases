@@ -12,6 +12,8 @@ services:
     networks:
       - proxies
       - admin
+    labels:
+      - "traefik.enable=true"
     volumes:
       - $NGINXPROXY_DATA_VOLUME
       - $NGINXPROXY_LETSENCRYPT_VOLUME
