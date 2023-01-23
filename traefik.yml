@@ -3,11 +3,6 @@ services:
   traefik:
     image: $TRAEFIK_IMAGE
     container_name: $TRAEFIK_CONTAINER_NAME
-    ports:
-      - $TRAEFIK_HTTP_PORT
-      - $TRAEFIK_HTTPS_PORT
-      - $TRAEFIK_NGINX_PORT
-      - $TRAEFIK_TELEPORT_PORT
     volumes:
       - $DOCKER_SOCKET
       - $TRAEFIK_CONFIG_VOLUME
