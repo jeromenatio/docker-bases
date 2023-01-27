@@ -13,7 +13,7 @@ services:
     networks:
       - tn-admin-network
       - tn-datas-network
-    restart: ADMINER_RESTART
+    restart: $ADMINER_RESTART
 
 networks:
   tn-admin-network:
