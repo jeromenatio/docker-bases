@@ -3,10 +3,10 @@
 Boilerplate files and scripts to install a docker based web server.\
 It includes the following containers / services :
 
-- reverse proxies and ssl certification `traefik` `nginx proxy manager`
+- reverse proxy and ssl certification `nginx proxy manager`
 - container manager `portainer`
-- databases client `sqlpad`
-- shells client `teleport`
+- databases client `adminer`
+- shells client `guacamole`
 - online code editor `vscode`
 
 All services come with a `graphical user interface` so no code needed after installation et configuration. \

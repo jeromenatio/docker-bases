@@ -1,0 +1,24 @@
+version: $DOCKER_VERSION
+
+services:
+
+  tn-adminer:
+    image: $ADMINER_IMAGE
+    container_name: $ADMINER_NAME
+    hostname: $ADMINER_NAME
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: $ADMINER_DEFAULT_DB_DRIVER
+      ADMINER_DESIGN: $ADMINER_DESIGN
+      ADMINER_PLUGINS: $ADMINER_PLUGINS tables-filter tinymce
+    networks:
+      - tn-admin-network
+      - tn-datas-network
+    restart: ADMINER_RESTART
+
+networks:
+  tn-admin-network:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+  tn-datas-network:
+    external: true
+    name: $DOCKER_DATAS_NETWORK

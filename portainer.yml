@@ -2,19 +2,19 @@ version: $DOCKER_VERSION
 services:
   portainer-ce:
     image: $PORTAINER_IMAGE
-    container_name: $PORTAINER_CONTAINER_NAME
+    container_name: $PORTAINER_NAME
     networks:
-      - proxies
       - admin
+      - datas
     volumes:
       - $DOCKER_SOCKET
       - $PORTAINER_DATA_VOLUME
     restart: $PORTAINER_RESTART
 
 networks:
-  proxies:
-    external: true
-    name: $DOCKER_PROXIES_NETWORK
   admin:
     external: true
     name: $DOCKER_ADMIN_NETWORK
+  datas:
+    external: true
+    name: $DOCKER_DATAS_NETWORK

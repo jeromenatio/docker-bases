@@ -1,48 +1,49 @@
 version: $DOCKER_VERSION
 services:
-  nginxproxy:
+  tn-nginxproxy:
     image: $NGINXPROXY_IMAGE
-    container_name: $NGINXPROXY_CONTAINER_NAME
+    container_name: $NGINXPROXY_NAME
+    hostname: $NGINXPROXY_NAME
+    ports:
+      - '80:80'
+      - '443:443'
+      - '81:81'
+      - '21:21'
     environment:
-      - DB_MYSQL_HOST=$NGINXPROXY_DB_CONTAINER_NAME
-      - DB_MYSQL_PORT=$NGINXPROXY_DB_PORT
-      - DB_MYSQL_USER=$NGINXPROXY_DB_USER
-      - DB_MYSQL_PASSWORD=$NGINXPROXY_DB_PASSWORD
-      - DB_MYSQL_NAME=$NGINXPROXY_DB_DATABASE
-    networks:
-      - proxies
-      - admin
+      DB_MYSQL_HOST: $NGINXPROXY_DB_NAME
+      DB_MYSQL_PORT: $NGINXPROXY_DB_PORT
+      DB_MYSQL_USER: $NGINXPROXY_DB_USER
+      DB_MYSQL_PASSWORD: $NGINXPROXY_DB_PASSWORD
+      DB_MYSQL_NAME: $NGINXPROXY_DB_DATABASE
     volumes:
       - $NGINXPROXY_DATA_VOLUME
       - $NGINXPROXY_LETSENCRYPT_VOLUME
     depends_on:
-      - nginxproxydb
+      - $NGINXPROXY_DB_NAME
+    networks:
+      - tn-admin-network
+      - tn-datas-network
     restart: $NGINXPROXY_RESTART
 
-  nginxproxydb:
+  tn-nginxproxy-db:
     image: $NGINXPROXY_DB_IMAGE
-    container_name: $NGINXPROXY_DB_CONTAINER_NAME
+    container_name: $NGINXPROXY_DB_NAME
+    hostname: $NGINXPROXY_DB_NAME
     environment:
-      - MYSQL_ROOT_PASSWORD=$NGINXPROXY_DB_PASSWORD
-      - MYSQL_DATABASE=$NGINXPROXY_DB_DATABASE
-      - MYSQL_USER=$NGINXPROXY_DB_USER
-      - MYSQL_PASSWORD=$NGINXPROXY_DB_PASSWORD
-      - MYSQL_TCP_PORT=$NGINXPROXY_DB_PORT
-      - MYSQL_UNIX_PORT=$NGINXPROXY_DB_PORT
-    networks:
-      - admin
-      - datas
+      MYSQL_ROOT_PASSWORD: $NGINXPROXY_DB_PASSWORD
+      MYSQL_DATABASE: $NGINXPROXY_DB_DATABASE
+      MYSQL_USER: $NGINXPROXY_DB_USER
+      MYSQL_PASSWORD: $NGINXPROXY_DB_PASSWORD
     volumes:
-      - $NGINXPROXY_DB_MYSQL_VOLUME
+      - $NGINXPROXY_DB_MYSQL_VOLUME 
+    networks:
+      - tn-datas-network
     restart: $NGINXPROXY_DB_RESTART
 
 networks:
-  proxies:
-    external: true
-    name: $DOCKER_PROXIES_NETWORK
-  admin:
+  tn-admin-network:
     external: true
     name: $DOCKER_ADMIN_NETWORK
-  datas:
+  tn-datas-network:
     external: true
     name: $DOCKER_DATAS_NETWORK
