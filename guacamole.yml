@@ -1,58 +1,56 @@
-version: '3.5'
+version: $DOCKER_VERSION
 
 services:
   
-  guacamole-cd:
-    image: guacamole/guacd:latest
-    container_name: guacamole-cd
-    hostname: guacamole-cd
-    volumes:
-      - /home/docker/guacamole/guacd/drive:/drive:rw
-      - /home/docker/guacamole/guacd/record:/record:rw
-    networks:
-      - admin-network
-    restart: always
-
-  guacamole-db:
-    image: mariadb:latest
-    container_name: guacamole-db
-    hostname: guacamole-db
+  tn-guacamole:
+    image: $GUACAMOLE_IMAGE
+    container_name: $GUACAMOLE_NAME
+    hostname: $GUACAMOLE_NAME
     environment:
-      - MYSQL_USER=guacamole-db
-      - MYSQL_PASSWORD=guacamole-db
-      - MYSQL_DATABASE=guacamole-db
-      - MYSQL_ROOT_PASSWORD=guacamole-db
-    volumes:
-      - /home/docker/guacamole/mysql/datas:/var/lib/mysql:rw
-      - /home/docker/guacamole/mysql/inits/init.sql:/docker-entrypoint-initdb.d/init.sql:rw
-    networks:
-      - admin-network
-      - datas-network
-    restart: always
-
-  guacamole:
-    image: guacamole/guacamole:latest
-    container_name: guacamole
-    hostname: guacamole
+      - GUACD_HOSTNAME=$GUACAMOLE_CD_NAME
+      - MYSQL_HOSTNAME=$GUACAMOLE_DB_NAME
+      - MYSQL_DATABASE=$GUACAMOLE_DB_DATABASE
+      - MYSQL_USER=$GUACAMOLE_DB_USER
+      - MYSQL_PASSWORD=$GUACAMOLE_DB_PASSWORD
     depends_on:
-      - guacamole-cd
-      - guacamole-db
-    environment:
-      - GUACD_HOSTNAME=guacamole-cd
-      - MYSQL_HOSTNAME=guacamole-db
-      - MYSQL_DATABASE=guacamole-db
-      - MYSQL_USER=guacamole-db
-      - MYSQL_PASSWORD=guacamole-db
+      - tn-guacamole-cd
+      - tn-guacamole-db
+    networks:    
+      - datas
+      - admin
+    restart: $GUACAMOLE_RESTART
+
+  tn-guacamole-cd:
+    image: $GUACAMOLE_CD_IMAGE
+    container_name: $GUACAMOLE_CD_NAME
+    hostname: $GUACAMOLE_CD_NAME
+    volumes:
+      - $GUACAMOLE_CD_DRIVE_VOLUME
+      - $GUACAMOLE_CD_RECORD_VOLUME
     networks:
-      - admin-network
-    ports:
-      - 8080:5822
-    restart: always
+      - admin
+    restart: $GUACAMOLE_CD_RESTART
+
+  tn-guacamole-db:
+    image: $GUACAMOLE_DB_IMAGE
+    container_name: $GUACAMOLE_DB_NAME
+    hostname: $GUACAMOLE_DB_NAME
+    environment:
+      - MYSQL_USER=$GUACAMOLE_DB_USER
+      - MYSQL_PASSWORD=$GUACAMOLE_DB_PASSWORD
+      - MYSQL_DATABASE=$GUACAMOLE_DB_DATABASE
+      - MYSQL_ROOT_PASSWORD=$GUACAMOLE_DB_PASSWORD
+    volumes:
+      - $GUACAMOLE_DB_MYSQL_VOLUME
+      - $GUACAMOLE_DB_MYSQL_INITSQL
+    networks:    
+      - datas
+    restart: $GUACAMOLE_DB_RESTART
 
 networks:
-  admin-network:
+  datas:
     external: true
-    name: tn-admin-network
-  datas-network:
+    name: $DOCKER_DATAS_NETWORK
+  admin:
     external: true
-    name: tn-datas-network
+    name: $DOCKER_ADMIN_NETWORK  
