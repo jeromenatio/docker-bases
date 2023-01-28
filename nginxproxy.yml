@@ -21,8 +21,7 @@ services:
       - $NGINXPROXY_LETSENCRYPT_VOLUME
     depends_on:
       - tn-nginxproxy-db
-    networks:    
-      - datas
+    networks:
       - admin
     restart: $NGINXPROXY_RESTART
 
@@ -36,13 +35,12 @@ services:
       MYSQL_USER: $NGINXPROXY_DB_USER
       MYSQL_PASSWORD: $NGINXPROXY_DB_PASSWORD
     volumes:
-      - $NGINXPROXY_DB_MYSQL_VOLUME
+      - $NGINXPROXY_DB_MYSQL_VOLUME 
+    networks:
+      - admin
     restart: $NGINXPROXY_DB_RESTART
 
 networks:
   admin:
     external: true
     name: $DOCKER_ADMIN_NETWORK
-  datas:
-    external: true
-    name: $DOCKER_DATAS_NETWORK
