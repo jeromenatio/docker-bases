@@ -21,8 +21,9 @@ services:
       - $NGINXPROXY_LETSENCRYPT_VOLUME
     depends_on:
       - tn-nginxproxy-db
-    networks:
+    networks:    
       - datas
+      - admin
     restart: $NGINXPROXY_RESTART
 
   tn-nginxproxy-db:
