@@ -20,7 +20,7 @@ services:
       - $NGINXPROXY_DATA_VOLUME
       - $NGINXPROXY_LETSENCRYPT_VOLUME
     depends_on:
-      - $NGINXPROXY_DB_NAME
+      - tn-nginxproxy-db
     networks:
       - admin
       - datas
