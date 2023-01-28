@@ -315,7 +315,9 @@ is_home_empty
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
 
 # INSTALL THE BASES CONTAINERS
-(tnexec "install_containers $envfile" $logfile) & spin "Installing docker containers"
+#(tnexec "
+install_containers $envfile
+#" $logfile) & spin "Installing docker containers"
 
 # CHANGE OWNER OF DOCKER HOME
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
