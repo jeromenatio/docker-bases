@@ -1,4 +1,5 @@
 version: $DOCKER_VERSION
+
 services:
   tn-vscode:
     image: $VSCODE_IMAGE
@@ -11,13 +12,13 @@ services:
       - PASSWORD=$VSCODE_PASSWORD
       - DEFAULT_WORKSPACE=$VSCODE_DEFAULT_WORKSPACE_DIR
     networks:
-      - tn-admin-network
+      - admin
     volumes:
       - $VSCODE_CONFIG_VOLUME
       - $VSCODE_DOCKER_VOLUME
     restart: $VSCODE_RESTART
 
 networks:
-  tn-admin-network:
+  admin:
     external: true
     name: $DOCKER_ADMIN_NETWORK

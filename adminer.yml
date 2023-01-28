@@ -1,7 +1,6 @@
 version: $DOCKER_VERSION
 
 services:
-
   tn-adminer:
     image: $ADMINER_IMAGE
     container_name: $ADMINER_NAME
@@ -11,14 +10,14 @@ services:
       ADMINER_DESIGN: $ADMINER_DESIGN
       ADMINER_PLUGINS: $ADMINER_PLUGINS tables-filter tinymce
     networks:
-      - tn-admin-network
-      - tn-datas-network
+      - admin
+      - datas
     restart: $ADMINER_RESTART
 
 networks:
-  tn-admin-network:
+  admin:
     external: true
     name: $DOCKER_ADMIN_NETWORK
-  tn-datas-network:
+  datas:
     external: true
     name: $DOCKER_DATAS_NETWORK

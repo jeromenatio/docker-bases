@@ -1,6 +1,7 @@
 version: $DOCKER_VERSION
+
 services:
-  portainer-ce:
+  tn-portainer-ce:
     image: $PORTAINER_IMAGE
     container_name: $PORTAINER_NAME
     networks:

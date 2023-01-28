@@ -1,4 +1,5 @@
 version: $DOCKER_VERSION
+
 services:
   tn-nginxproxy:
     image: $NGINXPROXY_IMAGE
@@ -21,8 +22,8 @@ services:
     depends_on:
       - $NGINXPROXY_DB_NAME
     networks:
-      - tn-admin-network
-      - tn-datas-network
+      - admin
+      - datas
     restart: $NGINXPROXY_RESTART
 
   tn-nginxproxy-db:
@@ -37,13 +38,13 @@ services:
     volumes:
       - $NGINXPROXY_DB_MYSQL_VOLUME 
     networks:
-      - tn-datas-network
+      - datas
     restart: $NGINXPROXY_DB_RESTART
 
 networks:
-  tn-admin-network:
+  admin:
     external: true
     name: $DOCKER_ADMIN_NETWORK
-  tn-datas-network:
+  datas:
     external: true
     name: $DOCKER_DATAS_NETWORK

@@ -1,0 +1,58 @@
+version: '3.5'
+
+services:
+  
+  guacamole-cd:
+    image: guacamole/guacd:latest
+    container_name: guacamole-cd
+    hostname: guacamole-cd
+    volumes:
+      - /home/docker/guacamole/guacd/drive:/drive:rw
+      - /home/docker/guacamole/guacd/record:/record:rw
+    networks:
+      - admin-network
+    restart: always
+
+  guacamole-db:
+    image: mariadb:latest
+    container_name: guacamole-db
+    hostname: guacamole-db
+    environment:
+      - MYSQL_USER=guacamole-db
+      - MYSQL_PASSWORD=guacamole-db
+      - MYSQL_DATABASE=guacamole-db
+      - MYSQL_ROOT_PASSWORD=guacamole-db
+    volumes:
+      - /home/docker/guacamole/mysql/datas:/var/lib/mysql:rw
+      - /home/docker/guacamole/mysql/inits/init.sql:/docker-entrypoint-initdb.d/init.sql:rw
+    networks:
+      - admin-network
+      - datas-network
+    restart: always
+
+  guacamole:
+    image: guacamole/guacamole:latest
+    container_name: guacamole
+    hostname: guacamole
+    depends_on:
+      - guacamole-cd
+      - guacamole-db
+    environment:
+      - GUACD_HOSTNAME=guacamole-cd
+      - MYSQL_HOSTNAME=guacamole-db
+      - MYSQL_DATABASE=guacamole-db
+      - MYSQL_USER=guacamole-db
+      - MYSQL_PASSWORD=guacamole-db
+    networks:
+      - admin-network
+    ports:
+      - 8080:5822
+    restart: always
+
+networks:
+  admin-network:
+    external: true
+    name: tn-admin-network
+  datas-network:
+    external: true
+    name: tn-datas-network
