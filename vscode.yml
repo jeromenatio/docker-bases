@@ -4,7 +4,6 @@ services:
   tn-vscode:
     image: $VSCODE_IMAGE
     container_name: $VSCODE_NAME
-    hostname: $VSCODE_NAME
     environment:
       - PUID=$DOCKER_UID
       - PGID=$DOCKER_GID
