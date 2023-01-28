@@ -12,6 +12,7 @@ services:
       - '21:21'
     environment:
       DB_MYSQL_HOST: $NGINXPROXY_DB_NAME
+      DB_MYSQL_PORT: $NGINXPROXY_DB_PORT
       DB_MYSQL_USER: $NGINXPROXY_DB_USER
       DB_MYSQL_PASSWORD: $NGINXPROXY_DB_PASSWORD
       DB_MYSQL_NAME: $NGINXPROXY_DB_DATABASE
@@ -21,7 +22,6 @@ services:
     depends_on:
       - tn-nginxproxy-db
     networks:
-      - admin
       - datas
     restart: $NGINXPROXY_RESTART
 
