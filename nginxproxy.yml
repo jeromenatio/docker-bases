@@ -36,9 +36,7 @@ services:
       MYSQL_USER: $NGINXPROXY_DB_USER
       MYSQL_PASSWORD: $NGINXPROXY_DB_PASSWORD
     volumes:
-      - $NGINXPROXY_DB_MYSQL_VOLUME 
-    networks:
-      - datas
+      - $NGINXPROXY_DB_MYSQL_VOLUME
     restart: $NGINXPROXY_DB_RESTART
 
 networks:
