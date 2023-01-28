@@ -5,6 +5,7 @@ services:
   guacamole-cd:
     image: guacamole/guacd:latest
     container_name: guacamole-cd
+    hostname: guacamole-cd
     volumes:
       - /home/docker/guacamole/guacd/drive:/drive:rw
       - /home/docker/guacamole/guacd/record:/record:rw
@@ -15,6 +16,7 @@ services:
   guacamole-db:
     image: mariadb:latest
     container_name: guacamole-db
+    hostname: guacamole-db
     environment:
       - MYSQL_USER=guacamole-db
       - MYSQL_PASSWORD=guacamole-db
@@ -31,6 +33,7 @@ services:
   guacamole:
     image: guacamole/guacamole:latest
     container_name: guacamole
+    hostname: guacamole
     depends_on:
       - guacamole-cd
       - guacamole-db

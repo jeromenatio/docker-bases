@@ -4,6 +4,7 @@ services:
   tn-nginxproxy:
     image: $NGINXPROXY_IMAGE
     container_name: $NGINXPROXY_NAME
+    hostname: $NGINXPROXY_NAME
     ports:
       - '80:80'
       - '443:443'

@@ -4,6 +4,7 @@ services:
   tn-adminer:
     image: $ADMINER_IMAGE
     container_name: $ADMINER_NAME
+    hostname: $ADMINER_NAME
     environment:
       ADMINER_DEFAULT_DB_DRIVER: $ADMINER_DEFAULT_DB_DRIVER
       ADMINER_DESIGN: $ADMINER_DESIGN
