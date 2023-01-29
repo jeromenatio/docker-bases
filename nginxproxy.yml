@@ -23,6 +23,7 @@ services:
       - tn-nginxproxy-db
     networks:
       - admin
+      - datas
     restart: $NGINXPROXY_RESTART
 
   tn-nginxproxy-db:
@@ -37,10 +38,13 @@ services:
     volumes:
       - $NGINXPROXY_DB_MYSQL_VOLUME 
     networks:
-      - admin
+      - datas
     restart: $NGINXPROXY_DB_RESTART
 
 networks:
   admin:
     external: true
     name: $DOCKER_ADMIN_NETWORK
+  datas:
+    external: true
+    name: $DOCKER_DATAS_NETWORK
