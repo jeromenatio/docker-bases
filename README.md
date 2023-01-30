@@ -3,11 +3,11 @@
 Boilerplate files and scripts to install a docker based web server.\
 It includes the following containers / services :
 
-- reverse proxy and ssl certification `nginx proxy manager`
-- container manager `portainer`
-- databases client `adminer`
-- shells client `guacamole`
-- online code editor `vscode`
+- reverse proxy and ssl certification `nginx proxy manager` on port `81`
+- container manager `portainer` on port `9000`
+- databases client `adminer` on port `8080`
+- shells client `sshwifty` on port `8182`
+- online code editor `vscode` on port `8443`
 
 All services come with a `graphical user interface` so no code needed after installation et configuration. \
 The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...` \
