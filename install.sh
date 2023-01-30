@@ -217,7 +217,8 @@ install_containers(){
                 if [ -s "$local" ]; then
                     parent_dir=$(dirname $local)
                     stack_name=$(basename $parent_dir)
-                    eval "docker-compose -f $local --env-file $file up -d --force-recreate"                  
+                    eval "docker-compose -f $local --env-file $file down --volumes --remove-orphans"
+                    eval "docker-compose -f $local --env-file $file up -d --force-recreate --build"                  
                 fi
             fi
         fi
