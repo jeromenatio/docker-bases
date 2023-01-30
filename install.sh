@@ -323,6 +323,6 @@ install_containers $envfile
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
 
 # DELETE ALL TEMPORARY FILES
-rm $envfile $logfile -R & spin "Cleaning installation files"
+#rm $envfile $logfile -R & spin "Cleaning installation files"
 
 # DELETE THIS FILE
