@@ -88,7 +88,12 @@ generate_password() {
 
 generate_dir(){
     local timestamp=$(date +%s)
-    echo "/home/docker_$timestamp";
+    echo "/home/tndocker_$timestamp";
+}
+
+generate_uuid(){
+    local uuid=$(uuidgen)
+    echo "Generated UUID: $uuid"
 }
 
 user_ask() {
@@ -106,6 +111,10 @@ user_ask() {
   if [[ "$default_value" == "GENDIR" ]]; then
     default_display="leave blank to generate random dir path"
     default_value="$(generate_dir)"
+  fi
+  if [[ "$default_value" == "UUID" ]]; then
+    default_display="leave blank to generate random uuid"
+    default_value="$(generate_uuid)"
   fi
   echo -en "${yellow}? ${question} ${darker_yellow}(${default_display}) ${yellow}?${reset} "
   read answer
@@ -233,7 +242,6 @@ install_containers(){
 # FILES PATH
 logfile="./install.log"
 envfile="./.env"
-tempfile="./.temp"
 
 # CLEAR LOG FILE
 if test -e $logfile; then
@@ -241,8 +249,8 @@ if test -e $logfile; then
 fi
 
 # INSTALL DEPENDENCIES
-if ! command -v curl > /dev/null 2>&1 || ! command -v id > /dev/null 2>&1 || ! command -v getent > /dev/null 2>&1; then
-    (tnexec "apt-get update && apt-get install -y curl util-linux coreutils" $logfile) & spin "Installing script dependencies"
+if ! command -v curl > /dev/null 2>&1 || ! command -v id > /dev/null 2>&1 || ! command -v getent > /dev/null 2>&1 || ! command -v uuidgen > /dev/null 2>&1; then
+    (tnexec "apt-get update && apt-get install -y curl util-linux coreutils uuid-tools" $logfile) & spin "Installing script dependencies"
 else
    sleep 0.1 & spin "Script dependencies already installed"
 fi
