@@ -33,10 +33,41 @@ sudo /path/tofile/install.sh
 
 ##### All in a single command
 ```bash
-sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh \
--O /path/to/file/install.sh \
+sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path/to/file/install.sh \
 && sudo chmod +x /path/to/file/install.sh \
 && sudo /path/to/file/install.sh
+```
+
+## SECURE YOUR DEBIAN INSTALLATION (optional)
+Add the minimum layer of security to your debian server
+
+##### Update system
+```bash
+sudo apt update
+```
+
+##### Fail2Ban
+```bash
+sudo apt install -y fail2ban
+```
+
+##### UFW
+```bash
+sudo apt install -y ufw \
+&& sudo ufw default deny incoming \
+&& sudo ufw default allow outgoing \
+&& sudo ufw allow 21,22,25,80,110,143,443,465,587,993,995,4190 \
+&& sudo ufw enable \
+```
+
+##### All in a single command
+```bash
+sudo apt update \
+&& sudo apt install -y fail2ban ufw \
+&& sudo ufw default deny incoming \
+&& sudo ufw default allow outgoing \
+&& sudo ufw allow 21,22,25,80,110,143,443,465,587,993,995,4190 \
+&& sudo ufw enable \
 ```
 
 ## CONFIGURATION

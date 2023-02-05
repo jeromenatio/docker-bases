@@ -178,6 +178,11 @@ copy_files(){
             local="${BASH_REMATCH[2]}"
             eval "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/$online' -o $local"
         fi
+        if [[ $line =~ TN_COPY=\[([^|]*)\|([^|]*)\] ]]; then
+            online="${BASH_REMATCH[1]}"
+            local="${BASH_REMATCH[2]}"
+            eval "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/$online' -o $local"
+        fi
     done < $file
 }
 
@@ -249,6 +254,20 @@ repo_owner="docker"
 repo_name="compose"
 latest_version=$(get_latest_release $repo_owner $repo_name)
 
+# INSTALL FAIL2BAN
+if ! command -v fail2ban-client -h > /dev/null 2>&1; then
+   if user_confirm "Do you want to install fail2ban (some protection from ddos attack)"; then
+        (tnexec "apt-get update && apt-get install -y fail2ban" $logfile) & spin "Installing fail2ban"
+   fi
+fi
+
+# INSTALL UFW
+if ! command -v ufw status verbose > /dev/null 2>&1; then
+   if user_confirm "Do you want to install ufw (a basic firewall)"; then
+        (tnexec "apt update && apt install -y ufw && ufw default deny incoming && ufw default allow outgoing && ufw allow 21,22,25,80,110,143,443,465,587,993,995,4190 && ufw enable" $logfile) & spin "Installing and configuring ufw"
+   fi
+fi
+
 # INSTALL DOCKER
 if ! command -v docker --version > /dev/null 2>&1; then
    install_docker $logfile
@@ -309,7 +328,7 @@ is_home_empty
 (tnexec "copy_files $envfile" $logfile) & spin "Copying files from github to docker home"
 
 # COPY .ENV TO DOCKER HOME DIRECTORIES
-(tnexec "cp $envfile $DOCKER_HOME/administration/.env" $logfile) & spin "Copy .env file to docker home"
+(tnexec "cp $envfile $DOCKER_HOME/.env" $logfile) & spin "Copy .env file to docker home"
 
 # CREATE DOCKER NETWORKS
 (tnexec "create_neworks $envfile" $logfile) & spin "Creating | checking docker networks"
@@ -324,6 +343,12 @@ install_containers $envfile
 
 # CHANGE OWNER OF DOCKER HOME
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
+
+# DOWNLOAD AND INSTALL USEFUL SCRIPT
+tndockerfile="/usr/local/bin/tndocker.sh"
+(tnexec "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/tndocker.sh' -o ./tndocker.sh" $logfile) & spin "Downloading tndocker.sh file"
+(tnexec "replace_string \"\\[DOCKER_HOME\\]\" $DOCKER_HOME ./tndocker.sh" $logfile) & "Updating tndocker.sh"
+(tnexec "cp ./tndocker.sh $tndockerfile && chmod +x $tndockerfile" $logfile) & spin "Copy tndocker.sh file to exe directory"
 
 # DELETE ALL TEMPORARY FILES
 #rm $envfile $logfile -R & spin "Cleaning installation files"
