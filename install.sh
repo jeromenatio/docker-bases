@@ -337,17 +337,15 @@ is_home_empty
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
 
 # INSTALL THE BASES CONTAINERS
-#(tnexec "
-install_containers $envfile
-#" $logfile) & spin "Installing docker containers"
+(tnexec "install_containers $envfile" $logfile) & spin "Installing docker containers"
 
 # CHANGE OWNER OF DOCKER HOME
 (tnexec "chown docker:docker $DOCKER_HOME -R" $logfile) & spin "Changing DOCKER HOME owner"
 
 # DOWNLOAD AND INSTALL USEFUL SCRIPT
-tndockerfile="/usr/local/bin/tndocker.sh"
+tndockerfile="/usr/local/bin/tndocker"
 (tnexec "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/tndocker.sh' -o ./tndocker.sh" $logfile) & spin "Downloading tndocker.sh file"
-(tnexec "replace_string \"\\[DOCKER_HOME\\]\" $DOCKER_HOME ./tndocker.sh" $logfile) & "Updating tndocker.sh"
+(tnexec "replace_string \"\\[DOCKER_HOME\\]\" $DOCKER_HOME ./tndocker.sh" $logfile) & spin "Updating tndocker.sh"
 (tnexec "cp ./tndocker.sh $tndockerfile && chmod +x $tndockerfile" $logfile) & spin "Copy tndocker.sh file to exe directory"
 
 # DELETE ALL TEMPORARY FILES
