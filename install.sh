@@ -264,7 +264,7 @@ fi
 # INSTALL UFW
 if ! command -v ufw status verbose > /dev/null 2>&1; then
    if user_confirm "Do you want to install ufw (a basic firewall)"; then
-        (tnexec "apt update && apt install -y ufw && ufw default deny incoming && ufw default allow outgoing && ufw allow 21,22,25,80,110,143,443,465,587,993,995,4190 && ufw enable" $logfile) & spin "Installing and configuring ufw"
+        (tnexec "apt update && apt install -y ufw && ufw default deny incoming && ufw default allow outgoing && ufw allow 21,22,25,80,110,143,443,465,587,993,995,4190/tcp && ufw enable" $logfile) & spin "Installing and configuring ufw"
    fi
 fi
 
@@ -349,6 +349,7 @@ tndockerfile="/usr/local/bin/tndocker"
 (tnexec "mv ./tndocker.sh $tndockerfile && chmod +x $tndockerfile" $logfile) & spin "Copy tndocker.sh file to exe directory"
 
 # DELETE ALL TEMPORARY FILES
-#rm $envfile $logfile -R & spin "Cleaning installation files"
+rm $envfile -R & spin "Cleaning installation files"
 
 # DELETE THIS FILE
+rm -- "$0"
