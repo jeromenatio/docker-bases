@@ -346,7 +346,7 @@ is_home_empty
 tndockerfile="/usr/local/bin/tndocker"
 (tnexec "curl -Ls -H 'Cache-Control: no-cache' 'https://raw.githubusercontent.com/jeromenatio/docker-bases/main/tndocker.sh' -o ./tndocker.sh" $logfile) & spin "Downloading tndocker.sh file"
 (tnexec "replace_string \"\\[DOCKER_HOME\\]\" $DOCKER_HOME ./tndocker.sh" $logfile) & spin "Updating tndocker.sh"
-(tnexec "cp ./tndocker.sh $tndockerfile && chmod +x $tndockerfile" $logfile) & spin "Copy tndocker.sh file to exe directory"
+(tnexec "mv ./tndocker.sh $tndockerfile && chmod +x $tndockerfile" $logfile) & spin "Copy tndocker.sh file to exe directory"
 
 # DELETE ALL TEMPORARY FILES
 #rm $envfile $logfile -R & spin "Cleaning installation files"
