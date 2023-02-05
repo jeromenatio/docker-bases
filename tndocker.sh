@@ -104,6 +104,7 @@ elif [ "$action" == "up" ]; then
     file_path=$id
     file_name=${file_path%.*}
     dir_name=${file_name##*/}
+    mkdir -p "$dockerhome/$dir_name"
 
     # Loop through the directories and create them
     for directory in "${directories[@]}"; do

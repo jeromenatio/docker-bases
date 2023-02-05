@@ -93,7 +93,7 @@ generate_dir(){
 
 generate_uuid(){
     local uuid=$(uuidgen)
-    echo "Generated UUID: $uuid"
+    echo "$uuid"
 }
 
 user_ask() {
