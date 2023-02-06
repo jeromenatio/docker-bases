@@ -115,6 +115,11 @@ elif [ "$action" == "up" ]; then
     file_dest="$dockerhome/$dir_name/docker-compose.yml"
     mv $id $file_dest
 
+    # Special cases : Remove exim
+    if [ "$dir_name" == "mailserver" ]; then
+        apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
+    fi
+
     # Compose up
     eval "docker-compose -f $file_dest --env-file $envfile down --volumes --remove-orphans"
     eval "docker-compose -f $file_dest --env-file $envfile up -d --force-recreate --build" 
