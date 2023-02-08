@@ -250,7 +250,7 @@ fi
 
 # INSTALL DEPENDENCIES
 if ! command -v curl > /dev/null 2>&1 || ! command -v id > /dev/null 2>&1 || ! command -v getent > /dev/null 2>&1 || ! command -v uuidgen > /dev/null 2>&1; then
-    (tnexec "apt-get update && apt-get install -y curl util-linux coreutils uuid-tools" $logfile) & spin "Installing script dependencies"
+    (tnexec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" $logfile) & spin "Installing script dependencies"
 else
    sleep 0.1 & spin "Script dependencies already installed"
 fi
