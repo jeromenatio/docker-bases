@@ -1,0 +1,29 @@
+version: $DOCKER_VERSION
+
+services:
+  tn-adminer:
+    image: $ADMINER_IMAGE
+    container_name: $ADMINER_NAME
+    hostname: $ADMINER_NAME
+    env_file:
+      - [DOCKER_HOME]/adminer/.env
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      ADMINER_DEFAULT_DB_DRIVER: $ADMINER_DEFAULT_DB_DRIVER
+      ADMINER_DESIGN: $ADMINER_DESIGN
+      ADMINER_PLUGINS: $ADMINER_PLUGINS tables-filter tinymce
+    networks:
+      - admin
+      - datas
+    restart: $ADMINER_RESTART
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+  datas:
+    external: true
+    name: $DOCKER_DATAS_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END

@@ -8,8 +8,9 @@ It includes the following containers / services :
 - databases client `adminer` on port `8080`
 - shells client `sshwifty` on port `8182`
 - online code editor `vscode` on port `8443`
+- ftp server `delfer/alpine-ftp-server` on port `21` and passive ports `21500-21600`
 
-All services come with a `graphical user interface` so no code needed after installation et configuration. \
+All services come with a `graphical user interface` so no code needed after installation and configuration. \
 The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...` \
 For each following steps please replace `/path/to/file/install.sh` with the path of the output file on your system.
 
@@ -17,7 +18,7 @@ For each following steps please replace `/path/to/file/install.sh` with the path
 
 ##### Download install.sh
 ```bash
-sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh \
+sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/scripts/tninstall.sh \
 -O /path/to/file/install.sh
 ```
 
@@ -33,7 +34,7 @@ sudo /path/tofile/install.sh
 
 ##### All in a single command
 ```bash
-sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/install.sh -O /path/to/file/install.sh \
+sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/scripts/tninstall.sh -O /path/to/file/install.sh \
 && sudo chmod +x /path/to/file/install.sh \
 && sudo /path/to/file/install.sh
 ```

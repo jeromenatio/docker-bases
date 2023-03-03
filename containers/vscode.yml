@@ -1,0 +1,26 @@
+version: $DOCKER_VERSION
+
+services:
+  tn-vscode:
+    image: $VSCODE_IMAGE
+    container_name: $VSCODE_NAME
+    hostname: $VSCODE_NAME
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      TZ: $DOCKER_TIMEZONE
+      PASSWORD: $VSCODE_PASSWORD
+      DEFAULT_WORKSPACE: $VSCODE_DEFAULT_WORKSPACE_DIR
+    networks:
+      - admin
+    volumes:
+      - $VSCODE_CONFIG_VOLUME
+      - $VSCODE_DOCKER_VOLUME
+    restart: $VSCODE_RESTART
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
