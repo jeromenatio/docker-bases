@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Take two arguments, the first is the action (stop, remove, start, list) and the second is the container id or network name
 action="$1"
 id="$2"

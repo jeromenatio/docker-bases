@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # GLOBALS FOR TEST
-ENV="prod"
+ENV="dev"
 github_link="https://raw.githubusercontent.com/jeromenatio/docker-bases/main"
 if [ "$ENV" == "dev" ]; then
-    github_link="/home/tndocker/_local"
+    github_link="/home/_local"
 fi
 
 # PARAMETERS
@@ -141,4 +141,5 @@ for i in "${defaultContainers[@]}"; do
     tnAskUserFromFile $envFile
     (tnExec "tnAutoFromFile $envFile" $logfile) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $envFile" $logfile) & tnSpin "Creating container directories"
+    #
 done
