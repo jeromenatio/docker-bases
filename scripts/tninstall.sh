@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # GLOBALS FOR TEST
-ENV="dev"
+ENV="prod"
 github_link="https://raw.githubusercontent.com/jeromenatio/docker-bases/main"
 if [ "$ENV" == "dev" ]; then
     github_link="/home/_local"
