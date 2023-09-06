@@ -14,8 +14,8 @@ dependencies=("curl" "id" "getent" "uuidgen")
 defaultContainers=("nginxproxy")
 utilsfile="/usr/local/bin/tnutils"
 utilsfile_distant="$github_link/scripts/tnutils.sh"
-dockerutiliesfile="/usr/local/bin/tndocker"
-dockerutiliesfile_distant="$github_link/scripts/tndocker.sh"
+tndockerfile="/usr/local/bin/tndocker"
+tndockerfile_distant="$github_link/scripts/tndocker.sh"
 envfile="$DOCKER_HOME/.env"
 envfile_distant="$github_link/.env"
 logfile="./install.log"
@@ -117,8 +117,6 @@ tnAskUserFromFile $envfile
 sleep 0.5 & tnSpin "Modifying main .env file"
 
 # INSTALL TNDOCKER COMMAND
-tndockerfile="/usr/local/bin/tndocker"
-tndockerfile_distant="$github_link/scripts/tndocker.sh"
 (tnExec "tnDownload '$tndockerfile_distant' '$tndockerfile' '$ENV'" $logfile) & tnSpin "Downloading tndocker commands file"
 (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands"
 (tnExec "chmod +x '$tndockerfile'" $logfile) & tnSpin "Changing permissions on tndocker commands file"

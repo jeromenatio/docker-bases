@@ -6,6 +6,7 @@ id="$2"
 directories=("${@:3}")
 dockerhome="[DOCKER_HOME]"
 envfile="[DOCKER_HOME]/.env"
+utilsfile="[UTILS_FILES]"
 
 if [ "$action" == "remove" ]; then
     if [ "$id" == "all" ]; then
