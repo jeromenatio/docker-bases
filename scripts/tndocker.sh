@@ -169,6 +169,7 @@ elif [ "$action" == "install" ]; then
     tnAskUserFromFile $envFile
     (tnExec "tnAutoFromFile $envFile" $logfile) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $envFile" $logfile) & tnSpin "Creating container directories"
+    (tnExec "chown docker:docker $containerDir -R") & tnSpin "Changing container owner"
 
 else
     echo "Invalid action"
