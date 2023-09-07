@@ -118,26 +118,13 @@ sleep 0.5 & tnSpin "Modifying main .env file"
 
 # INSTALL TNDOCKER COMMAND
 (tnExec "tnDownload '$tndockerfile_distant' '$tndockerfile' '$ENV'" $logfile) & tnSpin "Downloading tndocker commands file"
-(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands"
+(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands home"
+(tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$utilsfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands utils"
+(tnExec "tnReplaceStringInFile '\\[GITHUB_LINK\\]' '$github_link' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands github link"
+(tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$logfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands logfile"
 (tnExec "chmod +x '$tndockerfile'" $logfile) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
 for i in "${defaultContainers[@]}"; do
-    containerName=$i
-    containerDir="$DOCKER_HOME/$containerName"
-    composeFile="$containerDir/docker-compose.yml"
-    composeFileDistant="$github_link/containers/$containerName.yml"
-    envFile="$containerDir/.env"
-    envFileDistant="$github_link/containers/$containerName.conf"
-    sleep 0.1 & tnSpin "------------------------------------------"
-    sleep 0.1 & tnSpin "Installing container : $containerName"
-    (tnExec "mkdir -p '$containerDir'" $logfile) & tnSpin "Creating main directory"
-    (tnExec "tnDownload '$composeFileDistant' '$composeFile' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file"
-    (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
-    tnAskUserFromFile $envFile
-    (tnExec "tnAutoFromFile $envFile" $logfile) & tnSpin "Generating auto variables"
-    (tnExec "tnCreateDirFromFile $envFile" $logfile) & tnSpin "Creating container directories"
-    #
+    tndocker install $i
 done

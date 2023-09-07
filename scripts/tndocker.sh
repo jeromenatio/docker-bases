@@ -7,6 +7,9 @@ directories=("${@:3}")
 dockerhome="[DOCKER_HOME]"
 envfile="[DOCKER_HOME]/.env"
 utilsfile="[UTILS_FILES]"
+github_link="[GITHUB_LINK]"
+logfile="[LOG_FILE]"
+source $utilsfile
 
 if [ "$action" == "remove" ]; then
     if [ "$id" == "all" ]; then
@@ -148,6 +151,25 @@ elif [ "$action" == "down" ]; then
 
     # Compose down
     eval "docker-compose -f $file_dest --env-file $envfile down --volumes --remove-orphans" 
+elif [ "$action" == "install" ]
+
+    containerName=$id
+    containerDir="$DOCKER_HOME/$containerName"
+    composeFile="$containerDir/docker-compose.yml"
+    composeFileDistant="$github_link/containers/$containerName.yml"
+    envFile="$containerDir/.env"
+    envFileDistant="$github_link/containers/$containerName.conf"
+    sleep 0.1 & tnSpin "------------------------------------------"
+    sleep 0.1 & tnSpin "Installing container : $containerName"
+    (tnExec "mkdir -p '$containerDir'" $logfile) & tnSpin "Creating main directory"
+    (tnExec "tnDownload '$composeFileDistant' '$composeFile' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file"
+    (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
+    tnAskUserFromFile $envFile
+    (tnExec "tnAutoFromFile $envFile" $logfile) & tnSpin "Generating auto variables"
+    (tnExec "tnCreateDirFromFile $envFile" $logfile) & tnSpin "Creating container directories"
+
 else
     echo "Invalid action"
 fi
