@@ -125,15 +125,15 @@ elif [ "$action" == "up" ]; then
     file_path=$id
     file_name=${file_path%.*}
     dir_name=${file_name##*/}
-    mkdir -p "$DOCKER_HOME/$dir_name"
+    mkdir -p "$dockerhome/$dir_name"
 
     # Loop through the directories and create them
     for directory in "${directories[@]}"; do
-        mkdir -p "$DOCKER_HOME/$dir_name/$directory"
+        mkdir -p "$dockerhome/$dir_name/$directory"
     done
 
     # Copy docker compose to directory
-    file_dest="$DOCKER_HOME/$dir_name/docker-compose.yml"
+    file_dest="$dockerhome/$dir_name/docker-compose.yml"
     mv $id $file_dest
 
     # Special cases : Remove exim
@@ -147,14 +147,14 @@ elif [ "$action" == "up" ]; then
 elif [ "$action" == "down" ]; then
 
     # destination file
-    file_dest="$DOCKER_HOME/$id/docker-compose.yml"
+    file_dest="$dockerhome/$id/docker-compose.yml"
 
     # Compose down
     eval "docker-compose -f $file_dest --env-file $envfile down --volumes --remove-orphans" 
 elif [ "$action" == "install" ]; then
 
     containerName=$id
-    containerDir="$DOCKER_HOME/$containerName"
+    containerDir="$dockerhome/$containerName"
     composeFile="$containerDir/docker-compose.yml"
     composeFileDistant="$github_link/containers/$containerName.yml"
     envFile="$containerDir/.env"
@@ -164,8 +164,8 @@ elif [ "$action" == "install" ]; then
     (tnExec "mkdir -p '$containerDir'" $logfile) & tnSpin "Creating main directory $containerDir"
     (tnExec "tnDownload '$composeFileDistant' '$composeFile' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file $composeFile"
     (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file $envFile"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
     tnAskUserFromFile $envFile
     (tnExec "tnAutoFromFile $envFile" $logfile) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $envFile" $logfile) & tnSpin "Creating container directories"
