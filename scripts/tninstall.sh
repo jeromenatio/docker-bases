@@ -98,7 +98,7 @@ fi
 # CHECK DOCKER HOME
 tnIsHomeEmpty
 (tnExec "mkdir -p $DOCKER_HOME" $logfile) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
-(tnExec "chown docker:docker $DOCKER_HOME -R") & tnSpin "Changing docker home owner"
+(tnExec "chown docker:docker $DOCKER_HOME -R" $logfile) & tnSpin "Changing docker home owner"
 
 # DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, GID, UID
 envfile="$DOCKER_HOME/.env"
