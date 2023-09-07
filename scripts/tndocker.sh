@@ -161,9 +161,9 @@ elif [ "$action" == "install" ]; then
     envFileDistant="$github_link/containers/$containerName.conf"
     sleep 0.1 & tnSpin "------------------------------------------"
     sleep 0.1 & tnSpin "Installing container : $containerName"
-    (tnExec "mkdir -p '$containerDir'" $logfile) & tnSpin "Creating main directory"
-    (tnExec "tnDownload '$composeFileDistant' '$composeFile' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file"
-    (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    (tnExec "mkdir -p '$containerDir'" $logfile) & tnSpin "Creating main directory $containerDir"
+    (tnExec "tnDownload '$composeFileDistant' '$composeFile' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file $composeFile"
+    (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file $envFile"
     (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
     (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
     tnAskUserFromFile $envFile
