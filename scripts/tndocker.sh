@@ -151,7 +151,7 @@ elif [ "$action" == "down" ]; then
 
     # Compose down
     eval "docker-compose -f $file_dest --env-file $envfile down --volumes --remove-orphans" 
-elif [ "$action" == "install" ]
+elif [ "$action" == "install" ]; then
 
     containerName=$id
     containerDir="$DOCKER_HOME/$containerName"
