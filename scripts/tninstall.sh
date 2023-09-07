@@ -9,7 +9,6 @@ fi
 
 # PARAMETERS
 DOCKER_HOME="/home/tndocker"
-toinstall=("fail2ban (helps again brute force attacks)"  "ufw (basic firewall)"  "invoice ninja (easy billing)" "directus (make an api with no code and cool ui)" )
 dependencies=("curl" "id" "getent" "uuidgen")
 defaultContainers=("nginxproxy")
 utilsfile="/usr/local/bin/tnutils"
@@ -59,12 +58,7 @@ tnDisplay "#  All the required password will be generated randomly for obvious s
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
 tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
 
-# MAKE USER CHOOSE WHAT TO INSTALL
-# You should pass it an array (toinstall) in which each entry should be formatted as following:
-# "id (description)""
-# example: "fail2ban (helps again brute force attacks)"
-# you will get the results of user choice in "install_list" variable (associative array)
-# tnSelect install_list toinstall "Please choose what you want to install"
+# INSTALL UTILITIES ON SERVER (fail2ban, ufw)
 
 # INSTALL DEPENDENCIES
 if tnAreCommandsMissing $dependencies; then
