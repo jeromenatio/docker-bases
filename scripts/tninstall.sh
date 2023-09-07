@@ -118,7 +118,6 @@ sleep 0.5 & tnSpin "Modifying main .env file"
 (tnExec "tnReplaceStringInFile '\\[GITHUB_LINK\\]' '$github_link' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands github link"
 (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$logfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands logfile"
 (tnExec "chmod +x '$tndockerfile'" $logfile) & tnSpin "Changing permissions on tndocker commands file"
-(tnExec "chown docker:docker $DOCKER_HOME -R") & tnSpin "Changing docker home owner"
 
 # INSTALL DEFAULT CONTAINERS
 for i in "${defaultContainers[@]}"; do
