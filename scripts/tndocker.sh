@@ -122,28 +122,19 @@ elif [ "$action" == "list" ]; then
     fi
 elif [ "$action" == "up" ]; then
     # Get dir in docker
-    file_path=$id
-    file_name=${file_path%.*}
-    dir_name=${file_name##*/}
-    mkdir -p "$dockerhome/$dir_name"
-
-    # Loop through the directories and create them
-    for directory in "${directories[@]}"; do
-        mkdir -p "$dockerhome/$dir_name/$directory"
-    done
-
-    # Copy docker compose to directory
-    file_dest="$dockerhome/$dir_name/docker-compose.yml"
-    mv $id $file_dest
+    containerName=$id
+    containerDir="$dockerhome/$containerName"
+    composeFile="$containerDir/docker-compose.yml"
+    envFile="$containerDir/.env"
 
     # Special cases : Remove exim
     if [ "$dir_name" == "mailserver" ]; then
         apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
     fi
 
-    # Compose up
-    eval "docker-compose -f $file_dest --env-file $envfile down --volumes --remove-orphans"
-    eval "docker-compose -f $file_dest --env-file $envfile up -d --force-recreate --build" 
+    # Compose up    
+    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans"
+    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile up -d --force-recreate --build" 
 elif [ "$action" == "down" ]; then
 
     # destination file
