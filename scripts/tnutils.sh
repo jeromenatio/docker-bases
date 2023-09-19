@@ -339,20 +339,12 @@ tnAutoFromFile() {
 
 tnCreateNetworkFromFile() {
     local file=$1
-    local declare matches
     while read line; do
         if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
-            matches+=("$line")
+            network="${BASH_REMATCH[1]}"
+            eval "docker network create -d bridge $network"
         fi
     done < $file
-    printf $matches
-    for match in "${matches[@]}"; do
-        if [[ $match =~ TN_NETWORK=\[(.*)\] ]]; then
-            net="${BASH_REMATCH[1]}"
-            printf "docker network create -d bridge $net"
-            eval "docker network create -d bridge $net"
-        fi
-    done
 }
 
 tnCreateDirFromFile(){
