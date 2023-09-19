@@ -341,12 +341,12 @@ tnCreateNetworkFromFile() {
     local file=$1
     local declare matches
     while read line; do
-        if [[ $line =~ TN_NETWORK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
             matches+=("$line")
         fi
     done < $file
     for match in "${matches[@]}"; do
-        if [[ $match =~ TN_NETWORK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_NETWORK=\[(.*)\] ]]; then
             net="${BASH_REMATCH[1]}"
             eval "docker network create -d bridge $net"
         fi
