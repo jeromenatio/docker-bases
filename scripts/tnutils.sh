@@ -342,7 +342,8 @@ tnCreateNetworkFromFile() {
     while read line; do
         if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
             network="${BASH_REMATCH[1]}"
-            eval "docker network create -d bridge $network"
+            printf "docker network create -d bridge $network \n"
+            docker network create -d bridge $network
         fi
     done < $file
 }
