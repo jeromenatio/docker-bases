@@ -109,6 +109,8 @@ envfile="$DOCKER_HOME/.env"
 
 # ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
 tnAskUserFromFile $envfile
+(tnExec "tnAutoFromFile $envfile" $logfile) & tnSpin "Generating auto variables"
+(tnExec "tnCreateNetworkFromFile $envfile" $logfile) & tnSpin "Creating custom docker networks"
 sleep 0.5 & tnSpin "Modifying main .env file"
 
 # INSTALL TNDOCKER COMMAND
