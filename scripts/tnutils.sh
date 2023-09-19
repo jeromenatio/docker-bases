@@ -345,9 +345,11 @@ tnCreateNetworkFromFile() {
             matches+=("$line")
         fi
     done < $file
+    printf $matches
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_NETWORK=\[(.*)\] ]]; then
             net="${BASH_REMATCH[1]}"
+            printf "docker network create -d bridge $net"
             eval "docker network create -d bridge $net"
         fi
     done
