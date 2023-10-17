@@ -11,8 +11,6 @@ services:
       - $NGINXPROXY_HTTP_PORT
       - $NGINXPROXY_HTTPS_PORT
       - $NGINXPROXY_SELF_PORT
-      - $NGINXPROXY_FTP_PORT
-      - $NGINXPROXY_FTP_PASSIVE_PORT
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID

@@ -268,6 +268,7 @@ tnAskUser() {
 
 tnAskUserFromFile() {
     local file=$1
+    local file2=$2
     local declare matches
     while read line; do
         if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -282,6 +283,9 @@ tnAskUserFromFile() {
             eval "$variable=\"$default_value\""
             tnAskUser "$question" "$default_value" "$variable"
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
+            if [[ -n "$file2" ]]; then
+                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2
+            fi
         fi
     done
 }
@@ -319,6 +323,7 @@ tnReplaceStringInFile(){
 
 tnAutoFromFile() {
     local file=$1
+    local file2=$2
     local declare matches
     while read line; do
         if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -333,6 +338,9 @@ tnAutoFromFile() {
             question="${BASH_REMATCH[3]}"
             eval "$variable=\"$default_value\""
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
+            if [[ -n "$file2" ]]; then
+                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2
+            fi
         fi
     done
 }

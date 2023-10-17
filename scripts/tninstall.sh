@@ -119,6 +119,8 @@ sleep 0.5 & tnSpin "Modifying main .env file"
 (tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$utilsfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands utils"
 (tnExec "tnReplaceStringInFile '\\[GITHUB_LINK\\]' '$github_link' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands github link"
 (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$logfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands logfile"
+(tnExec "tnReplaceStringInFile '\\[UID\\]' '$_UID' '$tndockerfile'" $logfile)
+(tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands UID, GID"
 (tnExec "chmod +x '$tndockerfile'" $logfile) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS

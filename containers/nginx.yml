@@ -1,0 +1,23 @@
+version: $DOCKER_VERSION
+
+services:
+  tn-nginx-[NGINX_PUBLIC_URL]:
+    image: $NGINX_IMAGE
+    container_name: $NGINX_NAME
+    hostname: $NGINX_NAME
+    environment:
+      NGINX_HOST: []
+      NGINX_PORT: 80
+    networks:
+      - admin
+    volumes:
+      - $NGINX_WWW_VOLUME
+      - $NGINX_TEMPLATES_VOLUME
+    restart: $NGINX_RESTART
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
