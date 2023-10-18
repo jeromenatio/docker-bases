@@ -159,9 +159,9 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file"
     (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
     (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
-    tnAskUserFromFile $envFile $composeFile
+    tnAskUserFromFile $envFile
     (tnExec "tnAutoFromFile $envFile $composeFile" $logfile) & tnSpin "Generating auto variables"
-    (tnExec "tnCreateDirFromFile $envFile" $logfile) & tnSpin "Creating container directories"
+    (tnExec "tnCreateDirFromFile $envFile $" $logfile) & tnSpin "Creating container directories"
     (tnExec "chown docker:docker $containerDir -R" $logfile) & tnSpin "Changing container owner"
 
 else
