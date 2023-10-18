@@ -12,6 +12,7 @@ logfile="[LOG_FILE]"
 uid="[UID]"
 gid="[GID]"
 source $utilsfile
+#test
 
 if [ "$action" == "remove" ]; then
     if [ "$id" == "all" ]; then
