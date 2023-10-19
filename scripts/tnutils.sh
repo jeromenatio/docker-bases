@@ -308,6 +308,8 @@ tnAskUserFromFile() {
     local file=$1
     local file2=$2
     local declare matches
+    local variable_clean
+    local variable_clean_name
     while read line; do
         if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             matches+=("$line")
@@ -327,9 +329,17 @@ tnAskUserFromFile() {
                     break
                 fi
             done
+
+            # XXXX
+            tempstr="_"
+            variable_clean_name="$variable$tempstr"
+            variable_clean="${!variable}"
+            variable_clean="${variable_clean//./-}"
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
+            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
             if [[ -n "$file2" ]]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2
+                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file2
             fi
         fi
     done
@@ -370,6 +380,8 @@ tnAutoFromFile() {
     local file=$1
     local file2=$2
     local declare matches
+    local variable_clean
+    local variable_clean_name
     while read line; do
         if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             matches+=("$line")
@@ -382,9 +394,17 @@ tnAutoFromFile() {
             default_value=$(tnDefaultValue "$default_value")
             question="${BASH_REMATCH[3]}"
             eval "$variable=\"$default_value\""
+
+            # XXXX
+            tempstr="_"
+            variable_clean_name="$variable$tempstr"
+            variable_clean="${!variable}"
+            variable_clean="${variable_clean//./-}"
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
+            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
             if [[ -n "$file2" ]]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2
+                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file2
             fi
         fi
     done

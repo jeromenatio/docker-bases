@@ -1,12 +1,12 @@
 version: $DOCKER_VERSION
 services:
   
-  [DIRECTUS_PUBLIC_URL]-db:
+  [DIRECTUS_PUBLIC_URL_CLEAN]-db:
     image: $DIRECTUS_DB_IMAGE
     container_name: $DIRECTUS_DB_NAME
     hostname: $DIRECTUS_DB_NAME
     env_file:
-      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL]/.env
+      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL_CLEAN]/.env
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
@@ -20,12 +20,12 @@ services:
       - datas
     restart: $DIRECTUS_DB_RESTART
 
-  [DIRECTUS_PUBLIC_URL]-cache:
+  [DIRECTUS_PUBLIC_URL_CLEAN]-cache:
     image: $DIRECTUS_CACHE_IMAGE
     container_name: $DIRECTUS_CACHE_NAME
     hostname: $DIRECTUS_CACHE_NAME
     env_file:
-      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL]/.env
+      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL_CLEAN]/.env
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
@@ -33,12 +33,12 @@ services:
       - datas
     restart: $DIRECTUS_CACHE_RESTART
 
-  [DIRECTUS_PUBLIC_URL]:
+  [DIRECTUS_PUBLIC_URL_CLEAN]:
     image: $DIRECTUS_IMAGE
     container_name: $DIRECTUS_NAME
     hostname: $DIRECTUS_NAME
     env_file:
-      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL]/.env
+      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL_CLEAN]/.env
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
