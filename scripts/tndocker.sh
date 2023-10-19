@@ -14,28 +14,37 @@ gid="[GID]"
 source $utilsfile
 
 if [ "$action" == "up" ]; then
-    # Base paths to install and download
-    containerName=$id
-    containerBaseDir="$dockerhome/$containerName"
-    envFileDistant="$github_link/containers/$containerName.conf"
-    envFileTemp="$containerBaseDir/.envtemp"
-    composeFileFinal="$containerBaseDir/docker-compose.yml"
-    envFileFinal="$containerBaseDir/.env"
-    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
-    if tnIsMultiInstance $envFileTemp; then
-        instance=$(tnGetInstancePathFromFile $envFileTemp)  
-        composeFileFinal="$instance/docker-compose.yml"    
-        envFileFinal="$instance/.env"
-    fi   
 
     # Special cases : Remove exim
     if [ "$id" == "mailserver" ]; then
         apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
     fi
 
-    # Compose up    
-    eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
-    eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
+    # Base paths to install and download
+    containerName=$id
+    containerBaseDir="$dockerhome/$containerName"
+    envFileDistant="$github_link/containers/$containerName.conf"
+    envFileTemp="$containerBaseDir/.envtemp"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    composeFileFinal="$containerBaseDir/docker-compose.yml"
+    envFileFinal="$containerBaseDir/.env"
+    if tnIsMultiInstance $envFileTemp; then
+        if [ -z "$option" ]; then
+            sleep 0.1 & tnSpin "Container $id is a multi instance container, please provide instance name as 3rd option"
+        else
+            
+            composeFileFinal="$containerBaseDir/$option/docker-compose.yml"    
+            envFileFinal="$containerBaseDir/$option/.env"
+
+            # Compose up    
+            eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
+            eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
+        fi
+    else
+        # Compose up    
+        eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
+        eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
+    fi   
 
 elif [ "$action" == "down" ]; then
     sleep 0.1 & tnSpin "DOWN"
