@@ -331,11 +331,9 @@ tnAskUserFromFile() {
             done
 
             # XXXX
-            tempstr="_"
-            variable_clean_name="$variable$tempstr"
-            sleep 0.1 & tnSpin "variable_clean_name : $variable_clean_name"            
+            tempstr="_CLEAN"
+            variable_clean_name="$variable$tempstr"           
             variable_clean="${!variable}"
-            sleep 0.1 & tnSpin "variable_clean : $variable_clean" 
             variable_clean="${variable_clean//./-}"
             sleep 0.1 & tnSpin "variable_clean : $variable_clean"  
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
@@ -399,7 +397,7 @@ tnAutoFromFile() {
             eval "$variable=\"$default_value\""
 
             # XXXX
-            tempstr="_"
+            tempstr="_CLEAN"
             variable_clean_name="$variable$tempstr"
             variable_clean="${!variable}"
             variable_clean="${variable_clean//./-}"
