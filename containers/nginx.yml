@@ -1,7 +1,7 @@
 version: $DOCKER_VERSION
 
 services:
-  tn-nginx-[NGINX_PUBLIC_URL]:
+  [NGINX_PUBLIC_URL]:
     image: $NGINX_IMAGE
     container_name: $NGINX_NAME
     hostname: $NGINX_NAME

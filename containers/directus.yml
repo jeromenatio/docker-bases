@@ -1,7 +1,7 @@
 version: $DOCKER_VERSION
 services:
   
-  tn-directus-db:
+  [DIRECTUS_PUBLIC_URL]-db:
     image: $DIRECTUS_DB_IMAGE
     container_name: $DIRECTUS_DB_NAME
     hostname: $DIRECTUS_DB_NAME
@@ -20,7 +20,7 @@ services:
       - datas
     restart: $DIRECTUS_DB_RESTART
 
-  tn-directus-cache:
+  [DIRECTUS_PUBLIC_URL]-cache:
     image: $DIRECTUS_CACHE_IMAGE
     container_name: $DIRECTUS_CACHE_NAME
     hostname: $DIRECTUS_CACHE_NAME
@@ -33,7 +33,7 @@ services:
       - datas
     restart: $DIRECTUS_CACHE_RESTART
 
-  tn-directus:
+  [DIRECTUS_PUBLIC_URL]:
     image: $DIRECTUS_IMAGE
     container_name: $DIRECTUS_NAME
     hostname: $DIRECTUS_NAME
@@ -61,8 +61,8 @@ services:
       - $DIRECTUS_UPLOADS_VOLUME
       - $DIRECTUS_EXTENSIONS_VOLUME      
     depends_on:
-      - tn-directus-cache
-      - tn-directus-db
+      - [DIRECTUS_PUBLIC_URL]-cache
+      - [DIRECTUS_PUBLIC_URL]-db
     networks:
       - datas
       - admin
