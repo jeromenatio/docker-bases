@@ -54,6 +54,32 @@ tnIsCommandMissing(){
     command -v $1 > /dev/null 2>&1 && return 1 || return 0
 }
 
+tnIsMultiInstance(){
+    local file=$1
+    local answer="false"
+    while read line; do
+        if [[ $line =~ TN_MULTI=\[(.*)\] ]]; then            
+            answer="${BASH_REMATCH[1]}"
+        fi
+    done < $file
+    if [ "$answer" == "true" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+tnGetInstancePathFromFile(){
+    local file=$1
+    local answer="false"
+    while read line; do
+        if [[ $line =~ TN_BASEDIR=\[(.*)\] ]]; then            
+            answer="${BASH_REMATCH[1]}"
+        fi
+    done < $file
+    echo "$answer"
+}
+
 tnAreCommandsMissing(){
     local _commands=("$@")
     for value in "${_commands[@]}"; do

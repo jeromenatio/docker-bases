@@ -40,23 +40,35 @@ elif [ "$action" == "list" ]; then
     sleep 0.1 & tnSpin "LIST"
 elif [ "$action" == "install" ]; then
 
+    # Base paths to install and download
     containerName=$id
-    containerDir="$dockerhome/$containerName"
-    composeFile="$containerDir/docker-compose.yml"
+    containerBaseDir="$dockerhome/$containerName"
     composeFileDistant="$github_link/containers/$containerName.yml"
-    envFile="$containerDir/.env"
     envFileDistant="$github_link/containers/$containerName.conf"
+    composeFileTemp="$containerBaseDir/docker-compose.yml"
+    envFileTemp="$containerBaseDir/.env"
+
+    # Installing based on .env file
     sleep 0.1 & tnSpin "------------------------------------------"
     sleep 0.1 & tnSpin "Installing container : $containerName"
-    (tnExec "mkdir -p '$containerDir'" $logfile) & tnSpin "Creating main directory"
-    (tnExec "tnDownload '$composeFileDistant' '$composeFile' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file"
-    (tnExec "tnDownload '$envFileDistant' '$envFile' '$ENV'" $logfile) & tnSpin "Downloading .env file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$composeFile'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
-    tnAskUserFromFile $envFile
-    (tnExec "tnAutoFromFile $envFile $composeFile" $logfile) & tnSpin "Generating auto variables"
-    (tnExec "tnCreateDirFromFile $envFile $" $logfile) & tnSpin "Creating container directories"
-    (tnExec "chown docker:docker $containerDir -R" $logfile) & tnSpin "Changing container owner"
+    (tnExec "mkdir -p '$containerBaseDir'" $logfile) & tnSpin "Creating container base directory"
+    (tnExec "tnDownload '$composeFileDistant' '$composeFileTemp' '$ENV'" $logfile) & tnSpin "Downloading docker-compose.yml file"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$composeFileTemp'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$envFileTemp'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
+    tnAskUserFromFile $envFileTemp $composeFileTemp
+    (tnExec "tnAutoFromFile $envFileTemp $composeFileTemp" $logfile) & tnSpin "Generating auto variables"
+    (tnExec "tnCreateDirFromFile $envFileTemp" $logfile) & tnSpin "Creating container directories"
+    if tnIsMultiInstance $envFileTemp; then
+        instance=$(tnGetInstancePathFromFile $envFileTemp)  
+        composeFileFinal="$instance/docker-compose.yml"    
+        envFileFinal="$instance/.env"
+        (tnExec "mv '$composeFileTemp' '$composeFileFinal'" $logfile) & tnSpin "Moving compose file"
+        (tnExec "mv '$envFileTemp' '$envFileFinal'" $logfile) & tnSpin "Moving env file"
+        (tnExec "chown docker:docker $instance -R" $logfile) & tnSpin "Changing container instance owner"
+    else
+        (tnExec "chown docker:docker $containerDir -R" $logfile) & tnSpin "Changing container owner"
+    fi
 
 else
     echo "Invalid action"
