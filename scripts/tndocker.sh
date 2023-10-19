@@ -14,20 +14,32 @@ gid="[GID]"
 source $utilsfile
 
 if [ "$action" == "up" ]; then
-    # Get dir in docker
+    # Base paths to install and download
     containerName=$id
-    containerDir="$dockerhome/$containerName"
-    composeFile="$containerDir/docker-compose.yml"
-    envFile="$containerDir/.env"
+    containerBaseDir="$dockerhome/$containerName"
+    envFileDistant="$github_link/containers/$containerName.conf"
+    envFileTemp="$containerBaseDir/.envtemp"
+    composeFileFinal="$containerBaseDir/docker-compose.yml"
+    envFileFinal="$containerBaseDir/.env"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    if tnIsMultiInstance $envFileTemp; then
+        instance=$(tnGetInstancePathFromFile $envFileTemp)  
+        composeFileFinal="$instance/docker-compose.yml"    
+        envFileFinal="$instance/.env"
+        (tnExec "mv '$composeFileTemp' '$composeFileFinal'" $logfile) & tnSpin "Moving compose file"
+        (tnExec "mv '$envFileTemp' '$envFileFinal'" $logfile) & tnSpin "Moving env file"
+        (tnExec "chown docker:docker $instance -R" $logfile) & tnSpin "Changing container instance owner"
+    fi   
 
     # Special cases : Remove exim
-    if [ "$dir_name" == "mailserver" ]; then
+    if [ "$id" == "mailserver" ]; then
         apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
     fi
 
     # Compose up    
-    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans"
-    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile up -d --force-recreate --build" 
+    eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
+    eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
+
 elif [ "$action" == "down" ]; then
     sleep 0.1 & tnSpin "DOWN"
 elif [ "$action" == "start" ]; then
@@ -59,6 +71,7 @@ elif [ "$action" == "install" ]; then
     tnAskUserFromFile $envFileTemp $composeFileTemp
     (tnExec "tnAutoFromFile $envFileTemp $composeFileTemp" $logfile) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $envFileTemp" $logfile) & tnSpin "Creating container directories"
+    (tnExec "chown docker:docker $containerDir -R" $logfile) & tnSpin "Changing container owner"
     if tnIsMultiInstance $envFileTemp; then
         instance=$(tnGetInstancePathFromFile $envFileTemp)  
         composeFileFinal="$instance/docker-compose.yml"    
@@ -66,8 +79,6 @@ elif [ "$action" == "install" ]; then
         (tnExec "mv '$composeFileTemp' '$composeFileFinal'" $logfile) & tnSpin "Moving compose file"
         (tnExec "mv '$envFileTemp' '$envFileFinal'" $logfile) & tnSpin "Moving env file"
         (tnExec "chown docker:docker $instance -R" $logfile) & tnSpin "Changing container instance owner"
-    else
-        (tnExec "chown docker:docker $containerDir -R" $logfile) & tnSpin "Changing container owner"
     fi
 
 else
