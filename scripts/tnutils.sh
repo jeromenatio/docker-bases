@@ -439,7 +439,7 @@ tnInstallDocker(){
     fi
     (tnExec "echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null" $logfile) & tnSpin "Modifying repositories source.list"
     (tnExec "apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io" $logfile) & tnSpin "Installing docker"
-    sleep 0.1 & spin "$(docker --version) installed"
+    sleep 0.1 & tnSpin "$(docker --version) installed"
 }
 
 tnInstallDockerCompose(){
