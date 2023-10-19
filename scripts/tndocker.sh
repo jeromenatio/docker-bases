@@ -26,9 +26,6 @@ if [ "$action" == "up" ]; then
         instance=$(tnGetInstancePathFromFile $envFileTemp)  
         composeFileFinal="$instance/docker-compose.yml"    
         envFileFinal="$instance/.env"
-        (tnExec "mv '$composeFileTemp' '$composeFileFinal'" $logfile) & tnSpin "Moving compose file"
-        (tnExec "mv '$envFileTemp' '$envFileFinal'" $logfile) & tnSpin "Moving env file"
-        (tnExec "chown docker:docker $instance -R" $logfile) & tnSpin "Changing container instance owner"
     fi   
 
     # Special cases : Remove exim
