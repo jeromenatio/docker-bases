@@ -330,7 +330,7 @@ tnAskUserFromFile() {
                 fi
             done
 
-            # XXXX
+            # XXXXX
             tempstr="_CLEAN"
             variable_clean_name="$variable$tempstr"           
             variable_clean="${!variable}"
@@ -396,7 +396,7 @@ tnAutoFromFile() {
             question="${BASH_REMATCH[3]}"
             eval "$variable=\"$default_value\""
 
-            # XXXX
+            # XXXXX
             tempstr="_CLEAN"
             variable_clean_name="$variable$tempstr"
             variable_clean="${!variable}"
