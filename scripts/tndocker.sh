@@ -14,7 +14,20 @@ gid="[GID]"
 source $utilsfile
 
 if [ "$action" == "up" ]; then
-    sleep 0.1 & tnSpin "UP"
+    # Get dir in docker
+    containerName=$id
+    containerDir="$dockerhome/$containerName"
+    composeFile="$containerDir/docker-compose.yml"
+    envFile="$containerDir/.env"
+
+    # Special cases : Remove exim
+    if [ "$dir_name" == "mailserver" ]; then
+        apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
+    fi
+
+    # Compose up    
+    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans"
+    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile up -d --force-recreate --build" 
 elif [ "$action" == "down" ]; then
     sleep 0.1 & tnSpin "DOWN"
 elif [ "$action" == "start" ]; then
