@@ -224,10 +224,16 @@ tnDefaultValue(){
         dv="$(tnGeneratePassword 10)"
     fi
     if [[ "$dv" == "GENDIR" ]]; then
-        dv="$(tnGenerateDir)"
+        dv=$(date +%s)
     fi
     if [[ "$dv" == "UUID" ]]; then
         dv="$(tnGenerateUuid)"
+    fi
+    if [[ "$dv" == "GENINSTANCE" ]]; then
+        dv=$(date +%s)
+    fi
+    if [[ "$dv" == "MANDATORY" ]]; then
+        dv=""
     fi
     echo $dv
 }
@@ -243,6 +249,12 @@ tnDefaultDisplay(){
     fi
     if [[ "$dv" == "UUID" ]]; then
         dp="leave blank to generate random uuid"
+    fi
+    if [[ "$dv" == "GENINSTANCE" ]]; then
+        dp="leave blank to generate random instance name"
+    fi
+    if [[ "$dv" == "MANDATORY" ]]; then
+        dp="This answer is mandatory and must be unique"
     fi
     echo $dp
 }
@@ -282,6 +294,13 @@ tnAskUserFromFile() {
             question="${BASH_REMATCH[3]}"
             eval "$variable=\"$default_value\""
             tnAskUser "$question" "$default_value" "$variable"
+            while true; do
+                if [ "${!variable}" == "" ]; then
+                    tnAskUser "$question" "$default_value" "$variable"
+                else
+                    break
+                fi
+            done
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
             if [[ -n "$file2" ]]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2

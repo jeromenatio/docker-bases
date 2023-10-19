@@ -3,7 +3,7 @@
 # Take two arguments, the first is the action (stop, remove, start, list) and the second is the container id or network name
 action="$1"
 id="$2"
-directories=("${@:3}")
+option="$3"
 dockerhome="[DOCKER_HOME]"
 envfile="[DOCKER_HOME]/.env"
 utilsfile="[UTILS_FILES]"
@@ -13,137 +13,18 @@ uid="[UID]"
 gid="[GID]"
 source $utilsfile
 
-if [ "$action" == "remove" ]; then
-    if [ "$id" == "all" ]; then
-        # Stop all running containers
-        containers=$(docker container ls -q)
-        if [ -n "$containers" ]; then
-            docker container stop $containers
-        fi
-        # Remove all existing containers and their associated volumes
-        containers=$(docker container ls -a -q)
-        if [ -n "$containers" ]; then
-            docker container rm -v $containers
-        else
-            echo "No containers found"
-        fi
-    else
-        # Stop the specified container
-        if docker container stop $id; then
-            # Remove the specified container and its associated volumes
-            docker container rm -v $id
-        else
-            echo "Container $id not found"
-        fi
-    fi
-elif [ "$action" == "stop" ]; then
-    if [ "$id" == "all" ]; then
-        # Stop all running containers
-        containers=$(docker container ls -q)
-        if [ -z "$containers" ]; then
-            echo "No running containers found"
-        else
-            docker container stop $containers
-        fi
-    else
-        # Stop the specified container
-        if docker container stop $id; then
-            :
-        else
-            echo "Container $id not found"
-        fi
-    fi
-elif [ "$action" == "start" ]; then
-    if [ "$id" == "all" ]; then
-        # Start all stopped containers
-        containers=$(docker container ls -a -q)
-        if [ -z "$containers" ]; then
-            echo "No containers found"
-        else
-            docker container start $containers
-        fi
-    else
-        # Start the specified container
-        if docker container start $id; then
-            :
-        else
-            echo "Container $id not found"
-        fi
-    fi
-elif [ "$action" == "restart" ]; then
-    if [ "$id" == "all" ]; then
-        # Start all stopped containers
-        containers=$(docker container ls -a -q)
-        if [ -z "$containers" ]; then
-            echo "No containers found"
-        else
-            docker container restart $containers
-        fi
-    else
-        # Start the specified container
-        if docker container restart $id; then
-            :
-        else
-            echo "Container $id not found"
-        fi
-    fi
-elif [ "$action" == "list" ]; then
-    if [ -z "$id" ]; then
-        echo "Please provide a network name"
-    else
-        if [ "$id" == "all" ]; then
-            networks=$(docker network ls -q)
-            for network in $networks; do
-                containers=$(docker container ls --filter "network=$network" -q)
-                if [ -n "$containers" ]; then
-                    name=$(docker network inspect $network --format='{{.Name}}')
-                    id=$(docker network inspect $network --format='{{.Id}}')
-                    echo "** $name"
-                    for container in $containers; do
-                        name=$(docker container inspect $container --format='{{.Name}}' | tr -d '/')
-                        id=$(docker container inspect $container --format='{{.Id}}')
-                        echo "     - $name"
-                    done
-                fi
-            done
-        else
-            containers=$(docker container ls --filter "network=$id" -q)
-            if [ -z "$containers" ]; then
-                echo "No containers found in network $id"
-            else
-                name=$(docker network inspect $id --format='{{.Name}}')
-                id=$(docker network inspect $id --format='{{.Id}}')
-                echo "** $name"
-                for container in $containers; do
-                    name=$(docker container inspect $container --format='{{.Name}}' | tr -d '/')
-                    id=$(docker container inspect $container --format='{{.Id}}')
-                    echo "     - $name"
-                done
-            fi
-        fi
-    fi
-elif [ "$action" == "up" ]; then
-    # Get dir in docker
-    containerName=$id
-    containerDir="$dockerhome/$containerName"
-    composeFile="$containerDir/docker-compose.yml"
-    envFile="$containerDir/.env"
-
-    # Special cases : Remove exim
-    if [ "$dir_name" == "mailserver" ]; then
-        apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
-    fi
-
-    # Compose up    
-    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans"
-    eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile up -d --force-recreate --build" 
+if [ "$action" == "up" ]; then
+    sleep 0.1 & tnSpin "UP"
 elif [ "$action" == "down" ]; then
-
-    # destination file
-    file_dest="$dockerhome/$id/docker-compose.yml"
-
-    # Compose down
-    eval "docker-compose -f $file_dest --env-file $envfile down --volumes --remove-orphans" 
+    sleep 0.1 & tnSpin "DOWN"
+elif [ "$action" == "start" ]; then
+    sleep 0.1 & tnSpin "START"
+elif [ "$action" == "restart" ]; then
+    sleep 0.1 & tnSpin "RESTART"
+elif [ "$action" == "stop" ]; then
+    sleep 0.1 & tnSpin "STOP"
+elif [ "$action" == "list" ]; then
+    sleep 0.1 & tnSpin "LIST"
 elif [ "$action" == "install" ]; then
 
     containerName=$id
