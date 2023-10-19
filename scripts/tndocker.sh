@@ -35,6 +35,11 @@ if [ "$action" == "up" ]; then
             
             composeFileFinal="$containerBaseDir/$option/docker-compose.yml"    
             envFileFinal="$containerBaseDir/$option/.env"
+            if [ ! -f "$composeFileFinal" ]; then
+                option_clean="${option//./-}" 
+                composeFileFinal="$containerBaseDir/$option_clean/docker-compose.yml"    
+                envFileFinal="$containerBaseDir/$option_clean/.env"
+            fi
 
             # Compose up    
             eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"

@@ -334,8 +334,7 @@ tnAskUserFromFile() {
             tempstr="_CLEAN"
             variable_clean_name="$variable$tempstr"           
             variable_clean="${!variable}"
-            variable_clean="${variable_clean//./-}"
-            sleep 0.1 & tnSpin "variable_clean : $variable_clean"  
+            variable_clean="${variable_clean//./-}" 
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
             tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
             if [[ -n "$file2" ]]; then
