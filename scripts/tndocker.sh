@@ -80,14 +80,14 @@ elif [ "$action" == "list" ]; then
         # Split the line into project name and status
         project_name=$(echo "$line" | awk '{print $1}')
         project_status=$(echo "$line" | awk '{print $2}')
+        config_file=$(echo "$line" | awk '{$1=$2=""; print $0}' | sed 's/^[ \t]*//')
 
-        # The config file path is the rest of the line
-        config_file=$(echo "$line" | cut -d ' ' -f 3-)
-
-        echo $project_name
-        echo $project_status
-        echo $config_file
-        echo "--------"
+        if [ "$id" == "all" || "$id" == "$project_name" ]; then
+            echo $project_name
+            echo $project_status
+            echo $config_file
+            echo "--------"
+        fi
 
     done <<< "$compose_ls_output"
 
