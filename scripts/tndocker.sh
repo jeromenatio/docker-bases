@@ -83,14 +83,14 @@ elif [ "$action" == "install" ]; then
     tnAskUserFromFile $envFileTemp $composeFileTemp
     (tnExec "tnAutoFromFile $envFileTemp $composeFileTemp" $logfile) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $envFileTemp" $logfile) & tnSpin "Creating container directories"
-    (tnExec "chown docker:docker $containerDir -R" $logfile) & tnSpin "Changing container owner"
+    (tnExec "chown -R docker:docker $containerDir" $logfile) & tnSpin "Changing container owner"
     if tnIsMultiInstance $envFileTemp; then
         instance=$(tnGetInstancePathFromFile $envFileTemp)  
         composeFileFinal="$instance/docker-compose.yml"    
         envFileFinal="$instance/.env"
         (tnExec "mv '$composeFileTemp' '$composeFileFinal'" $logfile) & tnSpin "Moving compose file"
         (tnExec "mv '$envFileTemp' '$envFileFinal'" $logfile) & tnSpin "Moving env file"
-        (tnExec "chown docker:docker $instance -R" $logfile) & tnSpin "Changing container instance owner"
+        (tnExec "chown -R docker:docker $instance" $logfile) & tnSpin "Changing container instance owner"
     fi
 
 else
