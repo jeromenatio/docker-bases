@@ -61,7 +61,23 @@ elif [ "$action" == "restart" ]; then
 elif [ "$action" == "stop" ]; then
     sleep 0.1 & tnSpin "STOP"
 elif [ "$action" == "list" ]; then
-    sleep 0.1 & tnSpin "LIST"
+
+    # Check if a project name was provided as a parameter
+    if [ "$id" == "all" ]; then
+        # List all running Docker Compose services
+        services=$(docker-compose ps --services)
+    else
+        # List services and containers for the specified project
+        services=$(docker ps --filter "label=com.docker.compose.project=$id" --format "{{.Label \"com.docker.compose.service\"}}")
+    fi
+
+    # Loop through each service and list its corresponding containers
+    for service in $services; do
+        echo "Service: $service"
+        containers=$(docker ps --filter "label=com.docker.compose.service=$service" --format "table {{.Names}}\t{{.Status}}")
+        echo -e "$containers\n"
+    done
+
 elif [ "$action" == "install" ]; then
 
     # Base paths to install and download
