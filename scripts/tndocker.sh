@@ -82,7 +82,7 @@ elif [ "$action" == "list" ]; then
         project_status=$(echo "$line" | awk '{print $2}')
         config_file=$(echo "$line" | awk '{$1=$2=""; print $0}' | sed 's/^[ \t]*//')
 
-        if [ "$id" == "all" || "$id" == "$project_name" ]; then
+        if [ "$id" == "all" ] || ["$id" == "$project_name" ]; then
             echo $project_name
             echo $project_status
             echo $config_file
