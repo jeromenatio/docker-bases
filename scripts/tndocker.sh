@@ -62,27 +62,25 @@ elif [ "$action" == "stop" ]; then
     sleep 0.1 & tnSpin "STOP"
 elif [ "$action" == "list" ]; then
 
-    # Check if a project name was provided as a parameter
-    if [ "$id" == "all" ]; then
-        # List all Docker Compose projects and their containers
-        projects=$(docker-compose ls --all --format '{{.Name}}')
-    else
-        # List services and containers for the specified project
-        project_name=$id
-        projects=$(docker-compose ls --all --format '{{.Name}}' "$project_name")
-    fi
+    # Run `docker-compose ls --all` and store the results in a variable
+    compose_ls_output=$(docker-compose ls --all)
 
-    # Loop through each project and list its services and corresponding containers
-    for project in $projects; do
-        echo "Project: $project"
-        project_path=$(docker-compose -f $(docker-compose -f "$project" config --file | grep 'file: ' | cut -d ' ' -f 2) config --project | grep 'file: ' | cut -d ' ' -f 2)
-        containers=$(docker-compose -f "$project_path" ps --services)
-        for service in $containers; do
-            echo "Service: $service"
-            docker ps --filter "label=com.docker.compose.project=$project" --filter "label=com.docker.compose.service=$service" --format "table {{.Names}}\t{{.Status}}"
-        done
-        echo -e "\n"
-    done
+    # Parse the `docker-compose ls` output to extract project names and config file paths
+    while read -r line; do
+
+        # Skip the header and empty lines
+        if [[ "$line" == "Name" || "$line" == "NAME" || "$line" == "Project" || "$line" == "Project" || -z "$line" ]]; then
+            continue
+        fi
+
+        # Split the line into project name and config file path
+        project_name=$(echo "$line" | awk '{print $1}')
+        config_file_path=$(echo "$line" | awk '{print $6}')
+        echo $project_name
+        echo $config_file_path
+        echo "--------"
+
+    done <<< "$compose_ls_output"
 
 elif [ "$action" == "install" ]; then
 
