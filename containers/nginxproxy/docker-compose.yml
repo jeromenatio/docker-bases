@@ -1,0 +1,57 @@
+version: $DOCKER_VERSION
+
+name: $NAME
+services:
+  nginxproxy:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
+    env_file:
+      - ${DOCKER_HOME}/nginxproxy/.env
+    ports:
+      - $HTTP_PORT
+      - $HTTPS_PORT
+      - $SELF_PORT
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      DB_MYSQL_HOST: $DB_NAME
+      DB_MYSQL_USER: $DB_USER
+      DB_MYSQL_PASSWORD: $DB_PASSWORD
+      DB_MYSQL_NAME: $DB_DATABASE
+    volumes:
+      - $DATA_VOLUME
+      - $LETSENCRYPT_VOLUME
+    depends_on:
+      - nginxproxy-db
+    networks:
+      - admin
+      - datas
+    restart: $RESTART_POLICY
+
+  nginxproxy-db:
+    image: $DB_IMAGE
+    container_name: $DB_NAME
+    hostname: $DB_NAME
+    env_file:
+      - ${DOCKER_HOME}/nginxproxy/.env
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+      MYSQL_DATABASE: $DB_DATABASE
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+    volumes:
+      - $DB_MYSQL_VOLUME 
+    networks:
+      - datas
+    restart: $DB_RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+  datas:
+    external: true
+    name: $DOCKER_DATAS_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END

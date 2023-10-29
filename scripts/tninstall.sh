@@ -127,3 +127,6 @@ sleep 0.5 & tnSpin "Modifying main .env file"
 for i in "${defaultContainers[@]}"; do
     tndocker install $i
 done
+
+# CHANGING OWNER ON DOCKER DIRECTORIES AND FILES
+(tnExec "chown docker:docker $DOCKER_HOME -R" $logfile) & tnSpin "Changing docker home owner"

@@ -1,22 +1,23 @@
 version: $DOCKER_VERSION
 
+name: $NAME
 services:
-  tn-vscode:
-    image: $VSCODE_IMAGE
-    container_name: $VSCODE_NAME
-    hostname: $VSCODE_NAME
+  vscode:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
       TZ: $DOCKER_TIMEZONE
-      PASSWORD: $VSCODE_PASSWORD
-      DEFAULT_WORKSPACE: $VSCODE_DEFAULT_WORKSPACE_DIR
+      PASSWORD: $PASSWORD
+      DEFAULT_WORKSPACE: $DEFAULT_WORKSPACE_DIR
     networks:
       - admin
     volumes:
-      - $VSCODE_CONFIG_VOLUME
-      - $VSCODE_DOCKER_VOLUME
-    restart: $VSCODE_RESTART
+      - $CONFIG_VOLUME
+      - $DOCKER_VOLUME
+    restart: $RESTART_POLICY
 
 networks:
   admin:

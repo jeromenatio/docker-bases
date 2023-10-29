@@ -23,7 +23,7 @@ if [ "$action" == "up" ]; then
     # Base paths to install and download
     containerName=$id
     containerBaseDir="$dockerhome/$containerName"
-    envFileDistant="$github_link/containers/$containerName.conf"
+    envFileDistant="$github_link/containers/$containerName/.env"
     envFileTemp="$containerBaseDir/.envtemp"
     (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
     composeFileFinal="$containerBaseDir/docker-compose.yml"
@@ -49,7 +49,8 @@ if [ "$action" == "up" ]; then
         # Compose up    
         eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
         eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
-    fi   
+    fi 
+    (tnExec "rm '$envFileTemp'" $logfile) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
     sleep 0.1 & tnSpin "DOWN"
@@ -66,8 +67,8 @@ elif [ "$action" == "install" ]; then
     # Base paths to install and download
     containerName=$id
     containerBaseDir="$dockerhome/$containerName"
-    composeFileDistant="$github_link/containers/$containerName.yml"
-    envFileDistant="$github_link/containers/$containerName.conf"
+    composeFileDistant="$github_link/containers/$containerName/docker-compose.yml"
+    envFileDistant="$github_link/containers/$containerName/.env"
     composeFileTemp="$containerBaseDir/docker-compose.yml"
     envFileTemp="$containerBaseDir/.env"
 
