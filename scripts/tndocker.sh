@@ -69,15 +69,17 @@ elif [ "$action" == "list" ]; then
     while read -r line; do
 
         # Skip the header and empty lines
-        if [[ "$line" == "Name" || "$line" == "NAME" || "$line" == "Project" || "$line" == "Project" || -z "$line" ]]; then
+        if [[ "$line" == Name* || "$line" == NAME* || "$line" == Project* || "$line" == PROJECT* || -z "$line" ]]; then
             continue
         fi
 
         # Split the line into project name and config file path
         project_name=$(echo "$line" | awk '{print $1}')
-        config_file_path=$(echo "$line" | awk '{print $6}')
+        project_status=$(echo "$line" | awk '{print $2}')
+        config_file=$(echo "$line" | awk '{print $3}')
         echo $project_name
-        echo $config_file_path
+        echo $project_status
+        echo $config_file
         echo "--------"
 
     done <<< "$compose_ls_output"
