@@ -65,18 +65,25 @@ elif [ "$action" == "list" ]; then
     # Run `docker-compose ls --all` and store the results in a variable
     compose_ls_output=$(docker-compose ls --all)
 
+    # Set a flag to skip the first line (header)
+    skip_line=true
+
     # Parse the `docker-compose ls` output to extract project names and config file paths
     while read -r line; do
 
-        # Skip the header and empty lines
-        if [[ "$line" == Name* || "$line" == NAME* || "$line" == Project* || "$line" == PROJECT* || -z "$line" ]]; then
+        # Skip the header
+        if [ "$skip_line" = true ]; then
+            skip_line=false
             continue
         fi
 
-        # Split the line into project name and config file path
+        # Split the line into project name and status
         project_name=$(echo "$line" | awk '{print $1}')
         project_status=$(echo "$line" | awk '{print $2}')
-        config_file=$(echo "$line" | awk '{print $3}')
+
+        # The config file path is the rest of the line
+        config_file=$(echo "$line" | cut -d ' ' -f 3-)
+
         echo $project_name
         echo $project_status
         echo $config_file
