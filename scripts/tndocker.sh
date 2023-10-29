@@ -64,18 +64,24 @@ elif [ "$action" == "list" ]; then
 
     # Check if a project name was provided as a parameter
     if [ "$id" == "all" ]; then
-        # List all running Docker Compose services
-        services=$(docker-compose ps --services)
+        # List all Docker Compose projects and their containers
+        projects=$(docker-compose ls --all --format '{{.Name}}')
     else
         # List services and containers for the specified project
-        services=$(docker ps --filter "label=com.docker.compose.project=$id" --format "{{.Label \"com.docker.compose.service\"}}")
+        project_name=$id
+        projects=$(docker-compose ls --all --format '{{.Name}}' "$project_name")
     fi
 
-    # Loop through each service and list its corresponding containers
-    for service in $services; do
-        echo "Service: $service"
-        containers=$(docker ps --filter "label=com.docker.compose.service=$service" --format "table {{.Names}}\t{{.Status}}")
-        echo -e "$containers\n"
+    # Loop through each project and list its services and corresponding containers
+    for project in $projects; do
+        echo "Project: $project"
+        project_path=$(docker-compose -f $(docker-compose -f "$project" config --file | grep 'file: ' | cut -d ' ' -f 2) config --project | grep 'file: ' | cut -d ' ' -f 2)
+        containers=$(docker-compose -f "$project_path" ps --services)
+        for service in $containers; do
+            echo "Service: $service"
+            docker ps --filter "label=com.docker.compose.project=$project" --filter "label=com.docker.compose.service=$service" --format "table {{.Names}}\t{{.Status}}"
+        done
+        echo -e "\n"
     done
 
 elif [ "$action" == "install" ]; then
