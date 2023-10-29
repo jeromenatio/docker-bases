@@ -8,7 +8,6 @@ services:
     hostname: $NAME
     env_file:
       - [DOCKER_HOME]/nginxproxy/.env
-      - [DOCKER_HOME]/.env
     ports:
       - $HTTP_PORT
       - $HTTPS_PORT
@@ -36,7 +35,6 @@ services:
     hostname: $DB_NAME
     env_file:
       - [DOCKER_HOME]/nginxproxy/.env
-      - [DOCKER_HOME]/.env
     environment:
       MYSQL_ROOT_PASSWORD: $DB_PASSWORD
       MYSQL_DATABASE: $DB_DATABASE
