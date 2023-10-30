@@ -86,13 +86,20 @@ elif [ "$action" == "list" ]; then
             echo "** $project_name"
 
             # List containers, ports and networks
-            docker_ps_output=$(docker ps --filter "label=com.docker.compose.project=$id" --format "{{.Names}}")
+            docker_ps_output=($(docker ps --filter "label=com.docker.compose.project=$id" --format "table {{.Names}}\t{{.Status}}"))
+
             for container_name in "${docker_ps_output[@]}"; do
-                # Use docker inspect to get details for each container
-                container_info=$(docker inspect -f "Name: {{.Name}} Status: {{.State.Status}} Ports: {{range .NetworkSettings.Ports}}{{.HostIp}}:{{.HostPort}} -> {{.ContainerPort}} {{end}}" "$container_name")
+                container_name="${container_info[i-1]}"
+                container_status="${container_info[i]}"
                 
-                # Display the container information
-                echo "        -- $container_info"
+                # Use docker port to get the port mappings
+                port_mappings=$(docker port "$container_name" | awk '{print $1":"$3}' | paste -s -d, -)
+                
+                # Format the port mappings as port->hostport
+                formatted_port_mappings=$(echo "$port_mappings" | awk -F',' '{for (i=1; i<=NF; i++) { split($i, arr, ":"); if (i > 1) printf(", "); printf("%s->%s", arr[1], arr[2]); } }')
+
+                # Outout
+                echo -e "Container Information for $container_name:\tName: $container_name\tStatus: $container_status\tPort mappings: $formatted_port_mappings\t-------------------"
             done
         fi
 
