@@ -77,7 +77,7 @@ elif [ "$action" == "list" ]; then
             continue
         fi
 
-        # Split the line into project name and status
+        # Split the line into project name and status #
         project_name=$(echo "$line" | awk '{print $1}')
         project_status=$(echo "$line" | awk '{print $2}')
         config_file=$(echo "$line" | awk '{$1=$2=""; print $0}' | sed 's/^[ \t]*//')
