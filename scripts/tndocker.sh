@@ -53,13 +53,43 @@ if [ "$action" == "up" ]; then
     (tnExec "rm '$envFileTemp'" $logfile) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
-    sleep 0.1 & tnSpin "DOWN"
+
+    # Base paths to install and download
+    containerName=$id
+    containerBaseDir="$dockerhome/$containerName"
+    envFileDistant="$github_link/containers/$containerName/.env"
+    envFileTemp="$containerBaseDir/.envtemp"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    composeFileFinal="$containerBaseDir/docker-compose.yml"
+    envFileFinal="$containerBaseDir/.env"
+    if tnIsMultiInstance $envFileTemp; then
+        if [ -z "$option" ]; then
+            sleep 0.1 & tnSpin "Container $id is a multi instance container, please provide instance name as 3rd option"
+        else
+            
+            composeFileFinal="$containerBaseDir/$option/docker-compose.yml"    
+            envFileFinal="$containerBaseDir/$option/.env"
+            if [ ! -f "$composeFileFinal" ]; then
+                option_clean="${option//./-}" 
+                composeFileFinal="$containerBaseDir/$option_clean/docker-compose.yml"    
+                envFileFinal="$containerBaseDir/$option_clean/.env"
+            fi
+
+            # Compose up    
+            eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
+        fi
+    else
+        # Compose up    
+        eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans" 
+    fi 
+    (tnExec "rm '$envFileTemp'" $logfile) & tnSpin "Removing temp files"
+
 elif [ "$action" == "start" ]; then
-    sleep 0.1 & tnSpin "START"
+    sleep 0.1 & tnSpin "START function not yet implemented"
 elif [ "$action" == "restart" ]; then
-    sleep 0.1 & tnSpin "RESTART"
+    sleep 0.1 & tnSpin "RESTART function not yet implemented"
 elif [ "$action" == "stop" ]; then
-    sleep 0.1 & tnSpin "STOP"
+    sleep 0.1 & tnSpin "STOP function not yet implemented"
 elif [ "$action" == "list" ]; then
 
     # Run `docker-compose ls --all` and store the results in a variable
