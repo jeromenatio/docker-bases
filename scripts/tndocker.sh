@@ -86,7 +86,7 @@ elif [ "$action" == "list" ]; then
             echo "** $project_name"
 
             # List containers, ports and networks #
-            container_info=($(docker ps --filter "label=com.docker.compose.project=$id" --format "table {{.Names}}\t{{.Status}}"))
+            container_info=($(docker ps --filter "label=com.docker.compose.project=$project_name" --format "table {{.Names}}\t{{.Status}}"))
 
             for ((i=1; i<${#container_info[@]}; i+=2)); do
                 container_name="${container_info[i-1]}"
