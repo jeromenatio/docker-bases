@@ -95,7 +95,7 @@ elif [ "$action" == "list" ]; then
                 fi
                 container_status=$(docker inspect -f '{{.State.Status}}' "$container_name")
                 container_networks=$(docker inspect -f '{{range $key, $value := .NetworkSettings.Networks}}{{$key}}, {{end}}' "$container_name" | sed 's/, $//')
-                echo -e "\t\t- $container_name\t$container_status\t$container_ports\t$container_networks"
+                echo -e "    - $container_name\t$container_status\t$container_ports\t\t$container_networks"
             done
         fi
 
