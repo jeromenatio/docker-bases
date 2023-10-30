@@ -89,8 +89,7 @@ elif [ "$action" == "list" ]; then
             container_names=$(docker ps --filter "label=com.docker.compose.project=$project_name" --format "{{.Names}}")
 
             for container_name in $container_names; do                              
-                port_mappings=$(docker port "$container_name" | sed -e '/\[::\]:/d' -e 's/0.0.0.0://' -e 's/\/tcp//' | tr '\n' ',')
-                port_mappings=${port_mappings%,} 
+                port_mappings=$(docker port "$container_name" | sed -e '/\[::\]:/d' -e 's/0.0.0.0://' -e 's/\/tcp//' | tr '\n' ',' | sed 's/,$//')
 
                 # Outout
                 echo -e "$container_name\t$port_mappings"
