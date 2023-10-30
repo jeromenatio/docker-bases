@@ -89,10 +89,10 @@ elif [ "$action" == "list" ]; then
             docker_ps_output=$(docker ps --filter "label=com.docker.compose.project=$id" --format "{{.Names}}")
             for container_name in "${docker_ps_output[@]}"; do
                 # Use docker inspect to get details for each container
-                container_info=$(docker inspect -f "Name: {{.Name}} Status: {{.State.Status}} Ports: {{range .NetworkSettings.Ports}} {{.HostIp}}:{{.HostPort}} -> {{.ContainerPort}},{{end}}" "$container_name")
+                container_info=$(docker inspect -f "Name: {{.Name}} Status: {{.State.Status}} Ports: {{range .NetworkSettings.Ports}}{{.HostIp}}:{{.HostPort}} -> {{.ContainerPort}} {{end}}" "$container_name")
                 
                 # Display the container information
-                echo -e "\t -- $container_info"
+                echo "        -- $container_info"
             done
         fi
 
