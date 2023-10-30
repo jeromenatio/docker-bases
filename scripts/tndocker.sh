@@ -90,6 +90,9 @@ elif [ "$action" == "list" ]; then
 
             for container_name in $container_names; do                              
                 container_ports=$(docker port "$container_name" | sed -e '/\[::\]:/d' -e 's/0.0.0.0://' -e 's/\/tcp//' | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g' | sed 's/ -> /->/g')
+                if [ -z "$container_ports" ]; then
+                    container_ports="no port forwarded"
+                fi
                 container_status=$(docker inspect -f '{{.State.Status}}' "$container_name")
                 container_networks=$(docker inspect -f '{{range $key, $value := .NetworkSettings.Networks}}{{$key}}, {{end}}' "$container_name" | sed 's/, $//')
                 echo -e "\t\t- $container_name\t$container_status\t$container_ports\t$container_networks"
