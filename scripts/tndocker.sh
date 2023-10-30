@@ -85,7 +85,7 @@ elif [ "$action" == "list" ]; then
         if [ "$id" == "all" ] || [ "$id" == "$project_name" ]; then
             echo "** $project_name"
 
-            # List containers, ports and networks #
+            # List containers, ports and networks
             container_names=$(docker ps --filter "label=com.docker.compose.project=$project_name" --format "{{.Names}}")
 
             for container_name in $container_names; do                              
