@@ -6,8 +6,6 @@ services:
     image: $IMAGE
     container_name: $NAME
     hostname: $NAME
-    env_file:
-      - [DOCKER_HOME]/nginxproxy/.env
     ports:
       - $HTTP_PORT
       - $HTTPS_PORT
@@ -33,8 +31,6 @@ services:
     image: $DB_IMAGE
     container_name: $DB_NAME
     hostname: $DB_NAME
-    env_file:
-      - [DOCKER_HOME]/nginxproxy/.env
     environment:
       MYSQL_ROOT_PASSWORD: $DB_PASSWORD
       MYSQL_DATABASE: $DB_DATABASE

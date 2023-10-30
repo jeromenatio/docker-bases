@@ -83,10 +83,17 @@ elif [ "$action" == "list" ]; then
         config_file=$(echo "$line" | awk '{$1=$2=""; print $0}' | sed 's/^[ \t]*//')
 
         if [ "$id" == "all" ] || [ "$id" == "$project_name" ]; then
-            echo $project_name
-            echo $project_status
-            echo $config_file
-            echo "--------"
+            echo "** $project_name"
+
+            # List containers, ports and networks
+            docker_ps_output=$(docker ps --filter "label=com.docker.compose.project=$id" --format "{{.Names}}")
+            for container_name in "${docker_ps_output[@]}"; do
+                # Use docker inspect to get details for each container
+                container_info=$(docker inspect -f "Name: {{.Name}} Status: {{.State.Status}} Ports: {{range $k, $v := .NetworkSettings.Ports}}{{if $v}}{{$k}} -> {{with index $v 0}}{{.HostPort}}{{end}}, {{end}}{{end}}" "$container_name")
+                
+                # Display the container information
+                echo "\t -- $container_info"
+            done
         fi
 
     done <<< "$compose_ls_output"
