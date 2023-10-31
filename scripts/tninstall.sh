@@ -29,8 +29,6 @@ tnDisplay "#  All the required password will be generated randomly for obvious s
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
 tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
 
-tnDisplay "#  GITHUB -> $GITHUB . \n" "$darkRedColor"
-
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
 
