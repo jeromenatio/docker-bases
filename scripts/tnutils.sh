@@ -224,9 +224,6 @@ tnAskUserFromFile() {
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
             fi
-            echo "ASK -> $envFile"
-            echo "ASK -> $_dir"
-            echo "ASK -> $DOCKER_HOME"
             for match_file in "${files[@]}"; do
                 if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
                     matched="${BASH_REMATCH[1]}"
@@ -274,9 +271,7 @@ tnAutoFromFile() {
             if [ "$DOCKER_HOME" != "$_dir" ]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile 
-            fi 
-            echo "AUTO -> $_dir"
-            echo "AUTO -> $DOCKER_HOME"                    
+            fi                   
             for match_file in "${files[@]}"; do
                 if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
                     matched="${BASH_REMATCH[1]}"
