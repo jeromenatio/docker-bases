@@ -224,6 +224,8 @@ tnAskUserFromFile() {
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
             fi
+            tnDisplay "$_dir" "$darkYellowColor"
+            tnDisplay "$DOCKER_HOME" "$darkYellowColor"
             for match_file in "${files[@]}"; do
                 if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
                     matched="${BASH_REMATCH[1]}"
