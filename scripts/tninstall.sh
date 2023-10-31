@@ -47,7 +47,10 @@ latest_version=$(tnGetLatestRelease "docker" "compose")
 tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(uname -m)" $latest_version $LOG_FILE
 
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
-tnIsDirEmpty $DOCKER_HOME && tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed" && exit 1
+if ! [[ -z $(tnIsDirEmpty "$DOCKER_HOME") ]]; then
+    tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed"
+    exit 1
+fi
 
 # CREATE DOCKER HOME DIRECTORY
 (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
