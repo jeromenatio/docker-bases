@@ -395,7 +395,7 @@ tnAutoFromFile() {
             if ["$_dir" != "$DOCKER_HOME"]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile 
-            fir                       
+            fi                       
             for match_file in "${files[@]}"; do
                 if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
                     matched="${BASH_REMATCH[1]}"
