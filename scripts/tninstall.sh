@@ -78,9 +78,9 @@ tnAskUserFromFile $DOCKER_HOME
 (tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
-#for i in "${DEFAULT_CONTAINERS[@]}"; do
-#    tndocker install $i
-#done
+for i in "${DEFAULT_CONTAINERS[@]}"; do
+    tndocker install $i
+done
 
 # CHANGING OWNER ON DOCKER DIRECTORIES AND FILES
 (tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
