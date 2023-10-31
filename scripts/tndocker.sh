@@ -4,19 +4,18 @@
 DOCKER_HOME="[DOCKER_HOME]"
 ENV_FILE="[DOCKER_HOME]/.env"
 UTILS_FILE="[UTILS_FILES]"
-GITHUB_LINK="[GITHUB_LINK]"
+GITHUB="[GITHUB]"
 LOG_FILE="[LOG_FILE]"
 UID="[UID]"
 GID="[GID]"
 
+# GET UTILS FUNCTIONS
+source $UTILS_FILE
 
 # PARAMS
 action="$1"
 id="$2"
 option="$3"
-
-# GET UTILS FUNCTIONS
-source $UTILS_FILE
 
 # CHECK FOR ACTIONS
 if [ "$action" == "up" ]; then
@@ -29,7 +28,7 @@ if [ "$action" == "up" ]; then
     # Base paths to install and download
     containerName=$id
     containerBaseDir="$DOCKER_HOME/$containerName"
-    envFileDistant="$GITHUB_LINK/containers/$containerName/.env"
+    envFileDistant="$GITHUB/containers/$containerName/.env"
     envFileTemp="$containerBaseDir/.envtemp"
     (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
     composeFileFinal="$containerBaseDir/docker-compose.yml"
@@ -63,7 +62,7 @@ elif [ "$action" == "down" ]; then
     # Base paths to install and download
     containerName=$id
     containerBaseDir="$DOCKER_HOME/$containerName"
-    envFileDistant="$GITHUB_LINK/containers/$containerName/.env"
+    envFileDistant="$GITHUB/containers/$containerName/.env"
     envFileTemp="$containerBaseDir/.envtemp"
     (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
     composeFileFinal="$containerBaseDir/docker-compose.yml"
@@ -141,7 +140,7 @@ elif [ "$action" == "install" ]; then
 
     # Base paths to install and download
     localBaseDir="$DOCKER_HOME/$id"
-    distantBaseDir="$GITHUB_LINK/containers/$id"
+    distantBaseDir="$GITHUB/containers/$id"
     envFile="$localBaseDir/.env"
 
     # Installing based on .env file

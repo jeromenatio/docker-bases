@@ -8,7 +8,6 @@ yellowColor="38;5;220"
 darkYellowColor="38;5;214"
 greenColor="38;5;47"
 darkGreenColor="38;5;71"
-darkRed="38;5;124"
 
 # FUNCTIONS
 tnDisplay(){
@@ -40,17 +39,45 @@ tnSpin() {
   tnDisplay "\r✔ $1\n" "$darkBlueColor"
 }
 
-tnIsDirEmpty(){
-    local dirpath=$1
-    if [ ! -d "$dirpath" ] || [ -z "$(ls -A $dirpath)" ]; then
-      return 0
+tnIsUp2Date(){
+    local package_name="$1"
+    local installed_version=$(apt-cache policy $package_name | awk 'NR==2 {print $2}')
+    local available_version=$(apt-cache policy $package_name | awk 'NR==3 {print $2}')
+    if [ "$installed_version" != "$available_version" ]; then
+        return 1
     else
-      return 1
+        return 0
     fi
 }
 
 tnIsCommandMissing(){
     command -v $1 > /dev/null 2>&1 && return 1 || return 0
+}
+
+tnIsMultiInstance(){
+    local file=$1
+    local answer="false"
+    while read line; do
+        if [[ $line =~ TN_MULTI=\[(.*)\] ]]; then            
+            answer="${BASH_REMATCH[1]}"
+        fi
+    done < $file
+    if [ "$answer" == "true" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+tnGetInstancePathFromFile(){
+    local file=$1
+    local answer="false"
+    while read line; do
+        if [[ $line =~ TN_BASEDIR=\[(.*)\] ]]; then            
+            answer="${BASH_REMATCH[1]}"
+        fi
+    done < $file
+    echo "$answer"
 }
 
 tnAreCommandsMissing(){
@@ -61,6 +88,115 @@ tnAreCommandsMissing(){
         fi
     done
     return 1
+}
+
+tnSelect(){
+    # little helpers for terminal print control and key input
+    ESC=$( printf "\033")
+    tn_cursor_blink_on()   { printf "$ESC[?25h"; }
+    tn_cursor_blink_off()  { printf "$ESC[?25l"; }
+    tn_cursor_to()         { printf "$ESC[$1;${2:-1}H"; }
+    tn_print_active()      { printf "$2 $1 $3"; }
+    tn_get_cursor_row()    { IFS=';' read -sdR -p $'\E[6n' ROW COL; echo ${ROW#*[}; }
+
+    local return_value=$1
+    local -n options=$2
+    local nb=${#3}
+    nb=$(expr $nb + 4)
+    if [[ $nb -lt 41 ]]; then
+        nb=40
+    fi
+    tnDisplay "[-] ${3}\n" "$yellowColor"
+    tnDisplay "[-] " "$yellowColor"
+    tnDisplay "\"\u2191\"" "$darkYellowColor"
+    #tnDisplay " and " "$yellowColor"
+    tnDisplay " \"\u2193\"" "$darkYellowColor"
+    tnDisplay " to move up and down the list\n" "$yellowColor"
+    tnDisplay "[-] " "$yellowColor"
+    tnDisplay "\"space bar\"" "$darkYellowColor"
+    tnDisplay " to select option\n" "$yellowColor"
+    tnDisplay "[-] " "$yellowColor"
+    tnDisplay "\"enter\"" "$darkYellowColor"
+    tnDisplay " to confirm your choices\n" "$yellowColor"
+    tnDisplay "$(tnSep $nb)\n" "$yellowColor"
+
+    local selected=()
+    for ((i=0; i<${#options[@]}; i++)); do
+        selected+=("false")
+        printf "\n"
+    done
+
+    # determine current screen position for overwriting the options
+    local lastrow=`tn_get_cursor_row`
+    local startrow=$(($lastrow - ${#options[@]}))
+
+    # ensure cursor and input echoing back on upon a ctrl+c during read -s
+    trap "tn_cursor_blink_on; stty echo; printf '\n'; exit" 2
+    tn_cursor_blink_off
+
+    tn_key_input() {
+        local key
+        IFS= read -rsn1 key 2>/dev/null >&2
+        if [[ $key = ""      ]]; then echo enter; fi;
+        if [[ $key = $'\x20' ]]; then echo space; fi;
+        if [[ $key = "k" ]]; then echo up; fi;
+        if [[ $key = "j" ]]; then echo down; fi;
+        if [[ $key = $'\x1b' ]]; then
+            read -rsn2 key
+            if [[ $key = [A || $key = k ]]; then echo up;    fi;
+            if [[ $key = [B || $key = j ]]; then echo down;  fi;
+        fi 
+    }
+
+    tn_toggle_option() {
+        local option=$1
+        if [[ ${selected[option]} == true ]]; then
+            selected[option]=false
+        else
+            selected[option]=true
+        fi
+    }
+
+    tn_print_options() {
+        local idx=0
+        for option in "${options[@]}"; do
+            local prefix="[ ]"
+            if [[ ${selected[idx]} == true ]]; then
+                prefix="[✔]"
+            fi
+
+            tn_cursor_to $(($startrow + $idx))
+            if [ $idx -eq $active ]; then
+                tnDisplay "  $prefix $option" "$greenColor"
+            else
+                tnDisplay "  $prefix $option" "$darkBlueColor"
+            fi
+            ((idx++))
+        done
+    }
+
+
+    local active=0
+    while true; do
+        tn_print_options $active
+
+        # user key control
+        case `tn_key_input` in
+            space)  tn_toggle_option $active;;
+            enter)  tn_print_options -1; break;;
+            up)     ((active--));
+                    if [ $active -lt 0 ]; then active=$((${#options[@]} - 1)); fi;;
+            down)   ((active++));
+                    if [ $active -ge ${#options[@]} ]; then active=0; fi;;
+        esac
+    done
+
+    # cursor position back to normal
+    tn_cursor_to $lastrow
+    printf "\n"
+    tn_cursor_blink_on
+
+    eval $return_value='("${selected[@]}")'
 }
 
 tnGeneratePassword() {
@@ -88,13 +224,24 @@ tnGeneratePassword() {
 }
 
 tnGenerateDir(){
-    timestamp=$(date +%s)
-    echo "$timestamp";
+    local timestamp=$(date +%s)
+    echo "/home/tndocker_$timestamp";
 }
 
 tnGenerateUuid(){
     local uuid=$(uuidgen)
     echo "$uuid"
+}
+
+tnUserConfirm() {
+  local question=$1
+  echo -en "${yellowColor}? ${question} ${darkYellowColor}(y/n) ${yellowColor}?${defaultColor} "
+  read answer
+  if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+    return 0 
+  else
+    return 1
+  fi
 }
 
 tnDefaultValue(){
@@ -103,7 +250,7 @@ tnDefaultValue(){
         dv="$(tnGeneratePassword 10)"
     fi
     if [[ "$dv" == "GENDIR" ]]; then
-        dv=$(tnGenerateDir)
+        dv=$(date +%s)
     fi
     if [[ "$dv" == "UUID" ]]; then
         dv="$(tnGenerateUuid)"
@@ -136,29 +283,6 @@ tnDefaultDisplay(){
         dp="This answer is mandatory and must be unique"
     fi
     echo $dp
-}
-
-tnDownload(){
-    if [ "$3" == "dev" ]; then
-        cp $1 $2
-    else
-        curl -Ls -H 'Cache-Control: no-cache' "$1" -o "$2" 
-    fi
-}
-
-tnReplaceStringInFile(){
-  sed -i "s|$1|$2|g" $3
-}
-
-tnUserConfirm() {
-  local question=$1
-  echo -en "${yellowColor}? ${question} ${darkYellowColor}(y/n) ${yellowColor}?${defaultColor} "
-  read answer
-  if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
-    return 0 
-  else
-    return 1
-  fi
 }
 
 tnAskUser() {
@@ -285,7 +409,38 @@ tnAutoFromFile() {
             done
         fi
     done
-} 
+}
+
+tnIsDirEmpty(){
+    local dirpath=$1
+    if [ ! -d "$dirpath" ] || [ -z "$(ls -A $dirpath)" ]; then
+      return 0
+    else
+      return 1
+    fi
+}
+
+tnIsHomeEmpty() {
+    while true; do
+        if tnIsDirEmpty "$DOCKER_HOME"; then
+            break
+        else
+            tnAskUser "$DOCKER_HOME directory is not empty please select another one" "GENDIR" "DOCKER_HOME"
+        fi
+    done
+}
+
+tnDownload(){
+    if [ "$3" == "dev" ]; then
+        cp $1 $2
+    else
+        curl -Ls -H 'Cache-Control: no-cache' "$1" -o "$2" 
+    fi
+}
+
+tnReplaceStringInFile(){
+  sed -i "s|$1|$2|g" $3
+}
 
 tnDownloadFromFile(){
     local dis="$1"

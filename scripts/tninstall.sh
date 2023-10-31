@@ -1,131 +1,86 @@
 #!/bin/bash
 
-# GLOBALS FOR TEST
+# GLOBALS
 ENV="prod"
-github_link="https://raw.githubusercontent.com/jeromenatio/docker-bases/main"
-if [ "$ENV" == "dev" ]; then
-    github_link="/home/_local"
-fi
-
-# PARAMETERS
+GITHUB=$( [ "$ENV" != "dev" ] && echo "/home/_local" || echo "https://raw.githubusercontent.com/jeromenatio/docker-bases/main" )
 DOCKER_HOME="/home/tndocker"
 DEPENDENCIES=("curl" "id" "getent" "uuidgen")
 DEFAULT_CONTAINERS=("nginxproxy")
 UTILS_FILE="/usr/local/bin/tnutils"
-utilsfile_distant="$github_link/scripts/tnutils.sh"
-tndockerfile="/usr/local/bin/tndocker"
-tndockerfile_distant="$github_link/scripts/tndocker.sh"
-envfile="$DOCKER_HOME/.env"
-envfile_distant="$github_link/.env"
-logfile="./install.log"
-uname_s=$(uname -s)
-uname_m=$(uname -m)
-repo_owner="docker"
-repo_name="compose"
+TNDOCKER_FILE="/usr/local/bin/tndocker"
+ENV_FILE="$DOCKER_HOME/.env"
+LOG_FILE="./install.log"
 
 # CLEAR LOG FILE
-if test -e $logfile; then
-    rm $logfile
-fi
+[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 
 # DOWNLOAD AND SOURCE UTILITIES
-tnPoorDownload(){
-    if [ "$3" == "dev" ]; then
-        echo "cp $1 $2"
-        cp "$1" "$2"
-    else
-        curl -Ls -H 'Cache-Control: no-cache' "$1" -o "$2" 
-    fi
-}
-tnPoorDownload "$UTILS_FILE_distant" "$UTILS_FILE" "$ENV"
+[ "$ENV" != "dev" ] && cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE" || curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE"
 chmod +x $UTILS_FILE
 source $UTILS_FILE
 
-# Docker compose latest version
-latest_version=$(tnGetLatestRelease $repo_owner $repo_name)
-
-# CLEAR PREVIOUS CLI STUFF
-clear
-
 # EXPLAIN WHAT THE SCRIPT WILL DO
+clear
 tnDisplay "#  DOCKER INSTALLATION SCRIPT \n" "$darkBlueColor"
 tnDisplay "#  This script will install docker and docker-compose \n" "$darkBlueColor"
 tnDisplay "#  along with basics containers to handle redirections, ssl and basics security. \n" "$darkBlueColor"
-tnDisplay "#  The followings containers are installed by default: \n" "$darkBlueColor"
-tnDisplay "#  nginx proxy manager, portainer, vscode, adminer. \n" "$darkBlueColor"
 tnDisplay "#  You will be asked to select additional containers or programs. \n" "$darkBlueColor"
 tnDisplay "#  All the required password will be generated randomly for obvious security reasons. \n" "$darkBlueColor"
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
 tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
 
-# INSTALL UTILITIES ON SERVER (fail2ban, ufw)
-
 # INSTALL DEPENDENCIES
-if tnAreCommandsMissing $DEPENDENCIES; then
-    (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" $logfile) & tnSpin "Installing script dependencies"
-else
-    sleep 0.1 & tnSpin "Script dependencies already installed"
-fi
+tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
 
-# CREATE DOCKER GROUP AND GET GID
-if ! getent group docker > /dev/null 2>&1; then
-    groupadd docker
-fi
+# GET/CREATE DOCKER GID AND UID
+[ ! getent group docker > /dev/null 2>&1 ] && groupadd docker
 GID=$(getent group docker | cut -d: -f3)
-sleep 0.1 & tnSpin "Docker gid found $GID"
-
-# CREATE DOCKER USER AND GET UID
-if ! id -u docker > /dev/null 2>&1; then
-    useradd -u $GID -g docker docker
-fi
+[ ! id -u docker > /dev/null 2>&1 ] && useradd -u $GID -g docker docker
 UID=$(id -u docker)
-sleep 0.1 & tnSpin "Docker uid found $UID"
+sleep 0.1 & tnSpin "Docker GID and UID found $GID $UID"
 
 # INSTALL DOCKER
-if tnIsCommandMissing docker; then
-    tnInstallDocker $logfile
-else
-    sleep 0.1 & tnSpin "Docker already installed"
-fi
+tnIsCommandMissing docker && tnInstallDocker "$LOG_FILE"
 
 # INSTALL DOCKER-COMPOSE
-if tnIsCommandMissing docker-compose; then
-   tnInstallDockerCompose $uname_s $uname_m $latest_version $logfile
-else
-    sleep 0.1 & tnSpin "Docker compose already installed"
+latest_version=$(tnGetLatestRelease "docker" "compose")
+tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(uname -m)" $latest_version $LOG_FILE
+
+# IF HOME ALREADY EXISTS STOP THE SCRIPT
+if [ tnIsDirEmpty $DOCKER_HOME ]; then
+    tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed"
+    exit 1
 fi
 
-# CHECK DOCKER HOME
-tnIsHomeEmpty
-(tnExec "mkdir -p $DOCKER_HOME" $logfile) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
-(tnExec "chown -R docker:docker $DOCKER_HOME" $logfile) & tnSpin "Changing docker home owner"
+# CREATE DOCKER HOME DIRECTORY
+(tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
+(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
 # DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, GID, UID
-envfile="$DOCKER_HOME/.env"
-(tnExec "tnDownload '$envfile_distant' '$envfile' '$ENV'" $logfile) & tnSpin "Downloading main .env file"
-(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envfile'" $logfile)
-(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$envfile'" $logfile)
-(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$envfile'" $logfile) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
+(tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
+(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$ENV_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$ENV_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
 
 # ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
 tnAskUserFromFile $DOCKER_HOME
-(tnExec "tnAutoFromFile $DOCKER_HOME" $logfile) & tnSpin "Generating auto variables"
-(tnExec "tnCreateNetworkFromFile $DOCKER_HOME" $logfile) & tnSpin "Creating custom docker networks"
+(tnExec "tnAutoFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Generating auto variables"
+(tnExec "tnCreateNetworkFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating custom docker networks"
 
 # INSTALL TNDOCKER COMMAND
-(tnExec "tnDownload '$tndockerfile_distant' '$tndockerfile' '$ENV'" $logfile) & tnSpin "Downloading tndocker commands file"
-(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands home"
-(tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands utils"
-(tnExec "tnReplaceStringInFile '\\[GITHUB_LINK\\]' '$github_link' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands github link"
-(tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$logfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands logfile"
-(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$tndockerfile'" $logfile)
-(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands UID, GID"
-(tnExec "chmod +x '$tndockerfile'" $logfile) & tnSpin "Changing permissions on tndocker commands file"
+(tnExec "tnDownload '$GITHUB/scripts/tndocker.sh' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[GITHUB\\]' '$GITHUB' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$LOG_FILE' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Updating Globals in tndocker commands file"
+(tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
-for i in "${DEFAULT_CONTAINERS[@]}"; do
-    tndocker install $i
-done
+#for i in "${DEFAULT_CONTAINERS[@]}"; do
+#    tndocker install $i
+#done
 
 # CHANGING OWNER ON DOCKER DIRECTORIES AND FILES
-(tnExec "chown -R docker:docker $DOCKER_HOME" $logfile) & tnSpin "Changing docker home owner"
+(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
