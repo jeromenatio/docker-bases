@@ -108,10 +108,9 @@ envfile="$DOCKER_HOME/.env"
 (tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$envfile'" $logfile) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
 
 # ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
-tnAskUserFromFile $envfile
-(tnExec "tnAutoFromFile $envfile" $logfile) & tnSpin "Generating auto variables"
-(tnExec "tnCreateNetworkFromFile $envfile" $logfile) & tnSpin "Creating custom docker networks"
-sleep 0.5 & tnSpin "Modifying main .env file"
+tnAskUserFromFile $DOCKER_HOME
+(tnExec "tnAutoFromFile $DOCKER_HOME" $logfile) & tnSpin "Generating auto variables"
+(tnExec "tnCreateNetworkFromFile $DOCKER_HOME" $logfile) & tnSpin "Creating custom docker networks"
 
 # INSTALL TNDOCKER COMMAND
 (tnExec "tnDownload '$tndockerfile_distant' '$tndockerfile' '$ENV'" $logfile) & tnSpin "Downloading tndocker commands file"

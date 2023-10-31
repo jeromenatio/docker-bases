@@ -305,16 +305,23 @@ tnAskUser() {
 }
 
 tnAskUserFromFile() {
-    local file=$1
-    local file2=$2
+    local _dir="$1" 
+    local envFile="$_dir/.env"
+    local composeFile="$_dir/docker-compose.yml"
     local declare matches
     local variable_clean
     local variable_clean_name
+    local declare files
+    while read line; do
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            files+=("$line")
+        fi
+    done < $envFile
     while read line; do
         if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             matches+=("$line")
         fi
-    done < $file
+    done < $envFile
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
@@ -335,12 +342,57 @@ tnAskUserFromFile() {
             variable_clean_name="$variable$tempstr"           
             variable_clean="${!variable}"
             variable_clean="${variable_clean//./-}" 
-            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
-            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
-            if [[ -n "$file2" ]]; then
-                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2
-                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file2
-            fi
+            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
+            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
+            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
+            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
+            for match_file in "${files[@]}"; do
+                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$match_file"
+                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$match_file"
+            done
+        fi
+    done
+}
+
+tnAutoFromFile() {
+    local _dir="$1" 
+    local envFile="$_dir/.env"
+    local composeFile="$_dir/docker-compose.yml"
+    local declare matches
+    local variable_clean
+    local variable_clean_name
+    local declare files
+    while read line; do
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            files+=("$line")
+        fi
+    done < $envFile
+    while read line; do
+        if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            matches+=("$line")
+        fi
+    done < $envFile
+    for match in "${matches[@]}"; do
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"
+            default_value="${BASH_REMATCH[2]}"
+            default_value=$(tnDefaultValue "$default_value")
+            question="${BASH_REMATCH[3]}"
+            eval "$variable=\"$default_value\""
+
+            # XXXXX
+            tempstr="_CLEAN"
+            variable_clean_name="$variable$tempstr"
+            variable_clean="${!variable}"
+            variable_clean="${variable_clean//./-}"
+            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
+            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
+            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
+            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile                        
+            for match_file in "${files[@]}"; do
+                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$match_file"
+                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$match_file"
+            done
         fi
     done
 }
@@ -376,42 +428,25 @@ tnReplaceStringInFile(){
   sed -i "s|$1|$2|g" $3
 }
 
-tnAutoFromFile() {
-    local file=$1
-    local file2=$2
-    local declare matches
-    local variable_clean
-    local variable_clean_name
+tnDownloadFromFile(){
+    local dis="$1"
+    local loc="$2"
+    local declare files
+    curl -Ls -H 'Cache-Control: no-cache' "$dis/.env" -o "$loc/.env"
+    curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
     while read line; do
-        if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            matches+=("$line")
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            files+=("$line")
         fi
-    done < $file
-    for match in "${matches[@]}"; do
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"
-            default_value="${BASH_REMATCH[2]}"
-            default_value=$(tnDefaultValue "$default_value")
-            question="${BASH_REMATCH[3]}"
-            eval "$variable=\"$default_value\""
-
-            # XXXXX
-            tempstr="_CLEAN"
-            variable_clean_name="$variable$tempstr"
-            variable_clean="${!variable}"
-            variable_clean="${variable_clean//./-}"
-            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
-            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
-            if [[ -n "$file2" ]]; then
-                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file2
-                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file2
-            fi
-        fi
+    done < "$loc/.env"
+    for file in "${files[@]}"; do
+        file="${BASH_REMATCH[1]}"
+        curl -Ls -H 'Cache-Control: no-cache' "$dis/$file" -o "$loc/$file" 
     done
 }
 
 tnCreateNetworkFromFile() {
-    local file=$1
+    local file="$1/.env"
     while read line; do
         if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
             network="${BASH_REMATCH[1]}"
@@ -422,7 +457,7 @@ tnCreateNetworkFromFile() {
 }
 
 tnCreateDirFromFile(){
-    local file=$1
+    local file="$1/.env"
     while read line; do
         if [[ $line =~ TN_DIR=\[(.*)\] ]]; then
             dir="${BASH_REMATCH[1]}"
