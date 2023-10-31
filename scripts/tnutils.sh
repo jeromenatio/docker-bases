@@ -344,6 +344,8 @@ tnAskUserFromFile() {
             variable_clean="${variable_clean//./-}" 
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
             tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
+            echo "$_dir"
+            echo "$DOCKER_HOME"
             if ["$_dir" != "$DOCKER_HOME"]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
