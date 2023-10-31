@@ -47,20 +47,20 @@ latest_version=$(tnGetLatestRelease "docker" "compose")
 tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(uname -m)" $latest_version $LOG_FILE
 
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
-if ! [[ -z $(tnIsDirEmpty "$DOCKER_HOME") ]]; then
+if [[ -d "$DOCKER_HOME" ]]; then
     tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed"
-    exit 1
+    exit 1    
 fi
 
 # CREATE DOCKER HOME DIRECTORY
 (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
 (tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
-# DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, _GID, _UID
+# DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, GID, UID
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
 (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$ENV_FILE'" $LOG_FILE)
 (tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$ENV_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, _UID, _GID in main .env file"
+(tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
 
 # ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
 tnAskUserFromFile $DOCKER_HOME
