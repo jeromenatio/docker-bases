@@ -1,18 +1,24 @@
 #!/bin/bash
-#
-# Take two arguments, the first is the action (stop, remove, start, list) and the second is the container id or network name
+
+# GLOBALS
+DOCKER_HOME="[DOCKER_HOME]"
+ENV_FILE="[DOCKER_HOME]/.env"
+UTILS_FILE="[UTILS_FILES]"
+GITHUB_LINK="[GITHUB_LINK]"
+LOG_FILE="[LOG_FILE]"
+UID="[UID]"
+GID="[GID]"
+
+
+# PARAMS
 action="$1"
 id="$2"
 option="$3"
-dockerhome="[DOCKER_HOME]"
-envfile="[DOCKER_HOME]/.env"
-utilsfile="[UTILS_FILES]"
-github_link="[GITHUB_LINK]"
-logfile="[LOG_FILE]"
-uid="[UID]"
-gid="[GID]"
-source $utilsfile
 
+# GET UTILS FUNCTIONS
+source $UTILS_FILE
+
+# CHECK FOR ACTIONS
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
@@ -22,10 +28,10 @@ if [ "$action" == "up" ]; then
 
     # Base paths to install and download
     containerName=$id
-    containerBaseDir="$dockerhome/$containerName"
-    envFileDistant="$github_link/containers/$containerName/.env"
+    containerBaseDir="$DOCKER_HOME/$containerName"
+    envFileDistant="$GITHUB_LINK/containers/$containerName/.env"
     envFileTemp="$containerBaseDir/.envtemp"
-    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
     composeFileFinal="$containerBaseDir/docker-compose.yml"
     envFileFinal="$containerBaseDir/.env"
     if tnIsMultiInstance $envFileTemp; then
@@ -42,24 +48,24 @@ if [ "$action" == "up" ]; then
             fi
 
             # Compose up    
-            eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
-            eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
+            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans"
+            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal up -d --force-recreate --build" 
         fi
     else
         # Compose up    
-        eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
-        eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal up -d --force-recreate --build" 
+        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans"
+        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal up -d --force-recreate --build" 
     fi 
-    (tnExec "rm '$envFileTemp'" $logfile) & tnSpin "Removing temp files"  
+    (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
 
     # Base paths to install and download
     containerName=$id
-    containerBaseDir="$dockerhome/$containerName"
-    envFileDistant="$github_link/containers/$containerName/.env"
+    containerBaseDir="$DOCKER_HOME/$containerName"
+    envFileDistant="$GITHUB_LINK/containers/$containerName/.env"
     envFileTemp="$containerBaseDir/.envtemp"
-    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $logfile) & tnSpin "Downloading .env file"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
     composeFileFinal="$containerBaseDir/docker-compose.yml"
     envFileFinal="$containerBaseDir/.env"
     if tnIsMultiInstance $envFileTemp; then
@@ -76,13 +82,13 @@ elif [ "$action" == "down" ]; then
             fi
 
             # Compose up    
-            eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans"
+            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans"
         fi
     else
         # Compose up    
-        eval "docker-compose -f $composeFileFinal --env-file $envfile --env-file $envFileFinal down --volumes --remove-orphans" 
+        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans" 
     fi 
-    (tnExec "rm '$envFileTemp'" $logfile) & tnSpin "Removing temp files"
+    (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"
 
 elif [ "$action" == "start" ]; then
     sleep 0.1 & tnSpin "START function not yet implemented"
@@ -134,28 +140,28 @@ elif [ "$action" == "list" ]; then
 elif [ "$action" == "install" ]; then
 
     # Base paths to install and download
-    localBaseDir="$dockerhome/$id"
-    distantBaseDir="$github_link/containers/$id"
+    localBaseDir="$DOCKER_HOME/$id"
+    distantBaseDir="$GITHUB_LINK/containers/$id"
     envFile="$localBaseDir/.env"
 
     # Installing based on .env file
     sleep 0.1 & tnSpin "------------------------------------------"
     sleep 0.1 & tnSpin "Installing container : $id"
-    (tnExec "mkdir -p '$localBaseDir'" $logfile) & tnSpin "Creating container local base directory"
-    (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $logfile) & tnSpin "Downloading files (.env, compose, dockerfile...)"
+    (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
+    (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
 
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$composeFileTemp'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$composeFileTemp'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envFile'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME .env file"
     
     tnAskUserFromFile $localBaseDir
-    (tnExec "tnAutoFromFile $localBaseDir" $logfile) & tnSpin "Generating auto variables"
-    (tnExec "tnCreateDirFromFile $localBaseDir" $logfile) & tnSpin "Creating container directories"
+    (tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"
+    (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
     if tnIsMultiInstance $envFile; then
         instance=$(tnGetInstancePathFromFile $envFile)
         #Move all files to instance directory
 
     fi
-    (tnExec "chown -R docker:docker $localBaseDir" $logfile) & tnSpin "Changing container owner"
+    (tnExec "chown -R docker:docker $localBaseDir" $LOG_FILE) & tnSpin "Changing container owner"
 
 else
     echo "Invalid action"

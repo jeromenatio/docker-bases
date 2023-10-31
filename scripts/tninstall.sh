@@ -9,9 +9,9 @@ fi
 
 # PARAMETERS
 DOCKER_HOME="/home/tndocker"
-dependencies=("curl" "id" "getent" "uuidgen")
-defaultContainers=("nginxproxy")
-utilsfile="/usr/local/bin/tnutils"
+DEPENDENCIES=("curl" "id" "getent" "uuidgen")
+DEFAULT_CONTAINERS=("nginxproxy")
+UTILS_FILE="/usr/local/bin/tnutils"
 utilsfile_distant="$github_link/scripts/tnutils.sh"
 tndockerfile="/usr/local/bin/tndocker"
 tndockerfile_distant="$github_link/scripts/tndocker.sh"
@@ -37,9 +37,9 @@ tnPoorDownload(){
         curl -Ls -H 'Cache-Control: no-cache' "$1" -o "$2" 
     fi
 }
-tnPoorDownload "$utilsfile_distant" "$utilsfile" "$ENV"
-chmod +x $utilsfile
-source $utilsfile
+tnPoorDownload "$UTILS_FILE_distant" "$UTILS_FILE" "$ENV"
+chmod +x $UTILS_FILE
+source $UTILS_FILE
 
 # Docker compose latest version
 latest_version=$(tnGetLatestRelease $repo_owner $repo_name)
@@ -61,7 +61,7 @@ tnDisplay "#  ------------------------------------------------------------------
 # INSTALL UTILITIES ON SERVER (fail2ban, ufw)
 
 # INSTALL DEPENDENCIES
-if tnAreCommandsMissing $dependencies; then
+if tnAreCommandsMissing $DEPENDENCIES; then
     (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" $logfile) & tnSpin "Installing script dependencies"
 else
     sleep 0.1 & tnSpin "Script dependencies already installed"
@@ -71,15 +71,15 @@ fi
 if ! getent group docker > /dev/null 2>&1; then
     groupadd docker
 fi
-_GID=$(getent group docker | cut -d: -f3)
-sleep 0.1 & tnSpin "Docker gid found $_GID"
+GID=$(getent group docker | cut -d: -f3)
+sleep 0.1 & tnSpin "Docker gid found $GID"
 
 # CREATE DOCKER USER AND GET UID
 if ! id -u docker > /dev/null 2>&1; then
-    useradd -u $_GID -g docker docker
+    useradd -u $GID -g docker docker
 fi
-_UID=$(id -u docker)
-sleep 0.1 & tnSpin "Docker uid found $_UID"
+UID=$(id -u docker)
+sleep 0.1 & tnSpin "Docker uid found $UID"
 
 # INSTALL DOCKER
 if tnIsCommandMissing docker; then
@@ -104,8 +104,8 @@ tnIsHomeEmpty
 envfile="$DOCKER_HOME/.env"
 (tnExec "tnDownload '$envfile_distant' '$envfile' '$ENV'" $logfile) & tnSpin "Downloading main .env file"
 (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envfile'" $logfile)
-(tnExec "tnReplaceStringInFile '\\[UID\\]' '$_UID' '$envfile'" $logfile)
-(tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$envfile'" $logfile) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
+(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$envfile'" $logfile)
+(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$envfile'" $logfile) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
 
 # ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
 tnAskUserFromFile $DOCKER_HOME
@@ -115,15 +115,15 @@ tnAskUserFromFile $DOCKER_HOME
 # INSTALL TNDOCKER COMMAND
 (tnExec "tnDownload '$tndockerfile_distant' '$tndockerfile' '$ENV'" $logfile) & tnSpin "Downloading tndocker commands file"
 (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands home"
-(tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$utilsfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands utils"
+(tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands utils"
 (tnExec "tnReplaceStringInFile '\\[GITHUB_LINK\\]' '$github_link' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands github link"
 (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$logfile' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands logfile"
-(tnExec "tnReplaceStringInFile '\\[UID\\]' '$_UID' '$tndockerfile'" $logfile)
-(tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands UID, GID"
+(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$tndockerfile'" $logfile)
+(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$tndockerfile'" $logfile) & tnSpin "Updating tndocker commands UID, GID"
 (tnExec "chmod +x '$tndockerfile'" $logfile) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
-for i in "${defaultContainers[@]}"; do
+for i in "${DEFAULT_CONTAINERS[@]}"; do
     tndocker install $i
 done
 
