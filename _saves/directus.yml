@@ -1,0 +1,79 @@
+version: $DOCKER_VERSION
+services:
+  
+  [DIRECTUS_PUBLIC_URL_CLEAN]-db:
+    image: $DIRECTUS_DB_IMAGE
+    container_name: $DIRECTUS_DB_NAME
+    hostname: $DIRECTUS_DB_NAME
+    env_file:
+      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL_CLEAN]/.env
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      MYSQL_ROOT_PASSWORD: $DIRECTUS_DB_PASSWORD
+      MYSQL_DATABASE: $DIRECTUS_DB_DATABASE
+      MYSQL_USER: $DIRECTUS_DB_USER
+      MYSQL_PASSWORD: $DIRECTUS_DB_PASSWORD
+    volumes:
+      - $DIRECTUS_DB_MYSQL_VOLUME 
+    networks:
+      - datas
+    restart: $DIRECTUS_DB_RESTART
+
+  [DIRECTUS_PUBLIC_URL_CLEAN]-cache:
+    image: $DIRECTUS_CACHE_IMAGE
+    container_name: $DIRECTUS_CACHE_NAME
+    hostname: $DIRECTUS_CACHE_NAME
+    env_file:
+      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL_CLEAN]/.env
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+    networks:
+      - datas
+    restart: $DIRECTUS_CACHE_RESTART
+
+  [DIRECTUS_PUBLIC_URL_CLEAN]:
+    image: $DIRECTUS_IMAGE
+    container_name: $DIRECTUS_NAME
+    hostname: $DIRECTUS_NAME
+    env_file:
+      - [DOCKER_HOME]/directus/[DIRECTUS_PUBLIC_URL_CLEAN]/.env
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      KEY: $DIRECTUS_KEY
+      SECRET: $DIRECTUS_SECRET
+      ADMIN_EMAIL: $DIRECTUS_ADMIN_EMAIL
+      ADMIN_PASSWORD: $DIRECTUS_ADMIN_PASSWORD
+      PUBLIC_URL: $DIRECTUS_PUBLIC_URL
+      
+      DB_CLIENT: $DIRECTUS_DB_TYPE
+      DB_HOST: $DIRECTUS_DB_NAME
+      DB_DATABASE: $DIRECTUS_DB_DATABASE
+      DB_USER: $DIRECTUS_DB_USER
+      DB_PASSWORD: $DIRECTUS_DB_PASSWORD
+
+      CACHE_ENABLED: $DIRECTUS_CACHE_ENABLED
+      CACHE_STORE: $DIRECTUS_CACHE_STORE
+      CACHE_REDIS: $DIRECTUS_CACHE_HOST
+    volumes:
+      - $DIRECTUS_UPLOADS_VOLUME
+      - $DIRECTUS_EXTENSIONS_VOLUME      
+    depends_on:
+      - [DIRECTUS_PUBLIC_URL]-cache
+      - [DIRECTUS_PUBLIC_URL]-db
+    networks:
+      - datas
+      - admin
+    restart: $DIRECTUS_RESTART
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+  datas:
+    external: true
+    name: $DOCKER_DATAS_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END

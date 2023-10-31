@@ -1,0 +1,27 @@
+version: $DOCKER_VERSION
+
+name: $NAME
+services:
+  vscode:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      TZ: $DOCKER_TIMEZONE
+      PASSWORD: $PASSWORD
+      DEFAULT_WORKSPACE: $DEFAULT_WORKSPACE_DIR
+    networks:
+      - admin
+    volumes:
+      - $CONFIG_VOLUME
+      - $DOCKER_VOLUME
+    restart: $RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_ADMIN_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END

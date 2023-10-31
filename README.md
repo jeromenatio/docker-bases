@@ -1,16 +1,9 @@
 # DOCKER BASES
 
-Boilerplate files and scripts to install a docker based web server.\
-It includes the following containers / services :
+Boilerplate files and scripts to install a docker based server.\
+It will install everything you need to use docker and docker-compose, as well as basic cli tools to auto install some prepared containers.\
+By default nginxproxy manager will also be installed and launched for reverse proxy and ssl certification `nginx proxy manager` on port `81`.\
 
-- reverse proxy and ssl certification `nginx proxy manager` on port `81`
-- container manager `portainer` on port `9000`
-- databases client `adminer` on port `8080`
-- shells client `sshwifty` on port `8182`
-- online code editor `vscode` on port `8443`
-- ftp server `delfer/alpine-ftp-server` on port `21` and passive ports `21500-21600`
-
-All services come with a `graphical user interface` so no code needed after installation and configuration. \
 The script is for a debian based linux distribution that uses apt as package manager like `debian` `ubuntu` `etc...` \
 For each following steps please replace `/path/to/file/install.sh` with the path of the output file on your system.
 
@@ -38,6 +31,3 @@ sudo wget -q https://raw.githubusercontent.com/jeromenatio/docker-bases/main/scr
 && sudo chmod +x /path/to/file/install.sh \
 && sudo /path/to/file/install.sh
 ```
-
-## CONFIGURATION
-This section wil be updated soon

@@ -24,7 +24,6 @@ services:
       - nginxproxy-db
     networks:
       - admin
-      - datas
     restart: $RESTART_POLICY
 
   nginxproxy-db:
@@ -45,9 +44,6 @@ services:
 networks:
   admin:
     external: true
-    name: $DOCKER_ADMIN_NETWORK
-  datas:
-    external: true
-    name: $DOCKER_DATAS_NETWORK
+    name: $DOCKER_NETWORK
 
 # ALWAYS LEAVE BLANK LINE AT THE END
