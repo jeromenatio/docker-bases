@@ -344,8 +344,8 @@ tnAskUserFromFile() {
             variable_clean="${variable_clean//./-}" 
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
             tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
-            echo "$_dir"
-            echo "$DOCKER_HOME"
+            echo "ask $_dir"
+            echo "ask $DOCKER_HOME"
             if ["$_dir" != "$DOCKER_HOME"]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
@@ -394,6 +394,8 @@ tnAutoFromFile() {
             variable_clean="${variable_clean//./-}"
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
             tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
+            echo "auto $_dir"
+            echo "auto $DOCKER_HOME"
             if ["$_dir" != "$DOCKER_HOME"]; then
                 tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
                 tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile 

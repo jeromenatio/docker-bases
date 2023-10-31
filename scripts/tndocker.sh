@@ -142,7 +142,7 @@ elif [ "$action" == "install" ]; then
     sleep 0.1 & tnSpin "------------------------------------------"
     sleep 0.1 & tnSpin "Installing container : $id"
     (tnExec "mkdir -p '$localBaseDir'" $logfile) & tnSpin "Creating container local base directory"
-    (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $logfile) & tnSpin "Downloading files (.env, compose, dockerfile...)"
+    (tnExec "tnDownloadFromFile $localBaseDir" $logfile) & tnSpin "Downloading files (.env, compose, dockerfile...)"
 
     (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$composeFileTemp'" $logfile) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
     (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$dockerhome' '$envFile'" $logfile) & tnSpin "Modifying DOCKER_HOME .env file"
