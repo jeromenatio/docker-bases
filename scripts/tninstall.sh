@@ -32,12 +32,12 @@ tnDisplay "#  ------------------------------------------------------------------
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
 
-# GET/CREATE DOCKER GID AND UID
+# GET/CREATE DOCKER _GID AND _UID
 [ ! getent group docker > /dev/null 2>&1 ] && groupadd docker
-GID=$(getent group docker | cut -d: -f3)
-[ ! id -u docker > /dev/null 2>&1 ] && useradd -u $GID -g docker docker
-UID=$(id -u docker)
-sleep 0.1 & tnSpin "Docker GID and UID found $GID $UID"
+_GID=$(getent group docker | cut -d: -f3)
+[ ! id -u docker > /dev/null 2>&1 ] && useradd -u $_GID -g docker docker
+_UID=$(id -u docker)
+sleep 0.1 & tnSpin "Docker _GID and _UID found $_GID $_UID"
 
 # INSTALL DOCKER
 tnIsCommandMissing docker && tnInstallDocker "$LOG_FILE"
@@ -47,20 +47,17 @@ latest_version=$(tnGetLatestRelease "docker" "compose")
 tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(uname -m)" $latest_version $LOG_FILE
 
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
-if [ tnIsDirEmpty $DOCKER_HOME ]; then
-    tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed"
-    exit 1
-fi
+tnIsDirEmpty $DOCKER_HOME && tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed" && exit 1
 
 # CREATE DOCKER HOME DIRECTORY
 (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
 (tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
-# DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, GID, UID
+# DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, _GID, _UID
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
 (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$ENV_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$ENV_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
+(tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$ENV_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, _UID, _GID in main .env file"
 
 # ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
 tnAskUserFromFile $DOCKER_HOME
@@ -73,8 +70,8 @@ tnAskUserFromFile $DOCKER_HOME
 (tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$TNDOCKER_FILE'" $LOG_FILE)
 (tnExec "tnReplaceStringInFile '\\[GITHUB\\]' '$GITHUB' '$TNDOCKER_FILE'" $LOG_FILE)
 (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$LOG_FILE' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[UID\\]' '$UID' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[GID\\]' '$GID' '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Updating Globals in tndocker commands file"
+(tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$TNDOCKER_FILE'" $LOG_FILE)
+(tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Updating Globals in tndocker commands file"
 (tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
