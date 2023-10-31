@@ -2,7 +2,7 @@
 
 # GLOBALS
 ENV="prod"
-GITHUB=$( [ "$ENV" != "dev" ] && echo "/home/_local" || echo "https://raw.githubusercontent.com/jeromenatio/docker-bases/main" )
+GITHUB=$( [ "$ENV" != "dev" ] &&  echo "https://raw.githubusercontent.com/jeromenatio/docker-bases/main" ) || echo "/home/_local"
 DOCKER_HOME="/home/tndocker"
 DEPENDENCIES=("curl" "id" "getent" "uuidgen")
 DEFAULT_CONTAINERS=("nginxproxy")
@@ -15,7 +15,7 @@ LOG_FILE="./install.log"
 [ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 
 # DOWNLOAD AND SOURCE UTILITIES
-[ "$ENV" != "dev" ] && cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE" || curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE"
+[ "$ENV" != "dev" ] && curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE" || cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE"
 chmod +x $UTILS_FILE
 source $UTILS_FILE
 
@@ -29,7 +29,7 @@ tnDisplay "#  All the required password will be generated randomly for obvious s
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
 tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
 
-tnDisplay "#  GITHUB -> $GITHUB . \n" "$darkBlueColor"
+tnDisplay "#  GITHUB -> $GITHUB . \n" "$darkRedColor"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
