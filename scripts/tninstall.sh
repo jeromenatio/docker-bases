@@ -18,7 +18,6 @@ LOG_FILE="./install.log"
 [ "$ENV" != "dev" ] && cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE" || curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE"
 chmod +x $UTILS_FILE
 source $UTILS_FILE
-echo "$GITHUB --- --- ---"
 
 # EXPLAIN WHAT THE SCRIPT WILL DO
 clear
@@ -29,6 +28,8 @@ tnDisplay "#  You will be asked to select additional containers or programs. \n"
 tnDisplay "#  All the required password will be generated randomly for obvious security reasons. \n" "$darkBlueColor"
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
 tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
+
+tnDisplay "#  GITHUB -> $GITHUB . \n" "$darkBlueColor"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
