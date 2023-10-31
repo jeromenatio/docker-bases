@@ -1,6 +1,7 @@
 version: $DOCKER_VERSION
 
 name: $NAME
+
 services:
   nginxproxy:
     image: $IMAGE

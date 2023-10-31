@@ -1,0 +1,30 @@
+# Use an official PHP and Apache runtime as the base image
+FROM php:5.6-apache
+
+# Update linux
+RUN apt-get update && apt-get install -y
+
+# Install PHP extensions (pdo, pdo_mysql, mysqli, gd, imagick, ftp) for MySQL, GD, ImageMagick, and FTP support
+RUN docker-php-ext-install pdo pdo_mysql mysqli gd ftp
+RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends
+RUN pecl install imagick && docker-php-ext-enable imagick
+
+# Enable Apache modules for headers and URL rewriting
+RUN a2enmod rewrite headers
+
+# Modify Apache headers to avoid CORS problems
+RUN echo 'Header set Access-Control-Allow-Origin "*"' >> /etc/apache2/apache2.conf
+RUN echo 'Header always set Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"' >> /etc/apache2/apache2.conf
+RUN echo 'Header always set Access-Control-Allow-Headers "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token"' >> /etc/apache2/apache2.conf
+RUN echo 'Header always set Access-Control-Expose-Headers "Content-Security-Policy, Location"' >> /etc/apache2/apache2.conf
+
+# Your additional configuration, if needed
+# COPY ./your-config-file.conf /etc/apache2/sites-available/000-default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start the Apache web server
+CMD ["apache2-foreground"]
+
+# Always leave an empty line at the end
