@@ -344,11 +344,16 @@ tnAskUserFromFile() {
             variable_clean="${variable_clean//./-}" 
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
             tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
-            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
-            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
+            if ["$_dir" != "$DOCKER_HOME"]; then
+                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
+                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
+            fi
             for match_file in "${files[@]}"; do
-                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$match_file"
-                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$match_file"
+                if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+                    matched="${BASH_REMATCH[1]}"
+                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$matched"
+                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$matched"
+                fi
             done
         fi
     done
@@ -387,11 +392,16 @@ tnAutoFromFile() {
             variable_clean="${variable_clean//./-}"
             tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
             tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
-            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
-            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile                        
+            if ["$_dir" != "$DOCKER_HOME"]; then
+                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
+                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile 
+            fir                       
             for match_file in "${files[@]}"; do
-                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$match_file"
-                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$match_file"
+                if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+                    matched="${BASH_REMATCH[1]}"
+                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$matched"
+                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$matched"
+                fi
             done
         fi
     done
@@ -433,7 +443,9 @@ tnDownloadFromFile(){
     local loc="$2"
     local declare files
     curl -Ls -H 'Cache-Control: no-cache' "$dis/.env" -o "$loc/.env"
-    curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
+    if ["$loc" != "$DOCKER_HOME"]; then
+        curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
+    fi
     while read line; do
         if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
             files+=("$line")
