@@ -18,6 +18,7 @@ LOG_FILE="./install.log"
 [ "$ENV" != "dev" ] && cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE" || curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE"
 chmod +x $UTILS_FILE
 source $UTILS_FILE
+echo $GITHUB
 
 # EXPLAIN WHAT THE SCRIPT WILL DO
 clear
