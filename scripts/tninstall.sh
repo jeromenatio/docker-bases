@@ -48,7 +48,7 @@ tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(una
 
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
 if [[ -d "$DOCKER_HOME" ]]; then
-    tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!" "$darkRed"
+    tnDisplay "Une installation '$DOCKER_HOME' existe déjà !!\n" "$darkRedColor"
     exit 1    
 fi
 

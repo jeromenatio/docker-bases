@@ -8,7 +8,7 @@ yellowColor="38;5;220"
 darkYellowColor="38;5;214"
 greenColor="38;5;47"
 darkGreenColor="38;5;71"
-darkRed="38;5;124"
+darkRedColor="38;5;124"
 
 # FUNCTIONS
 tnDisplay(){
