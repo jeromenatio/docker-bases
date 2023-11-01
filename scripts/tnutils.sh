@@ -91,12 +91,12 @@ tnGetInstancePathFromFile(){
 
 tnSetGlobals(){
     local file="$1"
-    tnReplaceStringInFile '\\[DOCKER_HOME\\]' $DOCKER_HOME $file
-    tnReplaceStringInFile '\\[UTILS_FILES\\]' $UTILS_FILE $file
-    tnReplaceStringInFile '\\[GITHUB\\]' $GITHUB $file
-    tnReplaceStringInFile '\\[LOG_FILE\\]' $LOG_FILE $file
-    tnReplaceStringInFile '\\[_UID\\]' $_UID $file
-    tnReplaceStringInFile '\\[_GID\\]' $_GID $file
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[GITHUB\\]' '$GITHUB' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$LOG_FILE' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$file'" $LOG_FILE)
 }
 
 tnGeneratePassword() {
