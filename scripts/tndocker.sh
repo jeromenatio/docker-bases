@@ -26,7 +26,8 @@ if [ "$action" == "up" ]; then
     # Base paths to install and download
     baseDir="$DOCKER_HOME/$id"
     envFileTemp="$baseDir/.envtemp"
-    (tnExec "tnDownload '$GITHUB/containers/$id/.env' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
+    envFileTempDistant="$GITHUB/containers/$id/.env"
+    (tnExec "tnDownload 'envFileTempDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
     composeFile="$baseDir/docker-compose.yml"
     envFile="$baseDir/.env"
     if tnIsMultiInstance $envFileTemp; then
@@ -47,7 +48,7 @@ if [ "$action" == "up" ]; then
             fi
         fi
     fi
-    
+
     # Compose up    
     eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans"
     eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --force-recreate --build" 
