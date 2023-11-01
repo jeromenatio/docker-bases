@@ -22,7 +22,8 @@ services:
 
   [PUBLIC_URL_CLEAN]:
     build:
-      context: [DOCKER_HOME]/lamp5/[PUBLIC_URL_CLEAN]/php-apache-dockerfile
+      context: [DOCKER_HOME]/lamp5/[PUBLIC_URL_CLEAN]
+      dockerfile: php-apache-dockerfile
     container_name: [PUBLIC_URL_CLEAN]
     volumes:
       - $SITE_VOLUME
