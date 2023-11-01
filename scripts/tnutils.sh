@@ -332,9 +332,11 @@ tnDownloadFromFile(){
             files+=("$line")
         fi
     done < "$loc/.env"
-    for file in "${files[@]}"; do
-        file="${BASH_REMATCH[1]}"
-        curl -Ls -H 'Cache-Control: no-cache' "$dis/$file" -o "$loc/$file" 
+    for match_file in "${files[@]}"; do
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            matched="${BASH_REMATCH[1]}"
+            curl -Ls -H 'Cache-Control: no-cache' "$dis/$matched" -o "$loc/$matched" 
+        fi
     done
 }
 
