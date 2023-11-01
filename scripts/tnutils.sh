@@ -335,10 +335,9 @@ tnDownloadFromFile(){
     for match_file in "${files[@]}"; do
         if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
             matched="${BASH_REMATCH[1]}"
-            echo "$dis/$matched"
-            echo "$loc/$matched"
-            echo 'curl -Ls -H "Cache-Control: no-cache" "$dis/$matched" -o "$loc/$matched"'
-            curl -Ls -H "Cache-Control: no-cache" "$dis/$matched" -o "$loc/$matched" 
+            dis1="$dis/"
+            loc1="$loc/"
+            curl -Ls -H 'Cache-Control: no-cache' "$dis1$matched" -o "$loc1$matched" 
         fi
     done
 }
