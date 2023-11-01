@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# PARAMETERS
+## PARAMETERS
 defaultColor="0"
 blueColor="96"
 darkBlueColor="36"
@@ -120,6 +120,29 @@ tnSetGlobalsFromFile(){
             (tnExec "tnSetGlobals '$dis'" $LOG_FILE) 
         fi
     done
+}
+
+tnMoveFilesToInstance(){
+    local base="$1"
+    local declare files
+    local envFile="$base/.env"
+    local instance=$(tnGetInstancePathFromFile $envFile)
+    (tnExec "mv '$base/docker-compose.yml' '$instance/docker-compose.yml'" $LOG_FILE)
+    while read line; do
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            files+=("$line")
+        fi
+    done < $envFile
+    for match_file in "${files[@]}"; do
+        if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
+            matched="${BASH_REMATCH[1]}"
+            loc="$base/$matched"
+            dis="$instance/$matched"
+            (tnExec "mv '$loc' '$dis'" $LOG_FILE) 
+        fi
+    done
+    (tnExec "mv '$envFile' '$instance/.env'" $LOG_FILE) 
+    
 }
 
 tnGeneratePassword() {

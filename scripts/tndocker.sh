@@ -145,19 +145,15 @@ elif [ "$action" == "install" ]; then
 
     # Installing based on .env file
     tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
-    tnDisplay "# INSTALLING CONTAINER : $id\n\n" "$darkBlueColor"
+    tnDisplay "# INSTALLING CONTAINER : $id\n" "$darkBlueColor"
     (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
     (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
     (tnExec "tnSetGlobalsFromFile $localBaseDir" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
     tnAskUserFromFile $localBaseDir
     (tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
-    if tnIsMultiInstance $envFile; then
-        instance=$(tnGetInstancePathFromFile $envFile)
-        echo "instance dir : $instance" 
-        #Move all files to instance directory
-
-    fi
+    instance=$(tnGetInstancePathFromFile $envFile) 
+    tnIsMultiInstance "$envFile" && (tnExec "tnMoveFilesToInstance $localBaseDir" "$LOG_FILE" & tnSpin "Moving files to instance")
     (tnExec "chown -R docker:docker $localBaseDir" $LOG_FILE) & tnSpin "Changing container owner"
 
 else
