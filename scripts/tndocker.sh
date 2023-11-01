@@ -27,7 +27,7 @@ if [ "$action" == "up" ]; then
     baseDir="$DOCKER_HOME/$id"
     envFileTemp="$baseDir/.envtemp"
     envFileTempDistant="$GITHUB/containers/$id/.env"
-    (tnExec "tnDownload 'envFileTempDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
+    (tnExec "tnDownload '$envFileTempDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
     composeFile="$baseDir/docker-compose.yml"
     envFile="$baseDir/.env"
     if tnIsMultiInstance $envFileTemp; then
