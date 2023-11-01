@@ -263,8 +263,9 @@ tnAskUserFromFile() {
             for match_file in "${files[@]}"; do
                 if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
                     matched="${BASH_REMATCH[1]}"
-                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$matched"
-                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$matched"
+                    _dir1="$_dir/$matched"
+                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir1"
+                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir1"
                 fi
             done
         fi
@@ -311,8 +312,9 @@ tnAutoFromFile() {
             for match_file in "${files[@]}"; do
                 if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
                     matched="${BASH_REMATCH[1]}"
-                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir/$matched"
-                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir/$matched"
+                    _dir1="$_dir/$matched"
+                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir1"
+                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir1"
                 fi
             done
         fi
@@ -335,9 +337,9 @@ tnDownloadFromFile(){
     for match_file in "${files[@]}"; do
         if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
             matched="${BASH_REMATCH[1]}"
-            dis1="$dis/"
-            loc1="$loc/"
-            curl -Ls -H 'Cache-Control: no-cache' "$dis1$matched" -o "$loc1$matched" 
+            dis1="$dis/$matched"
+            loc1="$loc/$matched"
+            curl -Ls -H 'Cache-Control: no-cache' "$dis1" -o "$loc1" 
         fi
     done
 }
