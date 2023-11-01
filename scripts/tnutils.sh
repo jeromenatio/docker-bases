@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## PARAMETERS
+# PARAMETERS
 defaultColor="0"
 blueColor="96"
 darkBlueColor="36"

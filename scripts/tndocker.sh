@@ -21,40 +21,36 @@ option="$3"
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
-    if [ "$id" == "mailserver" ]; then
-        apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
-    fi
+    [ "$id" == "mailserver" ] && apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
 
     # Base paths to install and download
-    containerName=$id
-    containerBaseDir="$DOCKER_HOME/$containerName"
-    envFileDistant="$GITHUB/containers/$containerName/.env"
-    envFileTemp="$containerBaseDir/.envtemp"
-    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
-    composeFileFinal="$containerBaseDir/docker-compose.yml"
-    envFileFinal="$containerBaseDir/.env"
+    baseDir="$DOCKER_HOME/$id"
+    envFileTemp="$baseDir/.envtemp"
+    (tnExec "tnDownload '$GITHUB/containers/$id/.env' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
+    composeFile="$baseDir/docker-compose.yml"
+    envFile="$baseDir/.env"
     if tnIsMultiInstance $envFileTemp; then
         if [ -z "$option" ]; then
-            sleep 0.1 & tnSpin "Container $id is a multi instance container, please provide instance name as 3rd option"
-        else
-            
-            composeFileFinal="$containerBaseDir/$option/docker-compose.yml"    
-            envFileFinal="$containerBaseDir/$option/.env"
-            if [ ! -f "$composeFileFinal" ]; then
+            tnDisplay "Container $id is a multi instance container, please provide instance name as 3rd option !!\n\n" "$darkYellowColor"
+            exit 1  
+        else            
+            composeFile="$baseDir/$option/docker-compose.yml"    
+            envFile="$baseDir/$option/.env"
+            if [ ! -f "$composeFile" ]; then
                 option_clean="${option//./-}" 
-                composeFileFinal="$containerBaseDir/$option_clean/docker-compose.yml"    
-                envFileFinal="$containerBaseDir/$option_clean/.env"
+                composeFile="$baseDir/$option_clean/docker-compose.yml"    
+                envFile="$baseDir/$option_clean/.env"
+                if [ ! -f "$composeFile" ]; then
+                    tnDisplay "The instance has not been found !!\n\n" "$darkYellowColor"
+                    exit 1 
+                fi
             fi
-
-            # Compose up    
-            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans"
-            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal up -d --force-recreate --build" 
         fi
-    else
-        # Compose up    
-        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans"
-        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal up -d --force-recreate --build" 
-    fi 
+    fi
+    
+    # Compose up    
+    eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans"
+    eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --force-recreate --build" 
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
