@@ -148,10 +148,7 @@ elif [ "$action" == "install" ]; then
     sleep 0.1 & tnSpin "Installing container : $id"
     (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
     (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
-
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$composeFileTemp'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME docker-compose.yml file"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$envFile'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME .env file"
-    
+    #(tnExec "tnSetGlobalsFromFile '$localBaseDir'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
     tnAskUserFromFile $localBaseDir
     (tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
