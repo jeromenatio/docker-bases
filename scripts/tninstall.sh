@@ -69,7 +69,6 @@ tnAskUserFromFile $DOCKER_HOME
 (tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
-tnDisplay "\n" "$darkBlueColor"
 for i in "${DEFAULT_CONTAINERS[@]}"; do
     tndocker install $i
 done
