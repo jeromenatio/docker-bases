@@ -29,12 +29,6 @@ RUN a2enmod rewrite headers
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
     docker-php-ext-install gd pdo_mysql intl xml
 
-# Install the ImageMagick PHP extension
-RUN pecl install imagick && docker-php-ext-enable imagick
-
-# Your other Dockerfile commands
-# ...
-
 # Expose port 80
 EXPOSE 80
 
