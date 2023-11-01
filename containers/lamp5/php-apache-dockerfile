@@ -1,5 +1,5 @@
 # Use an official PHP and Apache runtime as the base image
-FROM php:5.6-apache-jessie
+FROM php:5.6.40-apache-stretch
 
 # Replace obsolete source list
 RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
@@ -8,34 +8,37 @@ RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
 RUN echo > /etc/apt/sources.list
 
 # Create a new sources.list with the desired repositories
-RUN echo "deb http://archive.debian.org/debian/ jessie main" > /etc/apt/sources.list && \
-    echo "deb http://archive.debian.org/debian/ jessie-updates main" >> /etc/apt/sources.list && \
-    echo "deb http://security.debian.org/ jessie/updates main" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian/ stretch main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian/ stretch-proposed-updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian-security stretch/updates main contrib non-free" >> /etc/apt/sources.list
 
-# Update linux
-RUN apt-get update && apt-get install -y
+# Install required system dependencies
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libicu-dev \
+    libxml2-dev \
+    libmagickwand-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions (pdo, pdo_mysql, mysqli, gd, imagick, ftp) for MySQL, GD, ImageMagick, and FTP support
-RUN docker-php-ext-install pdo pdo_mysql mysqli gd ftp
-RUN apt-get install -y libmagickwand-dev --no-install-recommends
-RUN pecl install imagick && docker-php-ext-enable imagick
-
-# Enable Apache modules for headers and URL rewriting
+# Enable Apache modules
 RUN a2enmod rewrite headers
 
-# Modify Apache headers to avoid CORS problems
-#RUN echo 'Header set Access-Control-Allow-Origin "*"' >> /etc/apache2/apache2.conf
-#RUN echo 'Header always set Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"' >> /etc/apache2/apache2.conf
-#RUN echo 'Header always set Access-Control-Allow-Headers "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token"' >> /etc/apache2/apache2.conf
-#RUN echo 'Header always set Access-Control-Expose-Headers "Content-Security-Policy, Location"' >> /etc/apache2/apache2.conf
+# Enable necessary PHP extensions
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
+    docker-php-ext-install gd pdo_mysql intl xml
 
-# Your additional configuration, if needed
-# COPY ./your-config-file.conf /etc/apache2/sites-available/000-default.conf
+# Install the ImageMagick PHP extension
+RUN pecl install imagick && docker-php-ext-enable imagick
+
+# Your other Dockerfile commands
+# ...
 
 # Expose port 80
 EXPOSE 80
 
-# Start the Apache web server
+# Start Apache
 CMD ["apache2-foreground"]
 
 # Always leave an empty line at the end
