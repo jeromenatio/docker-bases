@@ -328,15 +328,15 @@ tnDownloadFromFile(){
         curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
     fi
     while read line; do
-        echo $line
         if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
             files+=("$line")
-            echo "dw $line"
         fi
     done < "$loc/.env"
     for match_file in "${files[@]}"; do
         if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
             matched="${BASH_REMATCH[1]}"
+            echo "$dis/$matched"
+            echo "$loc/$matched"
             curl -Ls -H 'Cache-Control: no-cache' "$dis/$matched" -o "$loc/$matched" 
         fi
     done
