@@ -179,7 +179,7 @@ tnAskUser() {
     eval "$variable=\"$answer\""
   fi
 }
-#
+
 tnAskUserFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
@@ -288,7 +288,7 @@ tnDownloadFromFile(){
     local loc="$2"
     local declare files
     curl -Ls -H 'Cache-Control: no-cache' "$dis/.env" -o "$loc/.env"
-    if ["$loc" != "$DOCKER_HOME"]; then
+    if [ "$DOCKER_HOME" != "$loc" ]; then
         curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
     fi
     while read line; do
