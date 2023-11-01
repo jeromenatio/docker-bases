@@ -16,7 +16,6 @@ services:
       MYSQL_PASSWORD: $MYSQL_DB_PASSWORD
     volumes:
       - $MYSQL_VOLUME 
-      - $LOGS_VOLUME
     networks:
       - admin
     restart: $MYSQL_RESTART_POLICY
@@ -28,6 +27,8 @@ services:
     container_name: [PUBLIC_URL_CLEAN]
     volumes:
       - $SITE_VOLUME
+      - $LOGS_VOLUME
+      - $APACHE_VOLUME
     depends_on:
       - mysql
     networks:
