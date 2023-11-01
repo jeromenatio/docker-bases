@@ -56,25 +56,16 @@ fi
 (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
 (tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
-# DOWNLOAD MAIN .env FILE AND MODIFY DOCKER_HOME, GID, UID
+# DOWNLOAD MAIN .env FILE, MODIFY GLOBALS, ASK USER RELATED QUESTIONS AND CREATE NETWORKS
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
-(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$ENV_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$ENV_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
-
-# ASK FOR DEFAULT CONFIGS IN MAIN .env FILE
+(tnExec "tnSetGlobals '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
 tnAskUserFromFile $DOCKER_HOME
 (tnExec "tnAutoFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Generating auto variables"
 (tnExec "tnCreateNetworkFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating custom docker networks"
 
-# INSTALL TNDOCKER COMMAND
+# INSTALL TNDOCKER COMMAND FILE AND MODIFY GLOBALS
 (tnExec "tnDownload '$GITHUB/scripts/tndocker.sh' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[GITHUB\\]' '$GITHUB' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$LOG_FILE' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Updating Globals in tndocker commands file"
+(tnExec "tnSetGlobals '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
 (tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS

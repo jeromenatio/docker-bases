@@ -78,6 +78,27 @@ tnIsMultiInstance(){
     fi
 }
 
+tnGetInstancePathFromFile(){
+    local file=$1
+    local answer="false"
+    while read line; do
+        if [[ $line =~ TN_BASEDIR=\[(.*)\] ]]; then            
+            answer="${BASH_REMATCH[1]}"
+        fi
+    done < $file
+    echo "$answer"
+}
+
+tnSetGlobals(){
+    local file="$1"
+    tnReplaceStringInFile '\\[DOCKER_HOME\\]' $DOCKER_HOME $file
+    tnReplaceStringInFile '\\[UTILS_FILES\\]' $UTILS_FILE $file
+    tnReplaceStringInFile '\\[GITHUB\\]' $GITHUB $file
+    tnReplaceStringInFile '\\[LOG_FILE\\]' $LOG_FILE $file
+    tnReplaceStringInFile '\\[_UID\\]' $_UID $file
+    tnReplaceStringInFile '\\[_GID\\]' $_GID $file
+}
+
 tnGeneratePassword() {
     local LENGTH=$1
     local LOWERCASE_CHARS=(a b c d e f g h j k m n p q r s t u v w x y z)
