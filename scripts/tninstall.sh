@@ -27,7 +27,7 @@ tnDisplay "#  along with basics containers to handle redirections, ssl and basic
 tnDisplay "#  You will be asked to select additional containers or programs. \n" "$darkBlueColor"
 tnDisplay "#  All the required password will be generated randomly for obvious security reasons. \n" "$darkBlueColor"
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
-tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
+tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$greenColor"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
@@ -37,7 +37,7 @@ tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get insta
 _GID=$(getent group docker | cut -d: -f3)
 [ ! id -u docker > /dev/null 2>&1 ] && useradd -u $_GID -g docker docker
 _UID=$(id -u docker)
-sleep 0.1 & tnSpin "Docker _GID and _UID found $_GID $_UID"
+sleep 0.1 & tnSpin "Docker GID and UID found $_GID $_UID"
 
 # INSTALL DOCKER
 tnIsCommandMissing docker && tnInstallDocker "$LOG_FILE"

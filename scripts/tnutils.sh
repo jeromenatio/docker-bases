@@ -99,6 +99,11 @@ tnSetGlobals(){
     (tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$file'" $LOG_FILE)
 }
 
+tnSetGlobalsFromFile(){
+    local _dir="$1"
+    local _dir1="$_dir/"
+}
+
 tnGeneratePassword() {
     local LENGTH=$1
     local LOWERCASE_CHARS=(a b c d e f g h j k m n p q r s t u v w x y z)
