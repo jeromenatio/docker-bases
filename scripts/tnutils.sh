@@ -337,7 +337,8 @@ tnDownloadFromFile(){
             matched="${BASH_REMATCH[1]}"
             echo "$dis/$matched"
             echo "$loc/$matched"
-            curl -Ls -H 'Cache-Control: no-cache' "$dis/$matched" -o "$loc/$matched" 
+            echo 'curl -Ls -H "Cache-Control: no-cache" "$dis/$matched" -o "$loc/$matched"'
+            curl -Ls -H "Cache-Control: no-cache" "$dis/$matched" -o "$loc/$matched" 
         fi
     done
 }
