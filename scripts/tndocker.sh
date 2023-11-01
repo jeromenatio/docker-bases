@@ -144,7 +144,7 @@ elif [ "$action" == "install" ]; then
     envFile="$localBaseDir/.env"
 
     # Installing based on .env file
-    tnDisplay "\n\n# ------------------------------------------\n" "$darkBlueColor"
+    tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
     tnDisplay "# INSTALLING CONTAINER : $id\n\n" "$darkBlueColor"
     (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
     (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
@@ -154,7 +154,7 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
     if tnIsMultiInstance $envFile; then
         instance=$(tnGetInstancePathFromFile $envFile)
-        tnDisplay "instance dir : $instance" "$darkYellowColor" 
+        tnDisplay "\n\ninstance dir : $instance" "$darkYellowColor" 
         #Move all files to instance directory
 
     fi
