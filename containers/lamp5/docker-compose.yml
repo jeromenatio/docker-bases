@@ -27,8 +27,6 @@ services:
     container_name: [PUBLIC_URL_CLEAN]
     volumes:
       - $SITE_VOLUME
-      - $LOGS_VOLUME
-      - $APACHE_VOLUME
     depends_on:
       - mysql
     networks:
