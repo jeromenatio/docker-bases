@@ -27,7 +27,7 @@ tnDisplay "#  along with basics containers to handle redirections, ssl and basic
 tnDisplay "#  You will be asked to select additional containers or programs. \n" "$darkBlueColor"
 tnDisplay "#  All the required password will be generated randomly for obvious security reasons. \n" "$darkBlueColor"
 tnDisplay "#  You can find them in the directory of each installed container in the .env file. \n" "$darkBlueColor"
-tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$greenColor"
+tnDisplay "#  ---------------------------------------------------------------------------------- \n\n" "$darkBlueColor"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
