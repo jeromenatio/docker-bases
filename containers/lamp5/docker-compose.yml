@@ -16,6 +16,7 @@ services:
       MYSQL_PASSWORD: $MYSQL_DB_PASSWORD
     volumes:
       - $MYSQL_VOLUME 
+      - $LOGS_VOLUME
     networks:
       - admin
     restart: $MYSQL_RESTART_POLICY
