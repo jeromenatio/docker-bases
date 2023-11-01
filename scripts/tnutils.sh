@@ -328,8 +328,10 @@ tnDownloadFromFile(){
         curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
     fi
     while read line; do
+        echo $line
         if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
             files+=("$line")
+            echo "dw $line"
         fi
     done < "$loc/.env"
     for match_file in "${files[@]}"; do
