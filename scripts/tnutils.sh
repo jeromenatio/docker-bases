@@ -63,6 +63,21 @@ tnAreCommandsMissing(){
     return 1
 }
 
+tnIsMultiInstance(){
+    local file=$1
+    local answer="false"
+    while read line; do
+        if [[ $line =~ TN_MULTI=\[(.*)\] ]]; then            
+            answer="${BASH_REMATCH[1]}"
+        fi
+    done < $file
+    if [ "$answer" == "true" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 tnGeneratePassword() {
     local LENGTH=$1
     local LOWERCASE_CHARS=(a b c d e f g h j k m n p q r s t u v w x y z)
