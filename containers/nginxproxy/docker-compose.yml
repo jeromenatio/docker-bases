@@ -39,7 +39,7 @@ services:
     volumes:
       - $DB_MYSQL_VOLUME 
     networks:
-      - datas
+      - admin
     restart: $DB_RESTART_POLICY
 
 networks:
