@@ -101,7 +101,25 @@ tnSetGlobals(){
 
 tnSetGlobalsFromFile(){
     local _dir="$1"
-    local _dir1="$_dir/"
+    local declare files
+    local envFile="$_dir/.env"
+    local composeFile="$_dir/docker-compose.yml"
+    (tnExec "tnSetGlobals '$envFile'" $LOG_FILE) 
+    if [ "$DOCKER_HOME" != "$_dir" ]; then
+        (tnExec "tnSetGlobals '$composeFile'" $LOG_FILE) 
+    fi
+    while read line; do
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            files+=("$line")
+        fi
+    done < $envFile
+    for match_file in "${files[@]}"; do
+        if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
+            matched="${BASH_REMATCH[1]}"
+            dis="$_dir/$matched"
+            (tnExec "tnSetGlobals '$dis'" $LOG_FILE) 
+        fi
+    done
 }
 
 tnGeneratePassword() {
