@@ -37,6 +37,16 @@ tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get insta
 _GID=$(getent group docker | cut -d: -f3)
 [ ! id -u docker > /dev/null 2>&1 ] && useradd -u $_GID -g docker docker
 _UID=$(id -u docker)
+
+# GET/CREATE DOCKER _GID AND _UID
+if ! getent group docker > /dev/null 2>&1; then
+    groupadd docker
+fi
+if ! id -u docker > /dev/null 2>&1; then
+   useradd -m -g docker docker
+fi
+_GID=$(getent group docker | cut -d: -f3)
+_UID=$(id -u docker)
 sleep 0.1 & tnSpin "Docker GID and UID found $_GID $_UID"
 
 # INSTALL DOCKER
