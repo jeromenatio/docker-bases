@@ -2,15 +2,15 @@
 FROM php:5.6.40-apache-stretch
 
 # Replace obsolete source list
-#RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
+RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
 
 # Empty the sources.list file
-#RUN echo > /etc/apt/sources.list
+RUN echo > /etc/apt/sources.list
 
 # Create a new sources.list with the desired repositories
-#RUN echo "deb http://archive.debian.org/debian/ stretch main contrib non-free" >> /etc/apt/sources.list
-#RUN echo "deb http://archive.debian.org/debian/ stretch-proposed-updates main contrib non-free" >> /etc/apt/sources.list
-#RUN echo "deb http://archive.debian.org/debian-security stretch/updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian/ stretch main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian/ stretch-proposed-updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian-security stretch/updates main contrib non-free" >> /etc/apt/sources.list
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y \
