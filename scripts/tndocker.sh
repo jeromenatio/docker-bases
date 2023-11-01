@@ -154,6 +154,7 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
     if tnIsMultiInstance $envFile; then
         instance=$(tnGetInstancePathFromFile $envFile)
+        tnDisplay "instance dir : $instance" "$darkYellowColor" 
         #Move all files to instance directory
 
     fi
