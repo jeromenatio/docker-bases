@@ -15,7 +15,8 @@ services:
       MYSQL_USER: $MYSQL_DB_USER
       MYSQL_PASSWORD: $MYSQL_DB_PASSWORD
     volumes:
-      - $MYSQL_VOLUME 
+      - $MYSQL_VOLUME
+      - $MYSQL_INIT_VOLUME
     networks:
       - admin
     restart: $MYSQL_RESTART_POLICY

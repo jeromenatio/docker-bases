@@ -16,11 +16,12 @@ services:
       MYSQL_PASSWORD: $MYSQL_DB_PASSWORD
     volumes:
       - $MYSQL_VOLUME 
+      - $MYSQL_INIT_VOLUME
     networks:
       - admin
     restart: $MYSQL_RESTART_POLICY
 
-  apache2php5-[PUBLIC_URL_CLEAN]:
+  php5-[PUBLIC_URL_CLEAN]:
     build:
       context: $CONTEXT
       dockerfile: $DOCKER_FILE

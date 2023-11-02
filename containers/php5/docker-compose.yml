@@ -1,9 +1,9 @@
 version: $DOCKER_VERSION
 
-name: apache2php5-[PUBLIC_URL_CLEAN]
+name: php5-[PUBLIC_URL_CLEAN]
 
 services:
-  apache2php5-[PUBLIC_URL_CLEAN]:
+  php5-[PUBLIC_URL_CLEAN]:
     build:
       context: $CONTEXT
       dockerfile: $DOCKER_FILE

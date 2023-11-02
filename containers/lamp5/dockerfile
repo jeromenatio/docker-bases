@@ -30,7 +30,7 @@ RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-di
     docker-php-ext-install gd pdo_mysql intl xml
 
 # Set the ServerName directive to suppress the warning
-RUN echo "ServerName [PUBLIC_URL_CLEAN]-apache2php5" >> /etc/apache2/apache2.conf
+RUN echo "ServerName lamp5-[PUBLIC_URL_CLEAN]" >> /etc/apache2/apache2.conf
 
 # Start Apache
 CMD ["apache2-foreground"]
