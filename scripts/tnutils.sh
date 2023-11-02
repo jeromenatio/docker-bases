@@ -262,6 +262,21 @@ tnAskUser() {
   fi
 }
 
+tnSetDockerHome(){
+  local question="Please specify DOCKER_HOME directory"
+  local variable="DOCKER_HOME"
+  local default_display="This is mandatory"
+  tnDisplay "? $question" "$yellowColor"
+  tnDisplay " ($default_display)" "$darkYellowColor"
+  tnDisplay " ? " "$yellowColor"
+  read answer
+  if [[ "$answer" == "" ]]; then
+    tnSetDockerHome
+  else
+    eval "$variable=\"$answer\""
+  fi
+}
+
 tnAskUserFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
