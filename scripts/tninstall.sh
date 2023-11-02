@@ -9,9 +9,6 @@ DEFAULT_CONTAINERS=("nginxproxy")
 UTILS_FILE="/usr/local/bin/tnutils"
 TNDOCKER_FILE="/usr/local/bin/tndocker"
 
-# CLEAR LOG FILE
-[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
-
 # DOWNLOAD AND SOURCE UTILITIES
 [ "$ENV" != "dev" ] && curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE" || cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE"
 chmod +x $UTILS_FILE
@@ -32,14 +29,23 @@ tnSetDockerHome
 ENV_FILE="$DOCKER_HOME/.env"
 LOG_FILE="$DOCKER_HOME/install.log"
 
+
+
+# IF HOME ALREADY EXISTS STOP THE SCRIPT
+if [[ -d "$DOCKER_HOME" ]]; then
+    tnDisplay "'$DOCKER_HOME' already exists !!\n\n" "$darkYellowColor"
+    exit 1    
+fi
+
+# CLEAR LOG FILE
+[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
+
+# CREATE DOCKER HOME DIRECTORY
+(tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
+(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
+
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
-
-# GET/CREATE DOCKER _GID AND _UID
-[ ! getent group docker > /dev/null 2>&1 ] && groupadd docker
-_GID=$(getent group docker | cut -d: -f3)
-[ ! id -u docker > /dev/null 2>&1 ] && useradd -u $_GID -g docker docker
-_UID=$(id -u docker)
 
 # GET/CREATE DOCKER _GID AND _UID
 if ! getent group docker > /dev/null 2>&1; then
@@ -58,16 +64,6 @@ tnIsCommandMissing docker && tnInstallDocker "$LOG_FILE"
 # INSTALL DOCKER-COMPOSE
 latest_version=$(tnGetLatestRelease "docker" "compose")
 tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(uname -m)" $latest_version $LOG_FILE
-
-# IF HOME ALREADY EXISTS STOP THE SCRIPT
-if [[ -d "$DOCKER_HOME" ]]; then
-    tnDisplay "'$DOCKER_HOME' already exists !!\n\n" "$darkYellowColor"
-    exit 1    
-fi
-
-# CREATE DOCKER HOME DIRECTORY
-(tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
-(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
 # DOWNLOAD MAIN .env FILE, MODIFY GLOBALS, ASK USER RELATED QUESTIONS AND CREATE NETWORKS
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
