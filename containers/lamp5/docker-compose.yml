@@ -30,7 +30,7 @@ services:
     volumes:
       - $SITE_VOLUME
     depends_on:
-      - mysql
+      - mysql5-[PUBLIC_URL_CLEAN]
     networks:
       - admin
     restart: $RESTART_POLICY
