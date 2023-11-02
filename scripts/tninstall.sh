@@ -10,7 +10,7 @@ UTILS_FILE="/usr/local/bin/tnutils"
 TNDOCKER_FILE="/usr/local/bin/tndocker"
 LOG_FILE="./install.log"
 
-# CLEAR LOG FILE
+# CLEAR / CREATE LOG FILE
 [ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 
 # DOWNLOAD AND SOURCE UTILITIES
