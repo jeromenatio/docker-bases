@@ -20,6 +20,6 @@ services:
 networks:
   admin:
     external: true
-    name: $DOCKER_ADMIN_NETWORK
+    name: $DOCKER_NETWORK
 
 # ALWAYS LEAVE BLANK LINE AT THE END
