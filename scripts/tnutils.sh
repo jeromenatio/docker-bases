@@ -10,6 +10,8 @@ greenColor="38;5;47"
 darkGreenColor="38;5;71"
 darkRedColor="38;5;124"
 
+# DON'T FORGET ITS FOR DEBIAN ONLY
+
 # FUNCTIONS
 tnDisplay(){
     printf "\033[${2}m${1}\033[${defaultColor}m"
