@@ -8,6 +8,10 @@ DEPENDENCIES=("curl" "id" "getent" "uuidgen")
 DEFAULT_CONTAINERS=("nginxproxy")
 UTILS_FILE="/usr/local/bin/tnutils"
 TNDOCKER_FILE="/usr/local/bin/tndocker"
+LOG_FILE="./install.log"
+
+# CLEAR LOG FILE
+[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 
 # DOWNLOAD AND SOURCE UTILITIES
 [ "$ENV" != "dev" ] && curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE" || cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE"
@@ -27,18 +31,12 @@ tnDisplay "#  ------------------------------------------------------------------
 # DEFINE DOCKER_HOME
 tnSetDockerHome
 ENV_FILE="$DOCKER_HOME/.env"
-LOG_FILE="$DOCKER_HOME/install.log"
-
-
 
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
 if [[ -d "$DOCKER_HOME" ]]; then
     tnDisplay "'$DOCKER_HOME' already exists !!\n\n" "$darkYellowColor"
     exit 1    
 fi
-
-# CLEAR LOG FILE
-[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 
 # CREATE DOCKER HOME DIRECTORY
 (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
