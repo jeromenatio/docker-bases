@@ -8,8 +8,6 @@ DEPENDENCIES=("curl" "id" "getent" "uuidgen")
 DEFAULT_CONTAINERS=("nginxproxy")
 UTILS_FILE="/usr/local/bin/tnutils"
 TNDOCKER_FILE="/usr/local/bin/tndocker"
-ENV_FILE="$DOCKER_HOME/.env"
-LOG_FILE="./install.log"
 
 # CLEAR LOG FILE
 [ -e "$LOG_FILE" ] && rm "$LOG_FILE"
@@ -31,6 +29,8 @@ tnDisplay "#  ------------------------------------------------------------------
 
 # DEFINE DOCKER_HOME
 tnSetDockerHome
+ENV_FILE="$DOCKER_HOME/.env"
+LOG_FILE="$DOCKER_HOME/install.log"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
