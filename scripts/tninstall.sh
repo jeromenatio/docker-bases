@@ -61,7 +61,10 @@ tnIsCommandMissing docker && tnInstallDocker "$LOG_FILE"
 
 # INSTALL DOCKER-COMPOSE
 latest_version=$(tnGetLatestRelease "docker" "compose")
-tnIsCommandMissing docker-compose && tnInstallDockerCompose "$(uname -s)" "$(uname -m)" $latest_version $LOG_FILE
+uname_s="$(uname -s)"
+uname_m="$(uname -m)"
+sleep 1
+tnIsCommandMissing docker-compose && tnInstallDockerCompose $uname_s $uname_m $latest_version $LOG_FILE
 
 # DOWNLOAD MAIN .env FILE, MODIFY GLOBALS, ASK USER RELATED QUESTIONS AND CREATE NETWORKS
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"

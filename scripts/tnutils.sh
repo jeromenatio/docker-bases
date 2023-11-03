@@ -444,11 +444,8 @@ tnInstallDockerCompose(){
     local uname_m=$2
     local latest_version=$3
     local logfile=$4
-    #
     (tnExec "curl -Ls -H 'Cache-Control: no-cache' 'https://github.com/docker/compose/releases/download/$latest_version/docker-compose-$uname_s-$uname_m' -o /usr/local/bin/docker-compose" $logfile) & tnSpin "Downloading docker-compose deb package"
     (tnExec "chmod +x /usr/local/bin/docker-compose" $logfile) & tnSpin "Installing docker-compose"
-    echo "curl -Ls -H 'Cache-Control: no-cache' 'https://github.com/docker/compose/releases/download/$latest_version/docker-compose-$uname_s-$uname_m' -o /usr/local/bin/docker-compose"
-    echo "chmod +x /usr/local/bin/docker-compose"
     sleep 0.1 & tnSpin "$(docker-compose --version) installed"
 }
 
