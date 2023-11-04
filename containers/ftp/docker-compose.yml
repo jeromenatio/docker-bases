@@ -12,6 +12,9 @@ services:
       ADDRESS: $ADDRESS
       MIN_PORT: $MIN_PORT
       MAX_PORT: $MAX_PORT
+    ports:
+      - $FTP_PORT
+      - $PASSIVE_PORTS
     volumes:
       - $DATA_VOLUME
     networks:
