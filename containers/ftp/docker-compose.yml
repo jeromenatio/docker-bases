@@ -1,27 +1,26 @@
 version: $DOCKER_VERSION
 
-name: $NAME
 services:
-  vscode:
+  tn-ftpserver:
     image: $IMAGE
     container_name: $NAME
     hostname: $NAME
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
-      TZ: $DOCKER_TIMEZONE
-      PASSWORD: $PASSWORD
-      DEFAULT_WORKSPACE: $DEFAULT_WORKSPACE_DIR
+      USERS: $USERS
+      ADDRESS: $ADDRESS
+      MIN_PORT: $MIN_PORT
+      MAX_PORT: $MAX_PORT
+    volumes:
+      - $DATA_VOLUME
     networks:
       - admin
-    volumes:
-      - $CONFIG_VOLUME
-      - $DOCKER_VOLUME
-    restart: $RESTART_POLICY
+    restart: $RESTART
 
 networks:
   admin:
     external: true
-    name: $DOCKER_ADMIN_NETWORK
+    name: $DOCKER_NETWORK
 
 # ALWAYS LEAVE BLANK LINE AT THE END
