@@ -1,0 +1,25 @@
+version: $DOCKER_VERSION
+
+name: portainer
+
+services:
+  portainer:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+    networks:
+      - admin
+    volumes:
+      - $DOCKER_SOCKET
+      - $DATA_VOLUME
+    restart: $RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
