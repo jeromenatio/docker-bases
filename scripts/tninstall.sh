@@ -35,12 +35,11 @@ ENV_FILE="$DOCKER_HOME/.env"
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
 if [[ -d "$DOCKER_HOME" ]]; then
     tnDisplay "'$DOCKER_HOME' already exists !!\n\n" "$darkYellowColor"
-    exit 1    
+    #exit 1
+else
+    # CREATE DOCKER HOME DIRECTORY
+    (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
 fi
-
-# CREATE DOCKER HOME DIRECTORY
-(tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
-(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
@@ -55,6 +54,9 @@ fi
 _GID=$(getent group docker | cut -d: -f3)
 _UID=$(id -u docker)
 sleep 0.1 & tnSpin "Docker GID and UID found $_GID $_UID"
+
+# GIVE DOCKER HOME TO ITS RIGHTFUL OWNER
+(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
 
 # INSTALL DOCKER
 tnIsCommandMissing docker && tnInstallDocker "$LOG_FILE"
@@ -79,9 +81,9 @@ tnAskUserFromFile $DOCKER_HOME
 (tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
-for i in "${DEFAULT_CONTAINERS[@]}"; do
-    tndocker install $i
-done
+#for i in "${DEFAULT_CONTAINERS[@]}"; do
+    #tndocker install $i
+#done
 
 # CHANGING OWNER ON DOCKER DIRECTORIES AND FILES
 (tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
