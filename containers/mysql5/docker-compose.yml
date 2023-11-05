@@ -7,6 +7,7 @@ services:
     image: $MYSQL_IMAGE
     container_name: $MYSQL_NAME
     hostname: $MYSQL_NAME
+    user: [_UID]:[_GID]
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
