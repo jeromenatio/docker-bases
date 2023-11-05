@@ -51,7 +51,7 @@ if [ "$action" == "up" ]; then
 
     # Compose up    
     eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --build"
-    tnDisplay "Updated version !!\n\n" "$darkYellowColor"
+    #tnDisplay "Updated version !!\n\n" "$darkYellowColor"
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
