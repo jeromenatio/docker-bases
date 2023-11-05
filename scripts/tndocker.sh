@@ -50,8 +50,7 @@ if [ "$action" == "up" ]; then
     fi
 
     # Compose up    
-    eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans"
-    eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --force-recreate --build" 
+    eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --build" 
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
@@ -78,11 +77,11 @@ elif [ "$action" == "down" ]; then
             fi
 
             # Compose up    
-            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans"
+            eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down"
         fi
     else
         # Compose up    
-        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans" 
+        eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down" 
     fi 
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"
 

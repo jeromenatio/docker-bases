@@ -1,4 +1,3 @@
-#
 version: $DOCKER_VERSION
 
 name: mysql5-[PUBLIC_URL_CLEAN]
