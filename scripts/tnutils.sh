@@ -438,8 +438,8 @@ tnCalculateStamp() {
   local delta=$1
   local unit=$2
   local current_timestamp=$(date +%s)
-  echo "nb to add $delta"
-  echo "un to add $unit" 
+  #echo "nb to add $delta"
+  #echo "un to add $unit" 
   
   case $unit in
     "minutes")
