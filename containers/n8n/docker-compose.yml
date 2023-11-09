@@ -1,0 +1,48 @@
+version: $DOCKER_VERSION
+
+name: n8n
+
+services:
+
+  n8n-postgres:
+    image: $DB_IMAGE
+    container_name: $DB_NAME
+    hostname: $DB_NAME
+    environment:
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: $DB_DATABASE
+      POSTGRES_NON_ROOT_USER: $DB_USER
+      POSTGRES_NON_ROOT_PASSWORD: $DB_PASSWORD
+    volumes:
+      - $DATA_VOLUME
+      - $ENTRY_VOLUME
+    networks:
+      - admin    
+    restart: $DB_RESTART_POLICY
+
+  n8n:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
+    environment:
+      DB_TYPE: $DB_TYPE
+      DB_POSTGRESDB_HOST: $DB_HOST
+      DB_POSTGRESDB_PORT: $DB_PORT
+      DB_POSTGRESDB_DATABASE: $DB_DATABASE
+      DB_POSTGRESDB_USER: $DB_USER
+      DB_POSTGRESDB_PASSWORD: $DB_PASSWORD
+    volumes:      
+      - $DB_VOLUME
+    depends_on:
+      - n8n-postgres
+    networks:
+      - admin   
+    restart: $RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
