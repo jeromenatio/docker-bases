@@ -143,6 +143,7 @@ elif [ "$action" == "install" ]; then
     # Installing based on .env file
     tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
     tnDisplay "# INSTALLING CONTAINER : $id\n" "$darkBlueColor"
+    (tnExec "tnReplaceStampsInFile $envFile")
     (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
     (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
     (tnExec "tnSetGlobalsFromFile $localBaseDir" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
