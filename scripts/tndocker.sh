@@ -148,7 +148,8 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnSetGlobalsFromFile $localBaseDir" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
     (tnExec "tnReplaceStampsInFile $envFile" $LOG_FILE) & tnSpin "Adding timestamps"
     tnAskUserFromFile $localBaseDir
-    (tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"
+    tnAutoFromFile $localBaseDir
+    #(tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"
     (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
     instance=$(tnGetInstancePathFromFile $envFile) 
     tnIsMultiInstance "$envFile" && (tnExec "tnMoveFilesToInstance $localBaseDir" "$LOG_FILE" & tnSpin "Moving files to instance")
