@@ -178,6 +178,25 @@ tnGenerateDir(){
     echo "$timestamp";
 }
 
+tnGenerateJWTSecret(){
+    jwt_secret=$(openssl rand -base64 32)
+    echo "$jwt_secret"
+}
+
+tnGenerateJWTKey() {
+  local jwt_secret="$1"
+  local payload="$2"
+
+  # Encode header and payload
+  local header_payload=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 -w 0).$(echo -n "$payload" | base64 -w 0)
+
+  # Create signature
+  local signature=$(echo -n "$header_payload" | openssl dgst -sha256 -hmac "$jwt_secret" -binary | base64 -w 0)
+
+  # Concatenate and output the JWT
+  echo "$header_payload.$signature"
+}
+
 tnGenerateUuid(){
     local uuid=$(uuidgen)
     echo "$uuid"
@@ -185,6 +204,7 @@ tnGenerateUuid(){
 
 tnDefaultValue(){
     local dv="$1"
+    local extra="${4:-}"
     if [[ "$dv" == "GENPWD" ]]; then
         dv="$(tnGeneratePassword 10)"
     fi
@@ -199,6 +219,12 @@ tnDefaultValue(){
     fi
     if [[ "$dv" == "MANDATORY" ]]; then
         dv=""
+    fi
+    if [[ "$dv" == "JWTSECRET" ]]; then
+        dv=$(tnGenerateJWTSecret)
+    fi
+    if [[ "$dv" == "JWTKEY" ]]; then
+        dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
 }
@@ -247,25 +273,6 @@ tnUserConfirm() {
   fi
 }
 
-tnAskUser() {
-  local question="$1"
-  local default_value="$2"
-  local variable="$3"
-  local default_display="leave blank to use default $default_value"
-  local save_default_value=$default_value
-  default_value=$(tnDefaultValue "$default_value")
-  default_display=$(tnDefaultDisplay "$save_default_value" "$default_display")
-  tnDisplay "? $question" "$yellowColor"
-  tnDisplay " ($default_display)" "$darkYellowColor"
-  tnDisplay " ? " "$yellowColor"
-  read answer
-  if [[ "$answer" == "" ]]; then
-    eval "$variable=\"$default_value\""
-  else
-    eval "$variable=\"$answer\""
-  fi
-}
-
 tnSetDockerHome(){
   local question="Please specify DOCKER_HOME directory"
   local variable="DOCKER_HOME"
@@ -281,58 +288,60 @@ tnSetDockerHome(){
   fi
 }
 
+tnParse(){
+    local envFile="$1"
+    local pattern="$2"
+    local matches=()
+
+    while IFS= read -r line; do
+        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)(\|[^|]*)?\] ]]; then
+            matches+=("$line")
+        fi
+    done < "$envFile"
+
+    echo "${matches[@]}"
+}
+
+tnAskUser() {
+    local question="$1"
+    local default_value="$2"
+    local variable="$3"
+    local extra="${4:-}"
+    local default_display="leave blank to use default $default_value"
+    local save_default_value=$default_value
+    default_value=$(tnDefaultValue "$default_value" "$extra")
+    default_display=$(tnDefaultDisplay "$save_default_value" "$default_display")
+    tnDisplay "? $question" "$yellowColor"
+    tnDisplay " ($default_display)" "$darkYellowColor"
+    tnDisplay " ? " "$yellowColor"
+    read answer
+    if [[ "$answer" == "" ]]; then
+        eval "$variable=\"$default_value\""
+        echo "ASK : $variable = $default_value"
+    else
+        eval "$variable=\"$answer\""
+        echo "ASK : $variable = $answer"
+    fi
+    while true; do
+        if [ "${!variable}" == "" ] && [ "$save_default_value" == "MANDATORY" ]; then
+            tnAskUser "$question" "$save_default_value" "$variable" "$extra"
+        else
+            break
+        fi
+    done
+}
+
 tnAskUserFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
-    local composeFile="$_dir/docker-compose.yml"
-    local declare matches
-    local variable_clean
-    local variable_clean_name
-    local declare files
-    while read line; do
-        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
-            files+=("$line")
-        fi
-    done < $envFile
-    while read line; do
-        if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            matches+=("$line")
-        fi
-    done < $envFile
+    local declare matches=$(parse_lines "$envFile" "TN_ASK")
     for match in "${matches[@]}"; do
-        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)(\|[^|]*)?\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
-            eval "$variable=\"$default_value\""
-            tnAskUser "$question" "$default_value" "$variable"
-            while true; do
-                if [ "${!variable}" == "" ]; then
-                    tnAskUser "$question" "$default_value" "$variable"
-                else
-                    break
-                fi
-            done
-
-            # XXXXX
-            tempstr="_CLEAN"
-            variable_clean_name="$variable$tempstr"           
-            variable_clean="${!variable}"
-            variable_clean="${variable_clean//./-}" 
-            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
-            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
-            if [ "$DOCKER_HOME" != "$_dir" ]; then
-                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
-                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile
-            fi
-            for match_file in "${files[@]}"; do
-                if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
-                    matched="${BASH_REMATCH[1]}"
-                    _dir1="$_dir/$matched"
-                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir1"
-                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir1"
-                fi
-            done
+            extra="${BASH_REMATCH[4]}"
+            tnAskUser "$question" "$default_value" "$variable" $extra
         fi
     done
 }
@@ -340,48 +349,16 @@ tnAskUserFromFile() {
 tnAutoFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
-    local composeFile="$_dir/docker-compose.yml"
-    local declare matches
-    local variable_clean
-    local variable_clean_name
-    local declare files
-    while read line; do
-        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
-            files+=("$line")
-        fi
-    done < $envFile
-    while read line; do
-        if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            matches+=("$line")
-        fi
-    done < $envFile
+    local declare matches=$(parse_lines "$envFile" "TN_AUTO")
     for match in "${matches[@]}"; do
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)(\|[^|]*)?\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
-            default_value=$(tnDefaultValue "$default_value")
             question="${BASH_REMATCH[3]}"
+            extra="${BASH_REMATCH[4]}"
+            default_value=$(tnDefaultValue "$default_value" "$extra")
             eval "$variable=\"$default_value\""
-
-            # XXXXX
-            tempstr="_CLEAN"
-            variable_clean_name="$variable$tempstr"
-            variable_clean="${!variable}"
-            variable_clean="${variable_clean//./-}"
-            tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $envFile
-            tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $envFile
-            if [ "$DOCKER_HOME" != "$_dir" ]; then
-                tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $composeFile
-                tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $composeFile 
-            fi                   
-            for match_file in "${files[@]}"; do
-                if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
-                    matched="${BASH_REMATCH[1]}"
-                    _dir1="$_dir/$matched"
-                    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" "$_dir1"
-                    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" "$_dir1"
-                fi
-            done
+            echo "AUTO : $variable = $default_value"
         fi
     done
 } 
@@ -457,4 +434,37 @@ tnGetLatestRelease(){
     local url="https://api.github.com/repos/$repo_owner/$repo_name/releases/latest"
     local latest_version=$(curl -s -H 'Cache-Control: no-cache' $url | grep -oP '"tag_name": "\K(.*)(?=")')
     echo $latest_version
+}
+
+tnCalculateStamp() {
+  local delta=$1
+  local unit=$2
+  local current_timestamp=$(date +%s)
+  
+  case $unit in
+    "minutes")
+      echo $((current_timestamp + delta * 60))
+      ;;
+    "hours")
+      echo $((current_timestamp + delta * 3600))
+      ;;
+    "days")
+      echo $((current_timestamp + delta * 86400))
+      ;;
+    "months")
+      echo $(date -d "$delta months" +%s)
+      ;;
+    "years")
+      echo $(date -d "$delta years" +%s)
+      ;;
+    *)
+      echo "Invalid unit"
+      exit 1
+      ;;
+  esac
+}
+
+tnReplaceStampsInFile() {
+    sed -i -E "s/\[DATE\]/$(date +%s)/g" "$1"
+    sed -i -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \1 \2)/g" "$1"
 }
