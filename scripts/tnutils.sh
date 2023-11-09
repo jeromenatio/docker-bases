@@ -295,7 +295,7 @@ tnParse(){
     local matches=()
 
     while IFS= read -r line; do
-        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)(\|[^|]*)?\] ]]; then
+        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             matches+=("$line")
         fi
     done < "$envFile"
