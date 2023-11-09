@@ -214,7 +214,7 @@ tnGenerateUuid(){
 
 tnDefaultValue(){
     local dv="$1"
-    local extra="${2:-}"
+    local extra="$2"
     if [[ "$dv" == "GENPWD" ]]; then
         dv="$(tnGeneratePassword 10)"
     fi
@@ -234,6 +234,7 @@ tnDefaultValue(){
         dv=$(tnGenerateJWTSecret)
     fi
     if [[ "$dv" == "JWTKEY" ]]; then
+        echo "DEFAULT: $extra"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
@@ -362,7 +363,7 @@ tnAutoFromFile() {
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
             extra="${BASH_REMATCH[4]}"
-            default_value=$(tnDefaultValue "$default_value" "$extra")
+            default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
             echo "AUTO : $variable = $default_value => $extra"
         fi
