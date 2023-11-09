@@ -359,7 +359,16 @@ tnAutoFromFile() {
     local declare matches
     matches=$(tnParse "$envFile" "TN_AUTO")
     for match in "${matches[@]}"; do
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"
+            default_value="${BASH_REMATCH[2]}"
+            question="${BASH_REMATCH[3]}"
+            extra="${BASH_REMATCH[4]}"
+            default_value=$(tnDefaultValue "$default_value" "$extra")
+            eval "$variable=\"$default_value\""
+            echo "AUTO : $variable = $default_value"
+        fi
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
