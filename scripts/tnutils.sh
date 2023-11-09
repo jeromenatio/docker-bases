@@ -234,7 +234,6 @@ tnDefaultValue(){
         dv=$(tnGenerateJWTSecret)
     fi
     if [[ "$dv" == "JWTKEY" ]]; then
-        echo "DEFAULT: $extra"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
