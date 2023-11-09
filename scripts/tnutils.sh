@@ -464,7 +464,7 @@ tnCalculateStamp() {
   esac
 }
 
-#
+##
 tnReplaceStampsInFile() {
     local file="$1"
     echo "BRINGELLE"
