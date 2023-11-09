@@ -464,20 +464,20 @@ tnCalculateStamp() {
   esac
 }
 
-##
+#
 tnReplaceStampsInFile() {
     local file="$1"
-    echo "AUBERGINE"
+    echo "BRINGELLE"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
 
-    # Step 1: Extract occurrences and store in a variable
     pattern_occurrences=$(grep -oE '\[DATE\+([0-9]+)([a-zA-Z]+)\]' "$file")
 
-    # Step 2: Loop through occurrences and replace in the file
     for occurrence in $pattern_occurrences; do
         num=$(echo "$occurrence" | sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/\1/')
         unit=$(echo "$occurrence" | sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/\2/')
         result=$(tnCalculateStamp "$num" "$unit")
-        sed -i -E "s/\[DATE\+([0-9]+)($unit)\]/$result/g" "$file"
+
+        sed -i -E "s|\[DATE\+([0-9]+)($unit)\]|$result|g" "$file"
     done
+
 }
