@@ -146,7 +146,7 @@ elif [ "$action" == "install" ]; then
     (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
     (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
     (tnExec "tnSetGlobalsFromFile $localBaseDir" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
-    (tnExec "tnReplaceStampsInFile $envFile" $LOG_FILE) & tnSpin "Adding timestamps"
+    tnReplaceStampsInFile $envFile
     tnAskUserFromFile $localBaseDir
     tnAutoFromFile $localBaseDir
     #(tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"

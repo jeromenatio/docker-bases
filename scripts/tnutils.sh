@@ -468,10 +468,10 @@ tnCalculateStamp() {
       echo $((current_timestamp + delta * 86400))
       ;;
     "months")
-      echo $(date -d "$delta months" +%s)
+      echo $((current_timestamp + delta * 30 * 24 * 3600))
       ;;
     "years")
-      echo $(date -d "$delta years" +%s)
+      echo $((current_timestamp + delta * 365 * 24 * 3600))
       ;;
     *)
       echo "Invalid unit"
