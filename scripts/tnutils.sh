@@ -288,11 +288,11 @@ tnSetDockerHome(){
   fi
 }
 
-##
+#
 tnParse(){
     local envFile="$1"
     local pattern="$2"
-    local matches=()
+    local declare matches
 
     while read line; do
         if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -336,7 +336,8 @@ tnAskUser() {
 tnAskUserFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
-    local declare matches=$(tnParse "$envFile" "TN_ASK")
+    local declare matches
+    matches=$(tnParse "$envFile" "TN_ASK")
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
@@ -351,7 +352,8 @@ tnAskUserFromFile() {
 tnAutoFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
-    local declare matches=$(tnParse "$envFile" "TN_AUTO")
+    local declare matches
+    matches=$(tnParse "$envFile" "TN_AUTO")
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
