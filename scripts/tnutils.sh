@@ -464,16 +464,20 @@ tnCalculateStamp() {
   esac
 }
 
-#
+##
 tnReplaceStampsInFile() {
     local file="$1"
-    echo "VEGETABLE"
+    echo "AUBERGINE"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
-    #sed -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \"\\1\" \"\\2\")/g" "$file"
-    while IFS= read -r line; do
-        modified_line=$(echo "$line" | awk 'BEGIN {cmd="tnCalculateStamp"} { while(match($0, /\[DATE\+([0-9]+)([a-zA-Z]+)\]/, arr)) { cmd="tnCalculateStamp " arr[1] " " arr[2]; replacement=cmd; gsub(/\[DATE\+([0-9]+)([a-zA-Z]+)\]/, replacement, $0) } }1')
-        echo "$modified_line"
-    done < "$file"
 
+    # Step 1: Extract occurrences and store in a variable
+    pattern_occurrences=$(grep -oE '\[DATE\+([0-9]+)([a-zA-Z]+)\]' "$file")
 
+    # Step 2: Loop through occurrences and replace in the file
+    for occurrence in $pattern_occurrences; do
+        num=$(echo "$occurrence" | sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/\1/')
+        unit=$(echo "$occurrence" | sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/\2/')
+        result=$(tnCalculateStamp "$num" "$unit")
+        sed -i -E "s/\[DATE\+([0-9]+)($unit)\]/$result/g" "$file"
+    done
 }
