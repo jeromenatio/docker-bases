@@ -135,7 +135,7 @@ elif [ "$action" == "list" ]; then
 
 elif [ "$action" == "install" ]; then
 
-    # Base paths to install and download
+    ## Base paths to install and download
     localBaseDir="$DOCKER_HOME/$id"
     distantBaseDir="$GITHUB/containers/$id"
     envFile="$localBaseDir/.env"
