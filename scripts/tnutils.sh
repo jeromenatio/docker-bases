@@ -468,7 +468,6 @@ tnCalculateStamp() {
 
 tnReplaceStampsInFile() {
     local file="$1"
-    echo "BRINGELLE"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
 
     pattern_occurrences=$(grep -oE '\[DATE\+([0-9]+)([a-zA-Z]+)\]' "$file")
