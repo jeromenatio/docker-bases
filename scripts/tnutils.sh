@@ -467,6 +467,7 @@ tnCalculateStamp() {
 }
 
 tnReplaceStampsInFile() {
-    sed -i -E "s/\[DATE\]/$(date +%s)/g" "$1"
-    sed -i -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \1 \2)/g" "$1"
+    local file="$1"
+    sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
+    sed -i -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \1 \2)/g" "$file"
 }
