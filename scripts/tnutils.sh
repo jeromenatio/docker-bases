@@ -214,7 +214,7 @@ tnGenerateUuid(){
 
 tnDefaultValue(){
     local dv="$1"
-    local extra="${4:-}"
+    local extra="${2:-}"
     if [[ "$dv" == "GENPWD" ]]; then
         dv="$(tnGeneratePassword 10)"
     fi
