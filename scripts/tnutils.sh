@@ -295,8 +295,12 @@ tnParse(){
     local declare matches
 
     while read line; do
-        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            echo "LINE PARSE : $line"
+        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            echo "LINE PARSE 4 : $line"
+            matches+=("$line")
+        fi
+        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            echo "LINE PARSE 3 : $line"
             matches+=("$line")
         fi
     done < "$envFile"
