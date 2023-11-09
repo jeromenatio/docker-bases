@@ -294,14 +294,14 @@ tnParse(){
     local pattern="$2"
     local matches=()
 
-    while IFS= read -r line; do
+    while read line; do
         if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             echo "LINE PARSE : $line"
             matches+=("$line")
         fi
     done < "$envFile"
 
-    echo "${matches[@]}"
+    echo "$matches"
 }
 
 tnAskUser() {
