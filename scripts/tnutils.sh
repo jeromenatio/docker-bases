@@ -295,12 +295,8 @@ tnParse(){
     local declare matches
 
     while read line; do
-        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            echo "LINE PARSE 4 : $line"
-            matches+=("$line")
-        fi
-        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            echo "LINE PARSE 3 : $line"
+        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            echo "LINE PARSE : $line"
             matches+=("$line")
         fi
     done < "$envFile"
@@ -341,7 +337,12 @@ tnAskUserFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
     local declare matches
-    matches=$(tnParse "$envFile" "TN_ASK")
+    while read line; do
+        if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            echo "LINE PARSE : $line"
+            matches+=("$line")
+        fi
+    done < "$envFile"
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
@@ -357,18 +358,14 @@ tnAutoFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
     local declare matches
-    matches=$(tnParse "$envFile" "TN_AUTO")
-    for match in "${matches[@]}"; do
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"
-            default_value="${BASH_REMATCH[2]}"
-            question="${BASH_REMATCH[3]}"
-            extra="${BASH_REMATCH[4]}"
-            default_value=$(tnDefaultValue "$default_value" "$extra")
-            eval "$variable=\"$default_value\""
-            echo "AUTO : $variable = $default_value"
+    while read line; do
+        if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            echo "LINE PARSE : $line"
+            matches+=("$line")
         fi
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+    done < "$envFile"
+    for match in "${matches[@]}"; do
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
@@ -484,5 +481,5 @@ tnCalculateStamp() {
 tnReplaceStampsInFile() {
     local file="$1"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
-    sed -i -E "s/\[DATE\+([0-9]{1,2})([a-zA-Z]*)\]/$(tnCalculateStamp \1 \2)/g" "$file"
+    sed -i -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \1 \2)/g" "$file"
 }
