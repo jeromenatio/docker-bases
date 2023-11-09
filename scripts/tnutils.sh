@@ -465,7 +465,7 @@ tnCalculateStamp() {
       echo $((current_timestamp + delta * 3600))
       ;;
     "days")
-      echo $((current_timestamp + delta * 86400))
+      echo $((current_timestamp + delta * 24 * 3600))
       ;;
     "months")
       echo $((current_timestamp + delta * 30 * 24 * 3600))
