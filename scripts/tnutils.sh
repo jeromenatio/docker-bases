@@ -188,17 +188,22 @@ tnGenerateJWTKey() {
     local secret="$1"
     local payload="$2"
 
-    # Encode header and payload
-    local encoded_header=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 -w 0)
-    local encoded_payload=$(echo -n "$payload" | base64 -w 0)
+    # Construct the header
+    jwt_header=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 | sed s/\+/-/g | sed 's/\//_/g' | sed -E s/=+$//)
 
-    # Create signature
-    local signature=$(echo -n "$encoded_header.$encoded_payload" | openssl dgst -sha256 -hmac "$secret" -binary | base64 -w 0)
+    # Construct the payload
+    payload=$(echo -n $payload | base64 | sed s/\+/-/g |sed 's/\//_/g' |  sed -E s/=+$//)
 
-    # Concatenate parts to form the JWT token
-    local jwt_token="$encoded_header.$encoded_payload.$signature"
+    # Convert secret to hex (not base64)
+    hexsecret=$(echo -n "$secret" | xxd -p | paste -sd "")
 
-    echo "$jwt_token"
+    # Calculate hmac signature -- note option to pass in the key as hex bytes
+    hmac_signature=$(echo -n "${jwt_header}.${payload}" |  openssl dgst -sha256 -mac HMAC -macopt hexkey:$hexsecret -binary | base64  | sed s/\+/-/g | sed 's/\//_/g' | sed -E s/=+$//)
+
+    # Create the full token
+    jwt="${jwt_header}.${payload}.${hmac_signature}"
+
+    echo "$jwt"
 }
 
 tnGenerateUuid(){
