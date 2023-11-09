@@ -295,7 +295,7 @@ tnParse(){
     local matches=()
 
     while IFS= read -r line; do
-        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             matches+=("$line")
         fi
     done < "$envFile"
@@ -337,7 +337,7 @@ tnAskUserFromFile() {
     local envFile="$_dir/.env"
     local declare matches=$(tnParse "$envFile" "TN_ASK")
     for match in "${matches[@]}"; do
-        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
@@ -352,7 +352,7 @@ tnAutoFromFile() {
     local envFile="$_dir/.env"
     local declare matches=$(tnParse "$envFile" "TN_AUTO")
     for match in "${matches[@]}"; do
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
