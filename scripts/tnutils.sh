@@ -183,7 +183,6 @@ tnGenerateJWTSecret(){
     echo "$jwt_secret"
 }
 
-##
 tnGenerateJWTKey() {
     local secret="$1"
     local payload="$2"
@@ -297,7 +296,6 @@ tnSetDockerHome(){
   fi
 }
 
-#
 tnAskUser() {
     local question="$1"
     local default_value="$2"
@@ -313,10 +311,10 @@ tnAskUser() {
     read answer
     if [[ "$answer" == "" ]]; then
         eval "$variable=\"$default_value\""
-        echo "ASK : $variable = $default_value"
+        #echo "ASK : $variable = $default_value"
     else
         eval "$variable=\"$answer\""
-        echo "ASK : $variable = $answer"
+        #echo "ASK : $variable = $answer"
     fi
     while true; do
         if [ "${!variable}" == "" ] && [ "$save_default_value" == "MANDATORY" ]; then
@@ -364,7 +362,7 @@ tnAutoFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
-            echo "BANAS : $variable = $default_value"
+            #echo "BANAS : $variable = $default_value"
         fi
     done
 } 
