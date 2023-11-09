@@ -364,7 +364,7 @@ tnAutoFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
-            echo "AUTO : $variable = $default_value"
+            echo "BANA : $variable = $default_value"
         fi
     done
 } 
