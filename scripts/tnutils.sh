@@ -183,18 +183,22 @@ tnGenerateJWTSecret(){
     echo "$jwt_secret"
 }
 
+##
 tnGenerateJWTKey() {
-  local jwt_secret="$1"
-  local payload="$2"
+    local secret="$1"
+    local payload="$2"
 
-  # Encode header and payload
-  local header_payload=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 -w 0).$(echo -n "$payload" | base64 -w 0)
+    # Encode header and payload
+    local encoded_header=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 -w 0)
+    local encoded_payload=$(echo -n "$payload" | base64 -w 0)
 
-  # Create signature
-  local signature=$(echo -n "$header_payload" | openssl dgst -sha256 -hmac "$jwt_secret" -binary | base64 -w 0)
+    # Create signature
+    local signature=$(echo -n "$encoded_header.$encoded_payload" | openssl dgst -sha256 -hmac "$secret" -binary | base64 -w 0)
 
-  # Concatenate and output the JWT
-  echo "$header_payload.$signature"
+    # Concatenate parts to form the JWT token
+    local jwt_token="$encoded_header.$encoded_payload.$signature"
+
+    echo "$jwt_token"
 }
 
 tnGenerateUuid(){
@@ -438,8 +442,6 @@ tnCalculateStamp() {
   local delta=$1
   local unit=$2
   local current_timestamp=$(date +%s)
-  #echo "nb to add $delta"
-  #echo "un to add $unit" 
   
   case $unit in
     "minutes")
@@ -464,7 +466,6 @@ tnCalculateStamp() {
   esac
 }
 
-##
 tnReplaceStampsInFile() {
     local file="$1"
     echo "BRINGELLE"
