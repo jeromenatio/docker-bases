@@ -183,7 +183,7 @@ tnGenerateJWTSecret(){
     echo "$jwt_secret"
 }
 
-#
+##
 tnGenerateJWTKey() {
     local secret="$1"
     local payload="$2"
