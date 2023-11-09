@@ -187,6 +187,7 @@ tnGenerateJWTSecret(){
 tnGenerateJWTKey() {
     local secret="$1"
     local payload="$2"
+    echo "$payload :::: $secret"
 
     # Construct the header
     jwt_header=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 | sed s/\+/-/g | sed 's/\//_/g' | sed -E s/=+$//)
