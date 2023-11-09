@@ -4,7 +4,7 @@
 ENV="prod"
 GITHUB=$( [ "$ENV" != "dev" ] &&  echo "https://raw.githubusercontent.com/jeromenatio/docker-bases/main" ) || echo "/home/_local"
 DOCKER_HOME="/home/tndocker"
-DEPENDENCIES=("curl" "id" "getent" "uuidgen")
+DEPENDENCIES=("curl" "id" "getent" "uuidgen" "xxd" "openssl")
 DEFAULT_CONTAINERS=("nginxproxy")
 UTILS_FILE="/usr/local/bin/tnutils"
 TNDOCKER_FILE="/usr/local/bin/tndocker"
@@ -42,7 +42,7 @@ else
 fi
 
 # INSTALL DEPENDENCIES
-tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime" "$LOG_FILE" & tnSpin "Installing script dependencies")
+tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime xxd openssl" "$LOG_FILE" & tnSpin "Installing script dependencies")
 
 # GET/CREATE DOCKER _GID AND _UID
 if ! getent group docker > /dev/null 2>&1; then
