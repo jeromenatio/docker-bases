@@ -288,22 +288,6 @@ tnSetDockerHome(){
   fi
 }
 
-#
-tnParse(){
-    local envFile="$1"
-    local pattern="$2"
-    local declare matches
-
-    while read line; do
-        if [[ $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ $pattern=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            echo "LINE PARSE : $line"
-            matches+=("$line")
-        fi
-    done < "$envFile"
-
-    echo "$matches"
-}
-
 tnAskUser() {
     local question="$1"
     local default_value="$2"
@@ -480,6 +464,7 @@ tnCalculateStamp() {
   esac
 }
 
+##
 tnReplaceStampsInFile() {
     local file="$1"
     echo "POMME"
