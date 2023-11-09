@@ -314,10 +314,10 @@ tnAskUser() {
     read answer
     if [[ "$answer" == "" ]]; then
         eval "$variable=\"$default_value\""
-        echo "ASK : $variable = $default_value => $extra"
+        echo "ASK : $variable = $default_value"
     else
         eval "$variable=\"$answer\""
-        echo "ASK : $variable = $answer => $extra"
+        echo "ASK : $variable = $answer"
     fi
     while true; do
         if [ "${!variable}" == "" ] && [ "$save_default_value" == "MANDATORY" ]; then
@@ -365,7 +365,7 @@ tnAutoFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
-            echo "AUTO : $variable = $default_value => $extra"
+            echo "AUTO : $variable = $default_value"
         fi
     done
 } 
