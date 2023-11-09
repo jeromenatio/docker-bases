@@ -187,16 +187,15 @@ tnGenerateJWTSecret(){
 tnGenerateJWTKey() {
     local secret="$1"
     local payload="$2"
-    #echo "$payload :::: $secret"
 
     # Construct the header
     jwt_header=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 | sed s/\+/-/g | sed 's/\//_/g' | sed -E s/=+$//)
 
     # Construct the payload
-    payload=$(echo -n $payload | base64 | sed s/\+/-/g |sed 's/\//_/g' |  sed -E s/=+$//)
+    payload=$(echo -n "$payload" | base64 | sed s/\+/-/g |sed 's/\//_/g' |  sed -E s/=+$//)
 
     # Convert secret to hex (not base64)
-    hexsecret=$(echo -n $secret | xxd -p | paste -sd "")
+    hexsecret=$(echo -n "$secret" | xxd -p | paste -sd "")
 
     # Calculate hmac signature -- note option to pass in the key as hex bytes
     hmac_signature=$(echo -n "${jwt_header}.${payload}" |  openssl dgst -sha256 -mac HMAC -macopt hexkey:$hexsecret -binary | base64  | sed s/\+/-/g | sed 's/\//_/g' | sed -E s/=+$//)
