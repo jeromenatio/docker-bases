@@ -467,7 +467,12 @@ tnCalculateStamp() {
 #
 tnReplaceStampsInFile() {
     local file="$1"
-    echo "PASSION"
+    echo "FRUIT"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
     sed -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \"\\1\" \"\\2\")/g" "$file"
+    while IFS= read -r line; do
+        modified_line=$(echo "$line" | awk 'BEGIN {cmd="tnCalculateStamp"} { while(match($0, /\[DATE\+([0-9]+)([a-zA-Z]+)\]/, arr)) { cmd="tnCalculateStamp " arr[1] " " arr[2]; sub(/\[DATE\+([0-9]+)([a-zA-Z]+)\]/, systime() - (arr[1] * 60 * 60 * 24 * 365), $0) } }1')
+        echo "$modified_line"
+    done < "$file"
+
 }
