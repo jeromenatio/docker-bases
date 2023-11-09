@@ -302,7 +302,7 @@ tnAskUser() {
     local question="$1"
     local default_value="$2"
     local variable="$3"
-    local extra="${4:-}"
+    local extra="$4"
     local default_display="leave blank to use default $default_value"
     local save_default_value=$default_value
     default_value=$(tnDefaultValue "$default_value" "$extra")
@@ -313,10 +313,10 @@ tnAskUser() {
     read answer
     if [[ "$answer" == "" ]]; then
         eval "$variable=\"$default_value\""
-        echo "ASK : $variable = $default_value"
+        echo "ASK : $variable = $default_value => $extra"
     else
         eval "$variable=\"$answer\""
-        echo "ASK : $variable = $answer"
+        echo "ASK : $variable = $answer => $extra"
     fi
     while true; do
         if [ "${!variable}" == "" ] && [ "$save_default_value" == "MANDATORY" ]; then
@@ -333,7 +333,6 @@ tnAskUserFromFile() {
     local declare matches
     while read line; do
         if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            echo "LINE PARSE : $line"
             matches+=("$line")
         fi
     done < "$envFile"
@@ -354,7 +353,6 @@ tnAutoFromFile() {
     local declare matches
     while read line; do
         if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            echo "LINE PARSE : $line"
             matches+=("$line")
         fi
     done < "$envFile"
@@ -366,7 +364,7 @@ tnAutoFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" "$extra")
             eval "$variable=\"$default_value\""
-            echo "AUTO : $variable = $default_value"
+            echo "AUTO : $variable = $default_value => $extra"
         fi
     done
 } 
