@@ -467,7 +467,7 @@ tnCalculateStamp() {
 ##
 tnReplaceStampsInFile() {
     local file="$1"
-    echo "POMME"
+    echo "PASSION"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
-    sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/'"$(tnCalculateStamp "\1" "\2")"'/g' "$file"
+    sed -E "s/\[DATE\+([0-9]+)([a-zA-Z]+)\]/$(tnCalculateStamp \"\\1\" \"\\2\")/g" "$file"
 }
