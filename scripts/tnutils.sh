@@ -482,20 +482,7 @@ tnCalculateStamp() {
 
 tnReplaceStampsInFile() {
     local file="$1"
-    echo "ORANGE"
+    echo "POMME"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
-    #sed -i -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/'"$(tnCalculateStamp "\1" "\2")"'/g' "$file"
-
-    awk 'BEGIN { pattern="\[DATE\\+([0-9]+)([a-zA-Z]+)\]"; cmd="tnCalculateStamp" }
-    { 
-        while (match($0, pattern)) {
-            found = substr($0, RSTART, RLENGTH)
-            num = substr(found, length("[DATE+")+1, RLENGTH-length("[DATE+]-1"))
-            unit = substr(found, RLENGTH, 1)
-            replacement = sprintf("%s %s", cmd, num)
-            $0 = substr($0, 1, RSTART-1) replacement substr($0, RSTART+RLENGTH)
-        }
-        print
-    }' "$file"
-
+    sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/'"$(tnCalculateStamp "\1" "\2")"'/g' "$file"
 }
