@@ -17,7 +17,7 @@ action="$1"
 id="$2"
 option="$3"
 
-# CHECK FOR ACTIONS
+# CHECK FOR ACTIONS #
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
@@ -51,7 +51,8 @@ if [ "$action" == "up" ]; then
 
     # Compose up    
     eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --build"
-    #tnDisplay "Updated version !!\n\n" "$darkYellowColor"
+    
+    # Remove temp files
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
 
 elif [ "$action" == "down" ]; then
