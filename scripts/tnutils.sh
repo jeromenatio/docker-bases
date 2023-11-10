@@ -424,8 +424,8 @@ tnSetStamps() {
 }
 
 tnSetVars(){
-    local $envFile="$1"
-    local $file="$2"
+    local envFile="$1"
+    local file="$2"
     local declare matches
     local declare matches2
     while read line; do
@@ -436,7 +436,8 @@ tnSetVars(){
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
-            echo "ASK: $variable => ${!variable}"
+            echo "ASK : $variable => ${!variable}"
+            tnReplaceVarInFile $variable $file
         fi
     done
     while read line; do
@@ -446,8 +447,9 @@ tnSetVars(){
     done < "$envFile"
     for match in "${matches2[@]}"; do
         if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"
-            echo "AUTO: $variable => ${!variable}"
+            variable="${BASH_REMATCH[1]}"            
+            echo "AUTO : $variable => ${!variable}"
+            tnReplaceVarInFile $variable $file
         fi
     done
 }
