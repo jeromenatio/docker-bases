@@ -157,7 +157,7 @@ elif [ "$action" == "install" ]; then
     instanceEnv="$instanceDir/.env"
     # Download all files and Set Stamps, Globals, Vars
     tnDownloadAndSetAllFiles $locEnvTemp $disBaseDir
-    tnIsMultiInstance "$locEnvTemp" && (tnExec "cp $locEnvTemp $instanceEnv" "$LOG_FILE" & tnSpin "Moving .env to instance directory")
+    tnIsMultiInstance "$locEnvTemp" && (tnExec "mv $locEnvTemp $instanceEnv" "$LOG_FILE" & tnSpin "Moving .env to instance directory")
     (tnExec "chown -R docker:docker $instanceDir" $LOG_FILE) & tnSpin "Changing container instance owner to docker"
 
 else

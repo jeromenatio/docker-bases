@@ -471,12 +471,10 @@ tnDownloadAndSetAllFiles(){
         if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
             files+=("$line")
         fi
-    done < "$loc/.env"
+    done < "$envFile"
     for match_file in "${files[@]}"; do
         if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
             matched="${BASH_REMATCH[1]}"
-            dis1="$dis/$matched"
-            loc1="$loc/$matched"
             dis="$disDir/$matched"
             loc="$instance/$matched"
             tnDownload $dis $loc
