@@ -23,6 +23,8 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
+    networks:
+      - admin
     depends_on:
       analytics:
         condition: service_healthy
@@ -55,6 +57,8 @@ services:
     #ports:
     #  - ${KONG_HTTP_PORT}:8000/tcp
     #  - ${KONG_HTTPS_PORT}:8443/tcp
+    networks:
+      - admin
     depends_on:
       analytics:
         condition: service_healthy
@@ -96,6 +100,8 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
+    networks:
+      - admin
     restart: unless-stopped
     environment:
       GOTRUE_API_HOST: 0.0.0.0
@@ -142,6 +148,8 @@ services:
         condition: service_healthy
       analytics:
         condition: service_healthy
+    networks:
+      - admin
     restart: unless-stopped
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
@@ -174,6 +182,8 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
+    networks:
+      - admin
     restart: unless-stopped
     environment:
       PORT: 4000
@@ -234,6 +244,8 @@ services:
       GLOBAL_S3_BUCKET: stub
       ENABLE_IMAGE_TRANSFORMATION: "true"
       IMGPROXY_URL: http://imgproxy:5001
+    networks:
+      - admin
     volumes:
       - ./volumes/storage:/var/lib/storage:z
 
@@ -245,6 +257,8 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
+    networks:
+      - admin
     environment:
       IMGPROXY_BIND: ":5001"
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
@@ -262,6 +276,8 @@ services:
         condition: service_healthy
       analytics:
         condition: service_healthy
+    networks:
+      - admin
     restart: unless-stopped
     environment:
       PG_META_PORT: 8080
@@ -286,6 +302,8 @@ services:
       SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
+    networks:
+      - admin
     volumes:
       - ./volumes/functions:/home/deno/functions:Z
     command:
@@ -334,6 +352,8 @@ services:
       # Uncomment to use Big Query backend for analytics
       # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
       # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
+    networks:
+      - admin
     ports:
       - 4000:4000
     entrypoint: |
@@ -373,6 +393,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: ${POSTGRES_DB}
       POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - admin
     volumes:
       - ./volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
       # Must be superuser to create event trigger
@@ -401,8 +423,15 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
+    networks:
+      - admin
     volumes:
       - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro
       - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro
 
     command: [ "--config", "etc/vector/vector.yml" ]
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
