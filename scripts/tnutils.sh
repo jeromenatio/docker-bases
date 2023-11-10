@@ -10,7 +10,7 @@ greenColor="38;5;47"
 darkGreenColor="38;5;71"
 darkRedColor="38;5;124"
 
-# DON'T FORGET ITS FOR DEBIAN ONLY #
+# DON'T FORGET ITS FOR DEBIAN ONLY
 
 # FUNCTIONS
 tnDisplay(){
@@ -396,29 +396,32 @@ tnSetStamps() {
 
 }
 
-##
 tnSetVars(){
-    local envFile="$1"
+    local file="$1"
     local varsFile="$2"
     local declare matches
     while read line; do
         name=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\1/p')
         data=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\2/p')
-        echo "NAME: $name"
-        echo "DATA: $data"
-        echo "---------------------"
+        tnReplaceVarInFile $name $data $file
     done < "$varsFile"
 }
 
+####
 tnReplaceVarInFile(){
-    local variable="$1"
-    local file="$2"
-    local tempstr="_CLEAN"
-    local variable_clean_name="$variable$tempstr"
-    local variable_clean="${!variable}"
-    variable_clean="${variable_clean//./-}"
-    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
-    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
+    local name="$1"
+    local data="$2"
+    local file="$3"
+    local tstr="_CLEAN"
+    local name_clean="$name$tstr"
+    local data_clean="$data"
+    data_clean="${data_clean//./-}"
+    tnReplaceStringInFile "\\[$name\\]" "$data" $file
+    tnReplaceStringInFile "\\[$name_clean\\]" "$data_clean" $file
+    echo "----------------"
+    echo "\\[$name\\] => $data => $file"
+    echo "\\[$name_clean\\] => $data_clean => $file"
+    echo "----------------"
 }
 
 tnSetGlobals(){
