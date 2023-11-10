@@ -304,29 +304,6 @@ tnAutoVarsFromFile() {
             eval "$variable=\"$default_value\""
         fi
     done
-} 
-
-tnDownloadFromFile(){
-    local dis="$1"
-    local loc="$2"
-    local declare files
-    curl -Ls -H 'Cache-Control: no-cache' "$dis/.env" -o "$loc/.env"
-    if [ "$DOCKER_HOME" != "$loc" ]; then
-        curl -Ls -H 'Cache-Control: no-cache' "$dis/docker-compose.yml" -o "$loc/docker-compose.yml"  
-    fi
-    while read line; do
-        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
-            files+=("$line")
-        fi
-    done < "$loc/.env"
-    for match_file in "${files[@]}"; do
-        if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
-            matched="${BASH_REMATCH[1]}"
-            dis1="$dis/$matched"
-            loc1="$loc/$matched"
-            curl -Ls -H 'Cache-Control: no-cache' "$dis1" -o "$loc1" 
-        fi
-    done
 }
 
 tnCreateNetworksFromFile() {
@@ -475,4 +452,39 @@ tnSetGlobals(){
     (tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$file'" $LOG_FILE)
 }
 
-# ALWAYS LEAVE BLANK LINE AT THE END #
+tnDownloadAndSetAllFiles(){
+    local envFile="$1"
+    local disDir="$2"
+    local declare files
+    local instance=$(tnGetInstancePathFromFile $envFile)
+
+    # Docker Compose file
+    local dis="$disDir/docker-compose.yml"
+    local loc="$instance/docker-compose.yml"
+    tnDownload $dis $loc
+    tnSetStamps $loc
+    tnSetGlobals $loc
+    tnSetVars $envFile $loc
+    
+    # Every other files
+    while read line; do
+        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
+            files+=("$line")
+        fi
+    done < "$loc/.env"
+    for match_file in "${files[@]}"; do
+        if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
+            matched="${BASH_REMATCH[1]}"
+            dis1="$dis/$matched"
+            loc1="$loc/$matched"
+            dis="$disDir/$matched"
+            loc="$instance/$matched"
+            tnDownload $dis $loc
+            tnSetStamps $loc
+            tnSetGlobals $loc
+            tnSetVars $envFile $loc
+        fi
+    done
+}
+
+# ALWAYS LEAVE BLANK LINE AT THE END

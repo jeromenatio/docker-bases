@@ -155,10 +155,8 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnCreateDirsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating container directories from .env file"
     instanceDir=$(tnGetInstancePathFromFile $locEnvTemp)
     instanceEnv="$instanceDir/.env"
-    # Download all files except for main .env
-    # Set Stamps for all files except main .env
-    # Set Globals for all files except main .env
-    # Set Vars for all files except main .env
+    # Download all files and Set Stamps, Globals, Vars
+    tnDownloadAndSetAllFiles $locEnvTemp $disBaseDir
     tnIsMultiInstance "$locEnvTemp" && (tnExec "cp $locEnvTemp $instanceEnv" "$LOG_FILE" & tnSpin "Moving .env to instance directory")
     (tnExec "chown -R docker:docker $instanceDir" $LOG_FILE) & tnSpin "Changing container instance owner to docker"
 
