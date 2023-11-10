@@ -176,7 +176,7 @@ tnDefaultValue(){
         dv=$(tnGenerateJWTSecret)
     fi
     if [[ "$dv" == "JWTKEY" ]]; then
-        local JWT_SECRET=""
+        JWT_SECRET=""
         while read line; do
             name=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\1/p')
             data=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\2/p')
@@ -184,7 +184,7 @@ tnDefaultValue(){
                 JWT_SECRET="$data"
             fi
         done < "$varsFile"
-        echo "KIWI : $JWT" >> "/home/docker/install.log"
+        echo "KIWI : $JWT_SECRET" >> "/home/docker/install.log"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
