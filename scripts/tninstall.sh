@@ -10,9 +10,6 @@ UTILS_FILE="/usr/local/bin/tnutils"
 TNDOCKER_FILE="/usr/local/bin/tndocker"
 LOG_FILE="./install.log"
 
-# CLEAR / CREATE LOG FILE
-[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
-
 # DOWNLOAD AND SOURCE UTILITIES
 [ "$ENV" != "dev" ] && curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/scripts/tnutils.sh" -o "$UTILS_FILE" || cp "$GITHUB/scripts/tnutils.sh" "$UTILS_FILE"
 chmod +x $UTILS_FILE
@@ -38,8 +35,13 @@ if [[ -d "$DOCKER_HOME" ]]; then
     #exit 1
 else
     # CREATE DOCKER HOME DIRECTORY
-    (tnExec "mkdir -p $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
+    (mkdir -p $DOCKER_HOME) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
 fi
+
+# CLEAR / CREATE LOG FILE
+$LOG_FILE="$DOCKER_HOME/install.log"
+[ -e "$LOG_FILE" ] && rm "$LOG_FILE"
+touch "$LOG_FILE"
 
 # INSTALL DEPENDENCIES
 tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime xxd openssl" "$LOG_FILE" & tnSpin "Installing script dependencies")
@@ -68,20 +70,25 @@ uname_m="$(uname -m)"
 sleep 1
 tnIsCommandMissing docker-compose && tnInstallDockerCompose $uname_s $uname_m $latest_version $LOG_FILE
 
+# TEMPORY STORE FOR VARIABLE
+varsTemp="$DOCKER_HOME/.vars"
+[ -e "$varsTemp" ] && rm "$varsTemp"
+touch "$varsTemp"
+
 # DOWNLOAD MAIN .env FILE, MODIFY GLOBALS, ASK USER RELATED QUESTIONS AND CREATE NETWORKS
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
 (tnExec "tnSetStamps $ENV_FILE" $LOG_FILE) & tnSpin "Setting timestamps in main .env file"
 (tnExec "tnSetGlobals $ENV_FILE" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in main .env file"
-tnAskUserFromFile $ENV_FILE
-(tnExec "tnAutoVarsFromFile $ENV_FILE" $LOG_FILE) & tnSpin "Generating auto variables from .env"
-(tnExec "tnSetVars $ENV_FILE $ENV_FILE" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in main .env file"
+tnAskUserFromFile $ENV_FILE $varsTemp
+(tnExec "tnAutoVarsFromFile $ENV_FILE $varsTemp" $LOG_FILE) & tnSpin "Generating auto variables from .env"
+(tnExec "tnSetVars $ENV_FILE $varsTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in main .env file"
 (tnExec "tnCreateNetworksFromFile $ENV_FILE" $LOG_FILE) & tnSpin "Creating custom docker networks"
 
 # INSTALL TNDOCKER COMMAND FILE AND MODIFY GLOBALS
 (tnExec "tnDownload '$GITHUB/scripts/tndocker.sh' '$TNDOCKER_FILE'" $LOG_FILE)
 (tnExec "tnSetStamps $ENV_FILE" $LOG_FILE) & tnSpin "Setting timestamps in tndocker commands file"
 (tnExec "tnSetGlobals $TNDOCKER_FILE" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in tndocker commands file"
-(tnExec "tnSetVars $ENV_FILE $TNDOCKER_FILE" $LOG_FILE) & tnSpin "Settings user/auto defined vars in tndocker commands file"
+(tnExec "tnSetVars $TNDOCKER_FILE $varsTemp" $LOG_FILE) & tnSpin "Settings user/auto defined vars in tndocker commands file"
 (tnExec "chmod +x $TNDOCKER_FILE" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS

@@ -242,7 +242,8 @@ tnAskUser() {
     local question="$1"
     local default_value="$2"
     local variable="$3"
-    local extra="$4"
+    local varsFile="$4"
+    local extra="$5"
     local default_display="leave blank to use default $default_value"
     local save_default_value=$default_value
     default_value=$(tnDefaultValue "$default_value" "$extra")
@@ -252,21 +253,18 @@ tnAskUser() {
     tnDisplay " ? " "$yellowColor"
     read answer
     if [[ "$answer" == "" ]]; then
-        eval "$variable=\"$default_value\""
-    else
-        eval "$variable=\"$answer\""
+        answer="$default_value"
     fi
-    while true; do
-        if [ "${!variable}" == "" ] && [ "$save_default_value" == "MANDATORY" ]; then
-            tnAskUser "$question" "$save_default_value" "$variable" "$extra"
-        else
-            break
-        fi
-    done
+    if [[ "$answer" == "" ]]; then
+        tnAskUser "$question" "$save_default_value" "$variable" "$varsFile" "$extra"
+    else
+        echo "$variable=[$answer]" >> $varsFile
+    fi
 }
 
 tnAskUserFromFile() {
     local envFile="$1"
+    local varsFile="$2"
     local declare matches
     while read line; do
         if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -279,13 +277,14 @@ tnAskUserFromFile() {
             default_value="${BASH_REMATCH[2]}"
             question="${BASH_REMATCH[3]}"
             extra="${BASH_REMATCH[4]}"
-            tnAskUser "$question" "$default_value" "$variable" $extra
+            tnAskUser "$question" "$default_value" "$variable" "$varsFile" $extra
         fi
     done
 }
 
 tnAutoVarsFromFile() {
-    local envFile="$1"
+    local envFile="$1"    
+    local varsFile="$2"
     local declare matches
     while read line; do
         if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -296,11 +295,10 @@ tnAutoVarsFromFile() {
         if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
-            question="${BASH_REMATCH[3]}"
+            #question="${BASH_REMATCH[3]}"
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
-            eval "$variable=\"$default_value\""
-            echo "FRUIT : $variable = ${!variable}"
+            echo "$variable=[$default_value]" >> $varsFile
         fi
     done
 }
@@ -401,32 +399,11 @@ tnSetStamps() {
 
 tnSetVars(){
     local envFile="$1"
-    local file="$2"
+    local varsFile="$2"
     local declare matches
-    local declare matches2
     while read line; do
-        if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            matches+=("$line")
-        fi
-    done < "$envFile"
-    for match in "${matches[@]}"; do
-        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"
-            tnReplaceVarInFile $variable $file
-        fi
-    done
-    while read line; do
-        if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            matches2+=("$line")
-        fi
-    done < "$envFile"
-    for match2 in "${matches2[@]}"; do
-        if [[ $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"     
-            echo "ORANGE : $variable = ${!variable}"
-            tnReplaceVarInFile $variable $file
-        fi
-    done
+        echo "APPLE : $line"
+    done < "$varsFile"
 }
 
 tnReplaceVarInFile(){
@@ -455,6 +432,7 @@ tnSetGlobals(){
 tnDownloadAndSetAllFiles(){
     local envFile="$1"
     local disDir="$2"
+    local varFiles="$3"
     local declare files
     local instance=$(tnGetInstancePathFromFile $envFile)
 
@@ -480,7 +458,7 @@ tnDownloadAndSetAllFiles(){
             tnDownload $dis $loc
             tnSetStamps $loc
             tnSetGlobals $loc
-            tnSetVars $envFile $loc
+            tnSetVars $loc $varsFile
         fi
     done
 }

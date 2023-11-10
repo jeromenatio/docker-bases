@@ -140,6 +140,11 @@ elif [ "$action" == "install" ]; then
     locBaseDir="$DOCKER_HOME/$id"
     disEnvTemp="$disBaseDir/.env"
     locEnvTemp="$locBaseDir/.env"
+    
+    # Tempory variables store
+    varsTemp="$locBaseDir/.vars"
+    [ -e "$varsTemp" ] && rm "$varsTemp"
+    touch "$varsTemp"
 
     # Installing based on .envtemp file
     tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
@@ -148,16 +153,18 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnDownload $disEnvTemp $locEnvTemp" $LOG_FILE) & tnSpin "Downloading .env file"
     (tnExec "tnSetStamps $locEnvTemp" $LOG_FILE) & tnSpin "Setting timestamps in .env file"
     (tnExec "tnSetGlobals $locEnvTemp" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in .env file"    
-    tnAskUserFromFile $locEnvTemp
-    tnAutoVarsFromFile $locEnvTemp & tnSpin "Generating auto variables from .env file"
-    (tnExec "tnSetVars $locEnvTemp $locEnvTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in .env file"
+    tnAskUserFromFile $locEnvTemp $varsTemp
+    (tnExec "tnAutoVarsFromFile $locEnvTemp $varsTemp" $LOG_FILE) & tnSpin "Generating auto variables from .env file"
+    (tnExec "tnSetVars $locEnvTemp $varsTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in .env file"
     (tnExec "tnCreateNetworksFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating custom networks from .env file"
     (tnExec "tnCreateDirsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating container directories from .env file"
     instanceDir=$(tnGetInstancePathFromFile $locEnvTemp)
     instanceEnv="$instanceDir/.env"
+    instanceVars="$instanceDir/.vars"
     # Download all files and Set Stamps, Globals, Vars
-    tnDownloadAndSetAllFiles $locEnvTemp $disBaseDir
+    tnDownloadAndSetAllFiles $locEnvTemp $disBaseDir $varsTemp
     tnIsMultiInstance "$locEnvTemp" && (tnExec "mv $locEnvTemp $instanceEnv" "$LOG_FILE" & tnSpin "Moving .env to instance directory")
+    tnIsMultiInstance "$locEnvTemp" && (tnExec "mv $varsTemp $instanceVars" "$LOG_FILE" & tnSpin "Moving .vars to instance directory")
     (tnExec "chown -R docker:docker $instanceDir" $LOG_FILE) & tnSpin "Changing container instance owner to docker"
 
 else
