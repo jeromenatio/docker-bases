@@ -300,7 +300,7 @@ tnAutoVarsFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
-            echo "AUTOF : $variable=\"$default_value\""
+            echo "FRUIT : $variable = ${!variable}"
         fi
     done
 }
