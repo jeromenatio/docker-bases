@@ -436,7 +436,7 @@ tnSetVars(){
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
-            tnReplaceVarInFile $variable $file
+            echo "ASK: $variable => ${!variable}"
         fi
     done
     while read line; do
@@ -447,7 +447,7 @@ tnSetVars(){
     for match in "${matches2[@]}"; do
         if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
-            tnReplaceVarInFile $variable $file
+            echo "AUTO: $variable => ${!variable}"
         fi
     done
 }
