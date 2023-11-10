@@ -402,7 +402,11 @@ tnSetVars(){
     local varsFile="$2"
     local declare matches
     while read line; do
-        echo "$line"
+        name=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\1/p')
+        data=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\2/p')
+        echo "NAME: $name"
+        echo "DATA: $data"
+        echo "---------------------"
     done < "$varsFile"
 }
 
