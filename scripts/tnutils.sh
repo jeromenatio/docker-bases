@@ -280,8 +280,7 @@ tnAskUser() {
 }
 
 tnAskUserFromFile() {
-    local _dir="$1" 
-    local envFile="$_dir/.env"
+    local envFile="$1"
     local declare matches
     while read line; do
         if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -300,8 +299,7 @@ tnAskUserFromFile() {
 }
 
 tnAutoVarsFromFile() {
-    local _dir="$1" 
-    local envFile="$_dir/.env"
+    local envFile="$1"
     local declare matches
     while read line; do
         if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
@@ -316,7 +314,6 @@ tnAutoVarsFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
-            #echo "BANAS : $variable = $default_value"
         fi
     done
 } 
