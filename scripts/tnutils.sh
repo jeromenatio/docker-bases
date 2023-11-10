@@ -295,7 +295,6 @@ tnAutoVarsFromFile() {
         if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
-            #question="${BASH_REMATCH[3]}"
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             echo "$variable=[$default_value]" >> $varsFile
@@ -397,6 +396,7 @@ tnSetStamps() {
 
 }
 
+###
 tnSetVars(){
     local envFile="$1"
     local varsFile="$2"
