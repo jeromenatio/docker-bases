@@ -421,7 +421,8 @@ tnSetVars(){
     done < "$envFile"
     for match2 in "${matches2[@]}"; do
         if [[ $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"          
+            variable="${BASH_REMATCH[1]}"
+            echo "AUTO \\[$variable\\] => ${!variable}"        
             tnReplaceVarInFile $variable $file
         fi
     done
@@ -436,8 +437,6 @@ tnReplaceVarInFile(){
     variable_clean="${variable_clean//./-}"
     tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
     tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
-    echo "\\[$variable\\] => ${!variable}"
-    echo "\\[$variable_clean_name\\] => $variable_clean"
 }
 
 tnSetGlobals(){
