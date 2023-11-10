@@ -300,6 +300,7 @@ tnAutoVarsFromFile() {
             extra="${BASH_REMATCH[4]}"
             default_value=$(tnDefaultValue "$default_value" $extra)
             eval "$variable=\"$default_value\""
+            echo "AUTO : $variable=\"$default_value\""
         fi
     done
 }
@@ -421,8 +422,7 @@ tnSetVars(){
     done < "$envFile"
     for match2 in "${matches2[@]}"; do
         if [[ $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"
-            echo "AUTO \\[$variable\\] => ${!variable}"        
+            variable="${BASH_REMATCH[1]}"       
             tnReplaceVarInFile $variable $file
         fi
     done
