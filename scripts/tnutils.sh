@@ -253,10 +253,8 @@ tnAskUser() {
     read answer
     if [[ "$answer" == "" ]]; then
         eval "$variable=\"$default_value\""
-        #echo "ASK : $variable = $default_value"
     else
         eval "$variable=\"$answer\""
-        #echo "ASK : $variable = $answer"
     fi
     while true; do
         if [ "${!variable}" == "" ] && [ "$save_default_value" == "MANDATORY" ]; then
@@ -421,9 +419,9 @@ tnSetVars(){
             matches2+=("$line")
         fi
     done < "$envFile"
-    for match in "${matches2[@]}"; do
-        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
-            variable="${BASH_REMATCH[1]}"            
+    for match2 in "${matches2[@]}"; do
+        if [[ $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match2 =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"          
             tnReplaceVarInFile $variable $file
         fi
     done
@@ -438,6 +436,8 @@ tnReplaceVarInFile(){
     variable_clean="${variable_clean//./-}"
     tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
     tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
+    echo "\\[$variable\\] => ${!variable}"
+    echo "\\[$variable_clean_name\\] => $variable_clean"
 }
 
 tnSetGlobals(){
