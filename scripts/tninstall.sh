@@ -70,14 +70,18 @@ tnIsCommandMissing docker-compose && tnInstallDockerCompose $uname_s $uname_m $l
 
 # DOWNLOAD MAIN .env FILE, MODIFY GLOBALS, ASK USER RELATED QUESTIONS AND CREATE NETWORKS
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
-(tnExec "tnSetGlobals '$ENV_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
+(tnExec "tnSetStamps $ENV_FILE" $LOG_FILE) & tnSpin "Setting timestamps in main .env file"
+(tnExec "tnSetGlobals '$ENV_FILE'" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in main .env file"
 tnAskUserFromFile $DOCKER_HOME
-(tnExec "tnAutoFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Generating auto variables"
-(tnExec "tnCreateNetworkFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating custom docker networks"
+(tnExec "tnAutoVarsFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Generating auto variables from .env"
+(tnExec "tnSetVars $locEnvTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in main .env file"
+(tnExec "tnCreateNetworksFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating custom docker networks"
 
 # INSTALL TNDOCKER COMMAND FILE AND MODIFY GLOBALS
 (tnExec "tnDownload '$GITHUB/scripts/tndocker.sh' '$TNDOCKER_FILE'" $LOG_FILE)
-(tnExec "tnSetGlobals '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
+(tnExec "tnSetStamps $ENV_FILE" $LOG_FILE) & tnSpin "Setting timestamps in tndocker commands file"
+(tnExec "tnSetGlobals '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in tndocker commands file"
+(tnExec "tnSetVars '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Settings user/auto defined vars in tndocker commands file"
 (tnExec "chmod +x '$TNDOCKER_FILE'" $LOG_FILE) & tnSpin "Changing permissions on tndocker commands file"
 
 # INSTALL DEFAULT CONTAINERS
@@ -86,4 +90,6 @@ tnAskUserFromFile $DOCKER_HOME
 #done
 
 # CHANGING OWNER ON DOCKER DIRECTORIES AND FILES
-(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing docker home owner"
+(tnExec "chown -R docker:docker $DOCKER_HOME" $LOG_FILE) & tnSpin "Changing DOCKER_HOME owner to docker"
+
+# ALWAYS LEAVE BLANK LINE AT THE END

@@ -103,52 +103,6 @@ tnSetGlobals(){
     (tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$file'" $LOG_FILE)
 }
 
-tnSetGlobalsFromFile(){
-    local _dir="$1"
-    local declare files
-    local envFile="$_dir/.env"
-    local composeFile="$_dir/docker-compose.yml"
-    (tnExec "tnSetGlobals '$envFile'" $LOG_FILE) 
-    if [ "$DOCKER_HOME" != "$_dir" ]; then
-        (tnExec "tnSetGlobals '$composeFile'" $LOG_FILE) 
-    fi
-    while read line; do
-        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
-            files+=("$line")
-        fi
-    done < $envFile
-    for match_file in "${files[@]}"; do
-        if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
-            matched="${BASH_REMATCH[1]}"
-            dis="$_dir/$matched"
-            (tnExec "tnSetGlobals '$dis'" $LOG_FILE) 
-        fi
-    done
-}
-
-tnMoveFilesToInstance(){
-    local base="$1"
-    local declare files
-    local envFile="$base/.env"
-    local instance=$(tnGetInstancePathFromFile $envFile)
-    (tnExec "mv '$base/docker-compose.yml' '$instance/docker-compose.yml'" $LOG_FILE)
-    while read line; do
-        if [[ $line =~ TN_FILE=\[(.*)\] ]]; then
-            files+=("$line")
-        fi
-    done < $envFile
-    for match_file in "${files[@]}"; do
-        if [[ $match_file =~ TN_FILE=\[(.*)\] ]]; then
-            matched="${BASH_REMATCH[1]}"
-            loc="$base/$matched"
-            dis="$instance/$matched"
-            (tnExec "mv '$loc' '$dis'" $LOG_FILE) 
-        fi
-    done
-    (tnExec "mv '$envFile' '$instance/.env'" $LOG_FILE) 
-    
-}
-
 tnGeneratePassword() {
     local LENGTH=$1
     local LOWERCASE_CHARS=(a b c d e f g h j k m n p q r s t u v w x y z)
@@ -345,7 +299,7 @@ tnAskUserFromFile() {
     done
 }
 
-tnAutoFromFile() {
+tnAutoVarsFromFile() {
     local _dir="$1" 
     local envFile="$_dir/.env"
     local declare matches
@@ -390,7 +344,7 @@ tnDownloadFromFile(){
     done
 }
 
-tnCreateNetworkFromFile() {
+tnCreateNetworksFromFile() {
     local file="$1/.env"
     while read line; do
         if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
@@ -401,7 +355,7 @@ tnCreateNetworkFromFile() {
     done < $file
 }
 
-tnCreateDirFromFile(){
+tnCreateDirsFromFile(){
     local file="$1/.env"
     while read line; do
         if [[ $line =~ TN_DIR=\[(.*)\] ]]; then
@@ -468,7 +422,7 @@ tnCalculateStamp() {
   esac
 }
 
-tnReplaceStampsInFile() {
+tnSetStamps() {
     local file="$1"
     sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
 
@@ -483,3 +437,9 @@ tnReplaceStampsInFile() {
     done
 
 }
+
+tnSetVars(){
+
+}
+
+# ALWAYS LEAVE BLANK LINE AT THE END

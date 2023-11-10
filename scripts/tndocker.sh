@@ -136,24 +136,32 @@ elif [ "$action" == "list" ]; then
 elif [ "$action" == "install" ]; then
 
     ## Base paths to install and download
-    localBaseDir="$DOCKER_HOME/$id"
-    distantBaseDir="$GITHUB/containers/$id"
-    envFile="$localBaseDir/.env"
+    disBaseDir="$GITHUB/containers/$id"
+    locBaseDir="$DOCKER_HOME/$id"
+    disEnvTemp="$disBaseDir/.env"
+    locEnvTemp="$locBaseDir/.env"
 
-    # Installing based on .env file
+    # Installing based on .envtemp file
     tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
     tnDisplay "# INSTALLING CONTAINER : $id\n" "$darkBlueColor"
-    (tnExec "mkdir -p '$localBaseDir'" $LOG_FILE) & tnSpin "Creating container local base directory"
-    (tnExec "tnDownloadFromFile $distantBaseDir $localBaseDir" $LOG_FILE) & tnSpin "Downloading files (.env, compose, dockerfile...)"
-    (tnExec "tnSetGlobalsFromFile $localBaseDir" $LOG_FILE) & tnSpin "Modifying DOCKER_HOME, UID, GID in main .env file"
-    tnReplaceStampsInFile $envFile
-    tnAskUserFromFile $localBaseDir
-    tnAutoFromFile $localBaseDir
-    #(tnExec "tnAutoFromFile $localBaseDir" $LOG_FILE) & tnSpin "Generating auto variables"
-    (tnExec "tnCreateDirFromFile $localBaseDir" $LOG_FILE) & tnSpin "Creating container directories"
-    instance=$(tnGetInstancePathFromFile $envFile) 
-    tnIsMultiInstance "$envFile" && (tnExec "tnMoveFilesToInstance $localBaseDir" "$LOG_FILE" & tnSpin "Moving files to instance")
-    (tnExec "chown -R docker:docker $localBaseDir" $LOG_FILE) & tnSpin "Changing container owner"
+    (tnExec "mkdir -p '$locBaseDir'" $LOG_FILE) & tnSpin "Creating base directory container"
+    (tnExec "tnDownload $disEnvTemp $locEnvTemp") & tnSpin "Downloading .env file"
+    (tnExec "tnSetStamps $locEnvTemp" $LOG_FILE) & tnSpin "Setting timestamps in .env file"
+    (tnExec "tnSetGlobals $locEnvTemp" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in .env file"    
+    tnAskUserFromFile $locEnvTemp
+    (tnExec "tnAutoVarsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Generating auto variables from .env file"
+    (tnExec "tnSetVars $locEnvTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in .env file"
+    (tnExec "tnCreateNetworksFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating custom networks from .env file"
+    (tnExec "tnCreateDirsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating container directories from .env file"
+
+    instanceDir=$(tnGetInstancePathFromFile $locEnvTemp)
+    instanceEnv="$instanceDir/.env"
+    (tnExec "tnDownloadFromFile $locEnvTemp $instanceDir" $LOG_FILE) & tnSpin "Downloading all files except for main .env"
+    # Set Stamps for all files except main .env
+    # Set Globals for all files except main .env
+    # Set Vars for all files except main .env
+    tnIsMultiInstance "$locEnvTemp" && (tnExec "cp $locEnvTemp $instanceEnv" "$LOG_FILE" & tnSpin "Moving .env to instance directory")
+    (tnExec "chown -R docker:docker $instanceDir" $LOG_FILE) & tnSpin "Changing container instance owner to docker"
 
 else
     echo "Invalid action"
