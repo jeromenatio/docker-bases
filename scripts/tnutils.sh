@@ -442,7 +442,7 @@ tnDownloadAndSetAllFiles(){
     tnDownload $dis $loc
     tnSetStamps $loc
     tnSetGlobals $loc
-    tnSetVars $envFile $loc
+    tnSetVars $loc $varsFile
     
     # Every other files
     while read line; do
