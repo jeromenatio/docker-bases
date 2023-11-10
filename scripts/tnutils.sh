@@ -396,7 +396,7 @@ tnSetStamps() {
 
 }
 
-###
+##
 tnSetVars(){
     local envFile="$1"
     local varsFile="$2"
@@ -436,7 +436,7 @@ tnSetGlobals(){
 tnDownloadAndSetAllFiles(){
     local envFile="$1"
     local disDir="$2"
-    local varFile="$3"
+    local varsFile="$3"
     local declare files
     local instance=$(tnGetInstancePathFromFile $envFile)
 
