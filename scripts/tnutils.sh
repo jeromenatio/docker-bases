@@ -402,7 +402,7 @@ tnSetVars(){
     local varsFile="$2"
     local declare matches
     while read line; do
-        echo "APPLE : $line"
+        echo "$line"
     done < "$varsFile"
 }
 
@@ -432,7 +432,7 @@ tnSetGlobals(){
 tnDownloadAndSetAllFiles(){
     local envFile="$1"
     local disDir="$2"
-    local varFiles="$3"
+    local varFile="$3"
     local declare files
     local instance=$(tnGetInstancePathFromFile $envFile)
 
