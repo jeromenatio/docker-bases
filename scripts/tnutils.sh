@@ -439,7 +439,7 @@ tnSetStamps() {
 }
 
 tnSetVars(){
-
+    echo "Settings vars"
 }
 
 # ALWAYS LEAVE BLANK LINE AT THE END

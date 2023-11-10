@@ -145,7 +145,7 @@ elif [ "$action" == "install" ]; then
     tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
     tnDisplay "# INSTALLING CONTAINER : $id\n" "$darkBlueColor"
     (tnExec "mkdir -p '$locBaseDir'" $LOG_FILE) & tnSpin "Creating base directory container"
-    (tnExec "tnDownload $disEnvTemp $locEnvTemp") & tnSpin "Downloading .env file"
+    (tnExec "tnDownload $disEnvTemp $locEnvTemp" $LOG_FILE) & tnSpin "Downloading .env file"
     (tnExec "tnSetStamps $locEnvTemp" $LOG_FILE) & tnSpin "Setting timestamps in .env file"
     (tnExec "tnSetGlobals $locEnvTemp" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in .env file"    
     tnAskUserFromFile $locEnvTemp
@@ -153,10 +153,9 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnSetVars $locEnvTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in .env file"
     (tnExec "tnCreateNetworksFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating custom networks from .env file"
     (tnExec "tnCreateDirsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating container directories from .env file"
-
     instanceDir=$(tnGetInstancePathFromFile $locEnvTemp)
     instanceEnv="$instanceDir/.env"
-    (tnExec "tnDownloadFromFile $locEnvTemp $instanceDir" $LOG_FILE) & tnSpin "Downloading all files except for main .env"
+    # Download all files except for main .env
     # Set Stamps for all files except main .env
     # Set Globals for all files except main .env
     # Set Vars for all files except main .env
