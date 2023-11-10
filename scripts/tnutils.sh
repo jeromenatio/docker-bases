@@ -91,18 +91,6 @@ tnGetInstancePathFromFile(){
     echo "$answer"
 }
 
-tnSetGlobals(){
-    local file="$1"
-    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[GITHUB\\]' '$GITHUB' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$LOG_FILE' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[UID\\]' '$_UID' '$file'" $LOG_FILE)
-    (tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$file'" $LOG_FILE)
-}
-
 tnGeneratePassword() {
     local LENGTH=$1
     local LOWERCASE_CHARS=(a b c d e f g h j k m n p q r s t u v w x y z)
@@ -436,7 +424,55 @@ tnSetStamps() {
 }
 
 tnSetVars(){
-    echo "Settings vars"
+    local $envFile="$1"
+    local $file="$2"
+    local declare matches
+    local declare matches2
+    while read line; do
+        if [[ $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            matches+=("$line")
+        fi
+    done < "$envFile"
+    for match in "${matches[@]}"; do
+        if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"
+            tnReplaceVarInFile $variable $file
+        fi
+    done
+    while read line; do
+        if [[ $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $line =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            matches2+=("$line")
+        fi
+    done < "$envFile"
+    for match in "${matches2[@]}"; do
+        if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
+            variable="${BASH_REMATCH[1]}"
+            tnReplaceVarInFile $variable $file
+        fi
+    done
+}
+
+tnReplaceVarInFile(){
+    local variable="$1"
+    local file="$2"
+    local tempstr="_CLEAN"
+    local variable_clean_name="$variable$tempstr"
+    local variable_clean="${!variable}"
+    variable_clean="${variable_clean//./-}"
+    tnReplaceStringInFile "\\[$variable\\]" "${!variable}" $file
+    tnReplaceStringInFile "\\[$variable_clean_name\\]" "$variable_clean" $file
+}
+
+tnSetGlobals(){
+    local file="$1"
+    (tnExec "tnReplaceStringInFile '\\[DOCKER_HOME\\]' '$DOCKER_HOME' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[UTILS_FILES\\]' '$UTILS_FILE' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[GITHUB\\]' '$GITHUB' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[LOG_FILE\\]' '$LOG_FILE' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[_UID\\]' '$_UID' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[_GID\\]' '$_GID' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[UID\\]' '$_UID' '$file'" $LOG_FILE)
+    (tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$file'" $LOG_FILE)
 }
 
 # ALWAYS LEAVE BLANK LINE AT THE END
