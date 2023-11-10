@@ -39,7 +39,7 @@ else
 fi
 
 # CLEAR / CREATE LOG FILE
-$LOG_FILE="$DOCKER_HOME/install.log"
+LOG_FILE="$DOCKER_HOME/install.log"
 [ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 touch "$LOG_FILE"
 
