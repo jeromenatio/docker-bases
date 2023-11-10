@@ -155,7 +155,8 @@ tnGenerateUuid(){
 ##
 tnDefaultValue(){
     local dv="$1"
-    local extra="$2"
+    local varsFile="$2"
+    local extra="$3"
     if [[ "$dv" == "GENPWD" ]]; then
         dv="$(tnGeneratePassword 10)"
     fi
@@ -175,6 +176,15 @@ tnDefaultValue(){
         dv=$(tnGenerateJWTSecret)
     fi
     if [[ "$dv" == "JWTKEY" ]]; then
+        local JWT_SECRET=""
+        while read line; do
+            name=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\1/p')
+            data=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\2/p')
+            if [[ "$name" == "JWT_SECRET" ]]; then
+                JWT_SECRET="$data"
+            fi
+        done < "$varsFile"
+        echo "KIWI : $JWT" >> "/home/docker/install.log"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
@@ -247,7 +257,7 @@ tnAskUser() {
     local extra="$5"
     local default_display="leave blank to use default $default_value"
     local save_default_value=$default_value
-    default_value=$(tnDefaultValue "$default_value" "$extra")
+    default_value=$(tnDefaultValue "$default_value" "$varsFile" $extra)
     default_display=$(tnDefaultDisplay "$save_default_value" "$default_display")
     tnDisplay "? $question" "$yellowColor"
     tnDisplay " ($default_display)" "$darkYellowColor"
@@ -297,7 +307,7 @@ tnAutoVarsFromFile() {
             variable="${BASH_REMATCH[1]}"
             default_value="${BASH_REMATCH[2]}"
             extra="${BASH_REMATCH[4]}"
-            default_value=$(tnDefaultValue "$default_value" $extra)
+            default_value=$(tnDefaultValue "$default_value" "$varsFile" $extra)
             echo "$variable=[$default_value]" >> $varsFile
         fi
     done
