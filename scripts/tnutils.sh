@@ -152,6 +152,7 @@ tnGenerateUuid(){
     echo "$uuid"
 }
 
+##
 tnDefaultValue(){
     local dv="$1"
     local extra="$2"
@@ -407,7 +408,6 @@ tnSetVars(){
     done < "$varsFile"
 }
 
-####
 tnReplaceVarInFile(){
     local name="$1"
     local data="$2"
@@ -418,10 +418,10 @@ tnReplaceVarInFile(){
     data_clean="${data_clean//./-}"
     tnReplaceStringInFile "\\[$name\\]" "$data" $file
     tnReplaceStringInFile "\\[$name_clean\\]" "$data_clean" $file
-    echo "----------------"
-    echo "\\[$name\\] => $data => $file"
-    echo "\\[$name_clean\\] => $data_clean => $file"
-    echo "----------------"
+    #echo "----------------"
+    #echo "\\[$name\\] => $data => $file"
+    #echo "\\[$name_clean\\] => $data_clean => $file"
+    #echo "----------------"
 }
 
 tnSetGlobals(){

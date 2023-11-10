@@ -135,21 +135,23 @@ elif [ "$action" == "list" ]; then
 
 elif [ "$action" == "install" ]; then
 
-    ## Base paths to install and download
+    # Base paths to install and download
     disBaseDir="$GITHUB/containers/$id"
     locBaseDir="$DOCKER_HOME/$id"
     disEnvTemp="$disBaseDir/.env"
     locEnvTemp="$locBaseDir/.env"
-    
+
+    # Create container base directory 
+    tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
+    tnDisplay "# INSTALLING CONTAINER : $id\n" "$darkBlueColor"
+    (tnExec "mkdir -p '$locBaseDir'" $LOG_FILE) & tnSpin "Creating base directory container"
+
     # Tempory variables store
     varsTemp="$locBaseDir/.vars"
     [ -e "$varsTemp" ] && rm "$varsTemp"
     touch "$varsTemp"
 
-    # Installing based on .envtemp file
-    tnDisplay "# ------------------------------------------\n" "$darkBlueColor"
-    tnDisplay "# INSTALLING CONTAINER : $id\n" "$darkBlueColor"
-    (tnExec "mkdir -p '$locBaseDir'" $LOG_FILE) & tnSpin "Creating base directory container"
+    # Install and download files
     (tnExec "tnDownload $disEnvTemp $locEnvTemp" $LOG_FILE) & tnSpin "Downloading .env file"
     (tnExec "tnSetStamps $locEnvTemp" $LOG_FILE) & tnSpin "Setting timestamps in .env file"
     (tnExec "tnSetGlobals $locEnvTemp" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in .env file"    
