@@ -152,7 +152,6 @@ tnGenerateUuid(){
     echo "$uuid"
 }
 
-##
 tnDefaultValue(){
     local dv="$1"
     local varsFile="$2"
@@ -184,7 +183,6 @@ tnDefaultValue(){
                 JWT_SECRET="$data"
             fi
         done < "$varsFile"
-        echo "DRAGON : $JWT_SECRET" >> "/home/docker/install.log"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
