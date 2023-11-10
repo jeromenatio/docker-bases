@@ -184,7 +184,7 @@ tnDefaultValue(){
                 JWT_SECRET="$data"
             fi
         done < "$varsFile"
-        echo "KIWI : $JWT_SECRET" >> "/home/docker/install.log"
+        echo "DRAGON : $JWT_SECRET" >> "/home/docker/install.log"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
     echo $dv
