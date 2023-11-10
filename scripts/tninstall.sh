@@ -72,9 +72,9 @@ tnIsCommandMissing docker-compose && tnInstallDockerCompose $uname_s $uname_m $l
 (tnExec "tnDownload '$GITHUB/.env' '$ENV_FILE'" $LOG_FILE) & tnSpin "Downloading main .env file"
 (tnExec "tnSetStamps $ENV_FILE" $LOG_FILE) & tnSpin "Setting timestamps in main .env file"
 (tnExec "tnSetGlobals '$ENV_FILE'" $LOG_FILE) & tnSpin "Setting globals (DOCKER_HOME, UID, GID ...) in main .env file"
-tnAskUserFromFile $DOCKER_HOME
-(tnExec "tnAutoVarsFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Generating auto variables from .env"
-(tnExec "tnSetVars $locEnvTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in main .env file"
+tnAskUserFromFile $ENV_FILE
+(tnExec "tnAutoVarsFromFile $ENV_FILE" $LOG_FILE) & tnSpin "Generating auto variables from .env"
+(tnExec "tnSetVars $ENV_FILE" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in main .env file"
 (tnExec "tnCreateNetworksFromFile $DOCKER_HOME" $LOG_FILE) & tnSpin "Creating custom docker networks"
 
 # INSTALL TNDOCKER COMMAND FILE AND MODIFY GLOBALS
