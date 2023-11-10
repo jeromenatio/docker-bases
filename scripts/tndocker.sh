@@ -152,7 +152,7 @@ elif [ "$action" == "install" ]; then
     (tnExec "tnAutoVarsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Generating auto variables from .env file"
     (tnExec "tnSetVars $locEnvTemp" $LOG_FILE ) & tnSpin "Settings user/auto defined vars in .env file"
     (tnExec "tnCreateNetworksFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating custom networks from .env file"
-    (tnExec "tnCreateDirsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating container directories from .env file"
+    #(tnExec "tnCreateDirsFromFile $locEnvTemp" $LOG_FILE) & tnSpin "Creating container directories from .env file"
     instanceDir=$(tnGetInstancePathFromFile $locEnvTemp)
     instanceEnv="$instanceDir/.env"
     # Download all files except for main .env

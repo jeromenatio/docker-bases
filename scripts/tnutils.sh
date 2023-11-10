@@ -353,7 +353,7 @@ tnCreateNetworksFromFile() {
 }
 
 tnCreateDirsFromFile(){
-    local file="$1/.env"
+    local file="$1"
     while read line; do
         if [[ $line =~ TN_DIR=\[(.*)\] ]]; then
             dir="${BASH_REMATCH[1]}"
