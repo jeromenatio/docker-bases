@@ -330,7 +330,7 @@ tnDownloadFromFile(){
 }
 
 tnCreateNetworksFromFile() {
-    local file="$1/.env"
+    local file="$1"
     while read line; do
         if [[ $line =~ TN_NETWORK=\[(.*)\] ]]; then
             network="${BASH_REMATCH[1]}"
@@ -436,7 +436,6 @@ tnSetVars(){
     for match in "${matches[@]}"; do
         if [[ $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_ASK=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"
-            echo "ASK : $variable => ${!variable}"
             tnReplaceVarInFile $variable $file
         fi
     done
@@ -448,7 +447,6 @@ tnSetVars(){
     for match in "${matches2[@]}"; do
         if [[ $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\] || $match =~ TN_AUTO=\[([^|]*)\|([^|]*)\|([^|]*)\] ]]; then
             variable="${BASH_REMATCH[1]}"            
-            echo "AUTO : $variable => ${!variable}"
             tnReplaceVarInFile $variable $file
         fi
     done
@@ -477,4 +475,4 @@ tnSetGlobals(){
     (tnExec "tnReplaceStringInFile '\\[GID\\]' '$_GID' '$file'" $LOG_FILE)
 }
 
-# ALWAYS LEAVE BLANK LINE AT THE END
+# ALWAYS LEAVE BLANK LINE AT THE END #
