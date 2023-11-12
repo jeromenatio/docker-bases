@@ -454,7 +454,6 @@ tnDownloadAndSetAllFiles(){
     # Docker Compose file
     local dis="$disDir/docker-compose.yml"
     local loc="$instance/docker-compose.yml"
-    echo "tnDownload $dis $loc" > $LOG_FILE
     tnDownload $dis $loc
     tnSetStamps $loc
     tnSetGlobals $loc
