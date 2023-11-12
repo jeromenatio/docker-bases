@@ -27,6 +27,7 @@ services:
     environment:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
+      WEBHOOK_URL: $WEBHOOK_URL
       DB_TYPE: $DB_TYPE
       DB_POSTGRESDB_HOST: $DB_HOST
       DB_POSTGRESDB_PORT: $DB_PORT
