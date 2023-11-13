@@ -9,7 +9,7 @@ version: "3.8"
 services:
 
   studio:
-    container_name: studio
+    container_name: supabase-studio
     image: supabase/studio:20231023-7e2cd92
     restart: unless-stopped
     healthcheck:
@@ -23,8 +23,6 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
-    networks:
-      - admin
     depends_on:
       analytics:
         condition: service_healthy
@@ -49,7 +47,7 @@ services:
       # NEXT_ANALYTICS_BACKEND_PROVIDER: bigquery
 
   kong:
-    container_name: kong
+    container_name: supabase-kong
     image: kong:2.8.1
     restart: unless-stopped
     # https://unix.stackexchange.com/a/294837
@@ -57,8 +55,6 @@ services:
     #ports:
     #  - ${KONG_HTTP_PORT}:8000/tcp
     #  - ${KONG_HTTPS_PORT}:8443/tcp
-    networks:
-      - admin
     depends_on:
       analytics:
         condition: service_healthy
@@ -79,7 +75,7 @@ services:
       - ./volumes/api/kong.yml:/home/kong/temp.yml:ro
 
   auth:
-    container_name: auth
+    container_name: supabase-auth
     image: supabase/gotrue:v2.99.0
     depends_on:
       db:
@@ -100,8 +96,6 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
-    networks:
-      - admin
     restart: unless-stopped
     environment:
       GOTRUE_API_HOST: 0.0.0.0
@@ -140,7 +134,7 @@ services:
       GOTRUE_SMS_AUTOCONFIRM: ${ENABLE_PHONE_AUTOCONFIRM}
 
   rest:
-    container_name: rest
+    container_name: supabase-rest
     image: postgrest/postgrest:v11.2.0
     depends_on:
       db:
@@ -148,8 +142,6 @@ services:
         condition: service_healthy
       analytics:
         condition: service_healthy
-    networks:
-      - admin
     restart: unless-stopped
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
@@ -182,8 +174,6 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
-    networks:
-      - admin
     restart: unless-stopped
     environment:
       PORT: 4000
@@ -205,7 +195,7 @@ services:
       sh -c "/app/bin/migrate && /app/bin/realtime eval 'Realtime.Release.seeds(Realtime.Repo)' && /app/bin/server"
 
   storage:
-    container_name: storage
+    container_name: supabase-storage
     image: supabase/storage-api:v0.40.4
     depends_on:
       db:
@@ -236,35 +226,25 @@ services:
       PGRST_JWT_SECRET: ${JWT_SECRET}
       DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       FILE_SIZE_LIMIT: 52428800
-      STORAGE_BACKEND: s3
-      #FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
       TENANT_ID: stub
       # TODO: https://github.com/supabase/storage-api/issues/55
-      REGION: eu-south
-      AWS_DEFAULT_REGION: eu-south
-      AWS_ACCESS_KEY_ID: va9KyM6nM0SN10PLDwFE
-      AWS_SECRET_ACCESS_KEY: KjyO3ZBGcBneDb4eX7H3CT2TVYO1jBmadULYUObk
-      GLOBAL_S3_BUCKET: supabase
-      GLOBAL_S3_ENDPOINT: https://s3.natio.re
-      GLOBAL_S3_PROTOCOL: https
-      GLOBAL_S3_FORCE_PATH_STYLE: true
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
       ENABLE_IMAGE_TRANSFORMATION: "true"
       IMGPROXY_URL: http://imgproxy:5001
-    networks:
-      - admin
     volumes:
       - ./volumes/storage:/var/lib/storage:z
 
   imgproxy:
-    container_name: imgproxy
+    container_name: supabase-imgproxy
     image: darthsim/imgproxy:v3.8.0
     healthcheck:
       test: [ "CMD", "imgproxy", "health" ]
       timeout: 5s
       interval: 5s
       retries: 3
-    networks:
-      - admin
     environment:
       IMGPROXY_BIND: ":5001"
       IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
@@ -282,8 +262,6 @@ services:
         condition: service_healthy
       analytics:
         condition: service_healthy
-    networks:
-      - admin
     restart: unless-stopped
     environment:
       PG_META_PORT: 8080
@@ -294,7 +272,7 @@ services:
       PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD}
 
   functions:
-    container_name: functions
+    container_name: supabase-edge-functions
     image: supabase/edge-runtime:v1.22.3
     restart: unless-stopped
     depends_on:
@@ -308,8 +286,6 @@ services:
       SUPABASE_DB_URL: postgresql://postgres:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       # TODO: Allow configuring VERIFY_JWT per function. This PR might help: https://github.com/supabase/cli/pull/786
       VERIFY_JWT: "${FUNCTIONS_VERIFY_JWT}"
-    networks:
-      - admin
     volumes:
       - ./volumes/functions:/home/deno/functions:Z
     command:
@@ -318,7 +294,7 @@ services:
       - /home/deno/functions/main
 
   analytics:
-    container_name: analytics
+    container_name: supabase-analytics
     image: supabase/logflare:1.4.0
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:4000/health" ]
@@ -358,8 +334,6 @@ services:
       # Uncomment to use Big Query backend for analytics
       # GOOGLE_PROJECT_ID: ${GOOGLE_PROJECT_ID}
       # GOOGLE_PROJECT_NUMBER: ${GOOGLE_PROJECT_NUMBER}
-    networks:
-      - admin
     ports:
       - 4000:4000
     entrypoint: |
@@ -371,7 +345,7 @@ services:
 
   # Comment out everything below this point if you are using an external Postgres database
   db:
-    container_name: db
+    container_name: supabase-db
     image: supabase/postgres:15.1.0.117
     healthcheck:
       test: pg_isready -U postgres -h localhost
@@ -399,8 +373,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATABASE: ${POSTGRES_DB}
       POSTGRES_DB: ${POSTGRES_DB}
-    networks:
-      - admin
     volumes:
       - ./volumes/db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:Z
       # Must be superuser to create event trigger
@@ -413,7 +385,7 @@ services:
       - ./volumes/db/logs.sql:/docker-entrypoint-initdb.d/migrations/99-logs.sql:Z
 
   vector:
-    container_name: vector
+    container_name: supabase-vector
     image: timberio/vector:0.28.1-alpine
     healthcheck:
       test:
@@ -429,17 +401,10 @@ services:
       timeout: 5s
       interval: 5s
       retries: 3
-    networks:
-      - admin
     volumes:
       - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro
       - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro
 
     command: [ "--config", "etc/vector/vector.yml" ]
-
-networks:
-  admin:
-    external: true
-    name: $DOCKER_NETWORK
 
 # ALWAYS LEAVE BLANK LINE AT THE END
