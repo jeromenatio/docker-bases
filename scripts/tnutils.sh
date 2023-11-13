@@ -438,15 +438,14 @@ tnSetStamps() {
   pattern_occurrences=$(grep -oE '\[DATE[+-][0-9]+[a-zA-Z]+\]' "$file")
 
   for occurrence in $pattern_occurrences; do
-    num=$(echo "$occurrence" | sed -E 's/\[DATE([+-][0-9]+)[a-zA-Z]+\]/\1/')
-    unit=$(echo "$occurrence" | sed -E 's/\[DATE[+-]([0-9]+)[a-zA-Z]+\]/\2/')
+    num=$(echo "$occurrence" | sed -E 's/\[DATE([+-][0-9]+[a-zA-Z]+)\]/\1/')
+    unit=$(echo "$occurrence" | sed -E 's/\[DATE[+-]([0-9]+[a-zA-Z]+)\]/\1/')
     operation=$(echo "$occurrence" | sed -E 's/\[DATE([+-])[0-9]+[a-zA-Z]+\]/\1/')
     result=$(tnCalculateStamp "$num" "$unit" "$operation")
 
     sed -i -E "s|\[DATE[+-]$num$unit\]|$result|g" "$file"
   done
 }
-
 
 tnSetVars(){
     local file="$1"
