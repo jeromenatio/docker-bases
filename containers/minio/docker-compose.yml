@@ -1,0 +1,25 @@
+version: $DOCKER_VERSION
+
+name: $NAME
+
+services:
+  minio:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
+    environment:
+      MINIO_ROOT_USER: $MINIO_ROOT_USER
+      MINIO_ROOT_PASSWORD: $MINIO_ROOT_PASSWORD
+      MINIO_SERVER_URL: $MINIO_SERVER_URL
+    networks:
+      - admin
+    volumes:
+      - $DATA_VOLUME
+    restart: $RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
