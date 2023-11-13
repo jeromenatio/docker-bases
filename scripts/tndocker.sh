@@ -54,7 +54,7 @@ if [ "$action" == "up" ]; then
     
     # Remove temp files
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
-else if [ "$action" == "uph" ]; then
+elif [ "$action" == "uph" ]; then
 
     # Special cases : Remove exim
     [ "$id" == "mailserver" ] && apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
