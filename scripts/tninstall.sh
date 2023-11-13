@@ -32,7 +32,6 @@ ENV_FILE="$DOCKER_HOME/.env"
 # IF HOME ALREADY EXISTS STOP THE SCRIPT
 if [[ -d "$DOCKER_HOME" ]]; then
     tnDisplay "'$DOCKER_HOME' already exists !!\n\n" "$darkYellowColor"
-    #exit 1
 else
     # CREATE DOCKER HOME DIRECTORY
     (mkdir -p $DOCKER_HOME) & tnSpin "Creating DOCKER HOME directory $DOCKER_HOME"
