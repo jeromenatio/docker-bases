@@ -136,10 +136,8 @@ tnHmacha256Sign(){
 	printf '%s' "${input}" | openssl dgst -binary -sha256 -hmac "${secret}"
 }
 
-tnGenerateJWTSecret(){
-    local secret_length=150
-    local random_secret=$(head -c $secret_length /dev/urandom | tr -dc 'a-zA-Z0-9')    
-    echo "$random_secret"
+tnGenerateJWTSecret() {
+    cat /dev/urandom | tr -dc 'a-z0-9' | head -c 40
 }
 
 tnGenerateJWTKey(){
