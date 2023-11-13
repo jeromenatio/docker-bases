@@ -17,7 +17,7 @@ action="$1"
 id="$2"
 option="$3"
 
-# CHECK FOR ACTIONS #
+# CHECK FOR ACTIONS
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
@@ -84,6 +84,38 @@ elif [ "$action" == "down" ]; then
     else
         # Compose up    
         eval "docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down" 
+    fi 
+    (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"
+
+elif [ "$action" == "downh" ]; then
+
+    # Base paths to install and download
+    containerName=$id
+    containerBaseDir="$DOCKER_HOME/$containerName"
+    envFileDistant="$GITHUB/containers/$containerName/.env"
+    envFileTemp="$containerBaseDir/.envtemp"
+    (tnExec "tnDownload '$envFileDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
+    composeFileFinal="$containerBaseDir/docker-compose.yml"
+    envFileFinal="$containerBaseDir/.env"
+    if tnIsMultiInstance $envFileTemp; then
+        if [ -z "$option" ]; then
+            sleep 0.1 & tnSpin "Container $id is a multi instance container, please provide instance name as 3rd option"
+        else
+            
+            composeFileFinal="$containerBaseDir/$option/docker-compose.yml"    
+            envFileFinal="$containerBaseDir/$option/.env"
+            if [ ! -f "$composeFileFinal" ]; then
+                option_clean="${option//./-}" 
+                composeFileFinal="$containerBaseDir/$option_clean/docker-compose.yml"    
+                envFileFinal="$containerBaseDir/$option_clean/.env"
+            fi
+
+            # Compose up    
+            eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans"
+        fi
+    else
+        # Compose up    
+        eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans" 
     fi 
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"
 
