@@ -137,8 +137,8 @@ tnHmacha256Sign(){
 }
 
 tnGenerateJWTSecret(){
-    local secret_length=50
-    local random_secret=$(head -c $secret_length /dev/urandom | base64 -w 0 | tr '+/' '-_' | tr -d '=')    
+    local secret_length=150
+    local random_secret=$(head -c $secret_length /dev/urandom | tr -dc 'a-zA-Z0-9')    
     echo "$random_secret"
 }
 
