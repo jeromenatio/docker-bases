@@ -15,6 +15,7 @@ services:
       - admin
     volumes:
       - $DATA_VOLUME
+    command: server /data --console-address ":9090"
     restart: $RESTART_POLICY
 
 networks:
