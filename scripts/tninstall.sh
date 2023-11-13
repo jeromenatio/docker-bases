@@ -44,7 +44,6 @@ touch "$LOG_FILE"
 
 # INSTALL DEPENDENCIES
 # tnAreCommandsMissing "$DEPENDENCIES" && 
-sleep 0.1 & tnSpin "UPDATED KIWI"
 (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime xxd openssl jq" "$LOG_FILE" & tnSpin "Installing script dependencies")
 
 # GET/CREATE DOCKER _GID AND _UID
