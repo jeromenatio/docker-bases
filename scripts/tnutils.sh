@@ -367,84 +367,81 @@ tnGetLatestRelease(){
     echo $latest_version
 }
 
-tnCalculateStamp() {
-  local delta=$1
-  local unit=$2
-  local operation=$3  # "add" or "subtract"
-  local current_timestamp=$(date +%s)
+tnSetStamps() {
+  local file="$1"
   
+  # Extract patterns from the file
+  pattern_occurrences=$(grep -oE '\[DATE[+-][0-9]+[a-zA-Z]+\]' "$file")
+
+  # Loop through each pattern
+  for occurrence in $pattern_occurrences; do
+    sign=$(echo "$occurrence" | sed -E 's/\[DATE([+-])[0-9]+[a-zA-Z]+\]/\1/')
+    number=$(echo "$occurrence" | sed -E 's/\[DATE[+-]([0-9]+)[a-zA-Z]+\]/\1/')
+    unit=$(echo "$occurrence" | sed -E 's/\[DATE[+-][0-9]+([a-zA-Z]+)\]/\1/')
+    
+    # Output the found pattern and extracted values for debugging
+    #echo "Found Pattern: $occurrence, Sign: $sign, Number: $number, Unit: $unit"
+    
+    # Calculate total seconds
+    total_seconds=$(tnCalculateSeconds "$number" "$unit")
+
+    # Calculate actual timestamp
+    timestamp=$(tnCalculateTimestamp "$sign" "$total_seconds")
+
+    # Replace the pattern with the calculated timestamp
+    sed -i -E "s|\[DATE${sign//+/\\+}$number$unit\]|$timestamp|g" "$file"
+  done
+}
+
+tnCalculateSeconds() {
+  local number=$1
+  local unit=$2
+  local total_seconds=0
+
   case $unit in
+    "seconds")
+      total_seconds=$number
+      ;;
     "minutes")
-      if [ "$operation" = "add" ]; then
-        echo $((current_timestamp + delta * 60))
-      elif [ "$operation" = "subtract" ]; then
-        echo $((current_timestamp - delta * 60))
-      else
-        echo "Invalid operation"
-        exit 1
-      fi
+      total_seconds=$((number * 60))
       ;;
     "hours")
-      if [ "$operation" = "add" ]; then
-        echo $((current_timestamp + delta * 3600))
-      elif [ "$operation" = "subtract" ]; then
-        echo $((current_timestamp - delta * 3600))
-      else
-        echo "Invalid operation"
-        exit 1
-      fi
+      total_seconds=$((number * 3600))
       ;;
     "days")
-      if [ "$operation" = "add" ]; then
-        echo $((current_timestamp + delta * 24 * 3600))
-      elif [ "$operation" = "subtract" ]; then
-        echo $((current_timestamp - delta * 24 * 3600))
-      else
-        echo "Invalid operation"
-        exit 1
-      fi
+      total_seconds=$((number * 24 * 3600))
       ;;
     "months")
-      if [ "$operation" = "add" ]; then
-        echo $((current_timestamp + delta * 30 * 24 * 3600))
-      elif [ "$operation" = "subtract" ]; then
-        echo $((current_timestamp - delta * 30 * 24 * 3600))
-      else
-        echo "Invalid operation"
-        exit 1
-      fi
+      total_seconds=$((number * 30 * 24 * 3600))
       ;;
     "years")
-      if [ "$operation" = "add" ]; then
-        echo $((current_timestamp + delta * 365 * 24 * 3600))
-      elif [ "$operation" = "subtract" ]; then
-        echo $((current_timestamp - delta * 365 * 24 * 3600))
-      else
-        echo "Invalid operation"
-        exit 1
-      fi
+      total_seconds=$((number * 365 * 24 * 3600))
       ;;
     *)
-      echo "Invalid unit"
+      echo "Invalid unit: $unit"
       exit 1
       ;;
   esac
+
+  echo "$total_seconds"
 }
 
-tnSetStamps() {
-  local file="$1"
-  sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
+tnCalculateTimestamp() {
+  local sign=$1
+  local total_seconds=$2
+  local current_timestamp=$(date +%s)
+  local result_timestamp=0
 
-  pattern_occurrences=$(grep -oE '\[DATE[+-][0-9]+[a-zA-Z]+\]' "$file")
+  if [ "$sign" = "+" ]; then
+    result_timestamp=$((current_timestamp + total_seconds))
+  elif [ "$sign" = "-" ]; then
+    result_timestamp=$((current_timestamp - total_seconds))
+  else
+    echo "Invalid sign: $sign"
+    exit 1
+  fi
 
-  for occurrence in $pattern_occurrences; do
-    num=$(echo "$occurrence" | sed -E 's/\[DATE([+-][0-9]+[a-zA-Z]+)\]/\1/')
-    unit=$(echo "$occurrence" | sed -E 's/\[DATE[+-]([0-9]+[a-zA-Z]+)\]/\1/')
-    operation=$(echo "$occurrence" | sed -E 's/\[DATE([+-])[0-9]+[a-zA-Z]+\]/\1/')
-    result=$(tnCalculateStamp "$num" "$unit" "$operation")
-
-    sed -i -E "s|\[DATE[+-]$num$unit\]|$result|g" "$file"
-  done
+  echo "$result_timestamp"
 }
 
 tnSetVars(){
