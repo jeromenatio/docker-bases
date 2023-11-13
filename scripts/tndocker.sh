@@ -17,7 +17,7 @@ action="$1"
 id="$2"
 option="$3"
 
-# CHECK FOR ACTIONS #
+# CHECK FOR ACTIONS
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
