@@ -120,46 +120,39 @@ tnGenerateDir(){
     echo "$timestamp";
 }
 
-tnGenerateJWTSecret(){
-    #jwt_secret=$(openssl rand -base64 32)
-    #echo "$jwt_secret"
-    head -c 32 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
+tnBase64Encode(){
+	declare input=${1:-$(</dev/stdin)}
+	printf '%s' "${input}" | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
 }
 
-tnGenerateJWTKey() {
-    #local secret="$1"
-    #local payload="$2"
+tnJson(){
+	declare input=${1:-$(</dev/stdin)}
+	printf '%s' "${input}" | jq -c .
+}
 
-    # Construct the header
-    #jwt_header=$(echo -n '{"alg":"HS256","typ":"JWT"}' | base64 | tr -d '\n' | sed 's/\+/-/g' | sed 's/\//_/g' | sed -E s/=+$//)
+tnHmacha256Sign(){
+	local secret="$2"
+	declare input=${1:-$(</dev/stdin)}
+	printf '%s' "${input}" | openssl dgst -binary -sha256 -hmac "${secret}"
+}
 
-    # Construct the payload
-    #payload=$(echo -n "$payload" | base64 | tr -d '\n' | sed 's/\+/-/g' | sed 's/\//_/g' | sed -E s/=+$//)
+tnGenerateJWTSecret(){
+    local secret_length=50
+    local random_secret=$(head -c $secret_length /dev/urandom | base64 -w 0 | tr '+/' '-_' | tr -d '=')    
+    echo "$random_secret"
+}
 
-    # Convert secret to hex (not base64)
-    #hexsecret=$(echo -n "$secret" | xxd -p | paste -sd "" | tr -d '\n')
-
-    # Calculate hmac signature -- note option to pass in the key as hex bytes
-    #hmac_signature=$(echo -n "${jwt_header}.${payload}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"$hexsecret" -binary | base64 | tr -d '\n' | sed 's/\+/-/g' | sed 's/\//_/g' | sed -E s/=+$//)
-
-    # Create the full token
-    #jwt="${jwt_header}.${payload}.${hmac_signature}"
-
-    #echo "$jwt"
-    
-    local secret_key="$1"
-    local payload="$2"
-
-    # Encode the header and payload in base64
-    local header_payload="$(echo -n '{"alg": "HS256","typ": "JWT"}' | base64 | tr -d '\n').$(echo -n "$payload" | base64 | tr -d '\n')"
-
-    # Sign the header and payload using HMAC-SHA256 and the secret key
-    local signature="$(echo -n "$header_payload" | openssl dgst -sha256 -hmac "$secret_key" -binary | base64 | tr -d '\n')"
-
-    # Combine the encoded header, payload, and signature to form the JWT key
-    local jwt_key="$header_payload.$signature"
-
-    echo "$jwt_key"
+tnGenerateJWTKey(){
+	local secret="$1"
+	local payload="$2"
+	local header='{"typ": "JWT","alg": "HS256"}'
+	header_base64=$(echo "${header}" | tnJson | tnBase64Encode)
+	payload_base64=$(echo "${payload}" | tnJson | tnBase64Encode)
+	header_payload=$(echo "${header_base64}.${payload_base64}")
+	signature=$(echo "${header_payload}")
+	signature=$(tnHmacha256Sign "$signature" "$secret")
+	signature=$(tnBase64Encode "$signature")
+	echo "${header_payload}.${signature}"
 }
 
 tnGenerateUuid(){
