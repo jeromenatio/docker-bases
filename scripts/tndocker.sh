@@ -17,7 +17,7 @@ action="$1"
 id="$2"
 option="$3"
 
-# CHECK FOR ACTIONS
+# CHECK FOR ACTIONS #
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
@@ -51,6 +51,43 @@ if [ "$action" == "up" ]; then
 
     # Compose up    
     eval "docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --build"
+    
+    # Remove temp files
+    (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
+else if [ "$action" == "uph" ]; then
+
+    # Special cases : Remove exim
+    [ "$id" == "mailserver" ] && apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light
+
+    # Base paths to install and download
+    baseDir="$DOCKER_HOME/$id"
+    envFileTemp="$baseDir/.envtemp"
+    envFileTempDistant="$GITHUB/containers/$id/.env"
+    (tnExec "tnDownload '$envFileTempDistant' '$envFileTemp' '$ENV'" $LOG_FILE) & tnSpin "Downloading .env file"
+    composeFile="$baseDir/docker-compose.yml"
+    envFile="$baseDir/.env"
+    if tnIsMultiInstance $envFileTemp; then
+        if [ -z "$option" ]; then
+            tnDisplay "Container $id is a multi instance container, please provide instance name as 3rd option !!\n\n" "$darkYellowColor"
+            exit 1  
+        else            
+            composeFile="$baseDir/$option/docker-compose.yml"    
+            envFile="$baseDir/$option/.env"
+            if [ ! -f "$composeFile" ]; then
+                option_clean="${option//./-}" 
+                composeFile="$baseDir/$option_clean/docker-compose.yml"    
+                envFile="$baseDir/$option_clean/.env"
+                if [ ! -f "$composeFile" ]; then
+                    tnDisplay "The instance has not been found !!\n\n" "$darkYellowColor"
+                    exit 1 
+                fi
+            fi
+        fi
+    fi
+
+    # Compose up    
+    docker-compose -f /home/docker/supabase/docker-compose.yml --env-file /home/docker/supabase/.env --env-file /home/docker/.env  down --volumes --remove-orphans
+    docker-compose -f /home/docker/supabase/docker-compose.yml --env-file /home/docker/supabase/.env --env-file /home/docker/.env  up -d --force-recreate --build
     
     # Remove temp files
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
