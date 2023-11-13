@@ -149,11 +149,11 @@ elif [ "$action" == "downh" ]; then
             fi
 
             # Compose up    
-            eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans"
+           docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans
         fi
     else
         # Compose up    
-        eval "docker-compose -f $composeFile --env-file $envfile --env-file $envFile down --volumes --remove-orphans" 
+        docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans
     fi 
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"
 
