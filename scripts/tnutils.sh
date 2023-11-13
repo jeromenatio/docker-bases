@@ -370,23 +370,59 @@ tnGetLatestRelease(){
 tnCalculateStamp() {
   local delta=$1
   local unit=$2
+  local operation=$3  # "add" or "subtract"
   local current_timestamp=$(date +%s)
   
   case $unit in
     "minutes")
-      echo $((current_timestamp + delta * 60))
+      if [ "$operation" = "add" ]; then
+        echo $((current_timestamp + delta * 60))
+      elif [ "$operation" = "subtract" ]; then
+        echo $((current_timestamp - delta * 60))
+      else
+        echo "Invalid operation"
+        exit 1
+      fi
       ;;
     "hours")
-      echo $((current_timestamp + delta * 3600))
+      if [ "$operation" = "add" ]; then
+        echo $((current_timestamp + delta * 3600))
+      elif [ "$operation" = "subtract" ]; then
+        echo $((current_timestamp - delta * 3600))
+      else
+        echo "Invalid operation"
+        exit 1
+      fi
       ;;
     "days")
-      echo $((current_timestamp + delta * 24 * 3600))
+      if [ "$operation" = "add" ]; then
+        echo $((current_timestamp + delta * 24 * 3600))
+      elif [ "$operation" = "subtract" ]; then
+        echo $((current_timestamp - delta * 24 * 3600))
+      else
+        echo "Invalid operation"
+        exit 1
+      fi
       ;;
     "months")
-      echo $((current_timestamp + delta * 30 * 24 * 3600))
+      if [ "$operation" = "add" ]; then
+        echo $((current_timestamp + delta * 30 * 24 * 3600))
+      elif [ "$operation" = "subtract" ]; then
+        echo $((current_timestamp - delta * 30 * 24 * 3600))
+      else
+        echo "Invalid operation"
+        exit 1
+      fi
       ;;
     "years")
-      echo $((current_timestamp + delta * 365 * 24 * 3600))
+      if [ "$operation" = "add" ]; then
+        echo $((current_timestamp + delta * 365 * 24 * 3600))
+      elif [ "$operation" = "subtract" ]; then
+        echo $((current_timestamp - delta * 365 * 24 * 3600))
+      else
+        echo "Invalid operation"
+        exit 1
+      fi
       ;;
     *)
       echo "Invalid unit"
@@ -396,20 +432,21 @@ tnCalculateStamp() {
 }
 
 tnSetStamps() {
-    local file="$1"
-    sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
+  local file="$1"
+  sed -i -E "s/\[DATE\]/$(date +%s)/g" "$file"
 
-    pattern_occurrences=$(grep -oE '\[DATE\+([0-9]+)([a-zA-Z]+)\]' "$file")
+  pattern_occurrences=$(grep -oE '\[DATE[+-][0-9]+[a-zA-Z]+\]' "$file")
 
-    for occurrence in $pattern_occurrences; do
-        num=$(echo "$occurrence" | sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/\1/')
-        unit=$(echo "$occurrence" | sed -E 's/\[DATE\+([0-9]+)([a-zA-Z]+)\]/\2/')
-        result=$(tnCalculateStamp "$num" "$unit")
+  for occurrence in $pattern_occurrences; do
+    num=$(echo "$occurrence" | sed -E 's/\[DATE([+-][0-9]+)[a-zA-Z]+\]/\1/')
+    unit=$(echo "$occurrence" | sed -E 's/\[DATE[+-]([0-9]+)[a-zA-Z]+\]/\2/')
+    operation=$(echo "$occurrence" | sed -E 's/\[DATE([+-])[0-9]+[a-zA-Z]+\]/\1/')
+    result=$(tnCalculateStamp "$num" "$unit" "$operation")
 
-        sed -i -E "s|\[DATE\+([0-9]+)($unit)\]|$result|g" "$file"
-    done
-
+    sed -i -E "s|\[DATE[+-]$num$unit\]|$result|g" "$file"
+  done
 }
+
 
 tnSetVars(){
     local file="$1"
