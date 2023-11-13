@@ -43,7 +43,8 @@ LOG_FILE="$DOCKER_HOME/install.log"
 touch "$LOG_FILE"
 
 # INSTALL DEPENDENCIES
-tnAreCommandsMissing "$DEPENDENCIES" && (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime xxd openssl jq" "$LOG_FILE" & tnSpin "Installing script dependencies")
+# tnAreCommandsMissing "$DEPENDENCIES" && 
+(tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime xxd openssl jq" "$LOG_FILE" & tnSpin "Installing script dependencies")
 
 # GET/CREATE DOCKER _GID AND _UID
 if ! getent group docker > /dev/null 2>&1; then
