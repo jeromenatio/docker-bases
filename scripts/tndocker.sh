@@ -127,7 +127,7 @@ elif [ "$action" == "down" ]; then
 
 elif [ "$action" == "downh" ]; then
 
-    # Base paths to install and download
+    # Base paths to install and download#
     containerName=$id
     containerBaseDir="$DOCKER_HOME/$containerName"
     envFileDistant="$GITHUB/containers/$containerName/.env"
@@ -149,11 +149,11 @@ elif [ "$action" == "downh" ]; then
             fi
 
             # Compose up    
-           docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans
+           docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans
         fi
     else
         # Compose up    
-        docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans
+        docker-compose -f $composeFileFinal --env-file $ENV_FILE --env-file $envFileFinal down --volumes --remove-orphans
     fi 
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"
 
