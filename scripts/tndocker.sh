@@ -17,7 +17,7 @@ action="$1"
 id="$2"
 option="$3"
 
-# CHECK FOR ACTIONS ##
+# CHECK FOR ACTIONS #
 if [ "$action" == "up" ]; then
 
     # Special cases : Remove exim
@@ -54,6 +54,7 @@ if [ "$action" == "up" ]; then
     
     # Remove temp files
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
+
 elif [ "$action" == "uph" ]; then
 
     # Special cases : Remove exim
@@ -86,8 +87,8 @@ elif [ "$action" == "uph" ]; then
     fi
 
     # Compose up    
-    docker-compose -f /home/docker/supabase/docker-compose.yml --env-file /home/docker/supabase/.env --env-file /home/docker/.env  down --volumes --remove-orphans
-    docker-compose -f /home/docker/supabase/docker-compose.yml --env-file /home/docker/supabase/.env --env-file /home/docker/.env  up -d --force-recreate --build
+    docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile down --volumes --remove-orphans
+    docker-compose -f $composeFile --env-file $ENV_FILE --env-file $envFile up -d --force-recreate --build
     
     # Remove temp files
     (tnExec "rm '$envFileTemp'" $LOG_FILE) & tnSpin "Removing temp files"  
