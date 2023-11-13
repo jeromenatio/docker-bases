@@ -156,13 +156,14 @@ tnGenerateDir(){
 ####
 
 tnGenerateJWTKey(){
-  local secret="$1"
-	local payload="$2"
-	local header='{"alg":"HS256","typ":"JWT"}'
-  header_base64=$(printf %s "$header" | tnBase64Encode)
-  payload_base64=$(printf %s "$payload" | tnBase64Encode)
-  signed_content="$header_base64.$payload_base64"
-  signature=$(printf %s "$signed_content" | openssl dgst -binary -sha256 -hmac "$secret" | tnBase64Encode)
+    local secret="$1"
+    local payload="$2"
+    local header='{"alg":"HS256","typ":"JWT"}'
+    header_base64=$(printf %s "$header" | tnBase64Encode)
+    payload_base64=$(printf %s "$payload" | tnBase64Encode)
+    signed_content="$header_base64.$payload_base64"
+    signature=$(printf %s "$signed_content" | openssl dgst -binary -sha256 -hmac "$secret" | tnBase64Encode)
+    echo $signature
 }
 
 tnGenerateJWTSecret() {
