@@ -120,38 +120,56 @@ tnGenerateDir(){
     echo "$timestamp";
 }
 
-tnBase64Encode(){
-	declare input=${1:-$(</dev/stdin)}
-	printf '%s' "${input}" | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
-}
+####
+# tnBase64Encode(){
+# 	declare input=${1:-$(</dev/stdin)}
+# 	printf '%s' "${input}" | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
+# }
 
-tnJson(){
-	declare input=${1:-$(</dev/stdin)}
-	printf '%s' "${input}" | jq -c .
-}
+# tnJson(){
+# 	declare input=${1:-$(</dev/stdin)}
+# 	printf '%s' "${input}" | jq -c .
+# }
 
-tnHmacha256Sign(){
-	local secret="$2"
-	declare input=${1:-$(</dev/stdin)}
-	printf '%s' "${input}" | openssl dgst -binary -sha256 -hmac "${secret}"
+# tnHmacha256Sign(){
+# 	local secret="$2"
+# 	declare input=${1:-$(</dev/stdin)}
+# 	printf '%s' "${input}" | openssl dgst -binary -sha256 -hmac "${secret}"
+# }
+
+# tnGenerateJWTSecret() {
+#     cat /dev/urandom | tr -dc 'a-z0-9' | head -c 40
+# }
+
+# tnGenerateJWTKey(){
+# 	local secret="$1"
+# 	local payload="$2"
+# 	local header='{"alg":"HS256","typ":"JWT"}'
+# 	header_base64=$(echo "${header}" | tnJson | tnBase64Encode)
+# 	payload_base64=$(echo "${payload}" | tnJson | tnBase64Encode)
+# 	header_payload=$(echo "${header_base64}.${payload_base64}")
+# 	signature=$(echo "${header_payload}")
+# 	signature=$(tnHmacha256Sign "$signature" "$secret")
+# 	signature=$(tnBase64Encode "$signature")
+# 	echo "${header_payload}.${signature}"
+# }
+####
+
+tnGenerateJWTKey(){
+  local secret="$1"
+	local payload="$2"
+	local header='{"alg":"HS256","typ":"JWT"}'
+  header_base64=$(printf %s "$header" | tnBase64Encode)
+  payload_base64=$(printf %s "$payload" | tnBase64Encode)
+  signed_content="$header_base64.$payload_base64"
+  signature=$(printf %s "$signed_content" | openssl dgst -binary -sha256 -hmac "$secret" | tnBase64Encode)
 }
 
 tnGenerateJWTSecret() {
     cat /dev/urandom | tr -dc 'a-z0-9' | head -c 40
 }
 
-tnGenerateJWTKey(){
-	local secret="$1"
-	local payload="$2"
-	local header='{"typ": "JWT","alg": "HS256"}'
-	header_base64=$(echo "${header}" | tnJson | tnBase64Encode)
-	payload_base64=$(echo "${payload}" | tnJson | tnBase64Encode)
-	header_payload=$(echo "${header_base64}.${payload_base64}")
-	signature=$(echo "${header_payload}")
-	signature=$(tnHmacha256Sign "$signature" "$secret")
-	signature=$(tnBase64Encode "$signature")
-	echo "${header_payload}.${signature}"
-}
+tnBase64Encode() { openssl enc -base64 -A | tr '+/' '-_' | tr -d '='; }
 
 tnGenerateUuid(){
     local uuid=$(uuidgen)
