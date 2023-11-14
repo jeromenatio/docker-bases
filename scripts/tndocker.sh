@@ -19,9 +19,9 @@ option="$3"
 
 # SUPABASE JWT SECRET AND JWT KEY CREATION
 function tnSupabase(){
-    local $dir="$1"
-    local $stamp=$(date +%s)
-    local $stamp90=$((stamp + 90 * 365 * 24 * 3600))
+    local dir="$1"
+    local stamp=$(date +%s)
+    local stamp90=$((stamp + 90 * 365 * 24 * 3600))
     
     # Debug
     echo "----------------------"
