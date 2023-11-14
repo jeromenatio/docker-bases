@@ -251,7 +251,7 @@ elif [ "$action" == "install" ]; then
     # -- Supabase
     if [ "$id" == "supabase" ]; then 
         tnSupabaseDir=$(tnIsMultiInstance "$locEnvTemp" && echo "$instanceDir" || echo "$locBaseDir")
-        tnSupabase "$tnSupabaseDir" > /dev/null 2>&1
+        tnSupabase "$tnSupabaseDir" #> /dev/null 2>&1
         sleep 0.1 & tnSpin "Creating JWT secret and signed key for supabase"
     fi
 
