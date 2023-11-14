@@ -20,14 +20,26 @@ option="$3"
 # SUPABASE JWT SECRET AND JWT KEY CREATION
 function tnSupabase(){
     local dir="$1"
+    local installFile="$dir/jwt.sh"
     local stamp=$(date +%s)
     local stamp90=$((stamp + 90 * 365 * 24 * 3600))
+    local payload_anon="{ \"role\": \"anon\", \"iss\": \"supabase\", \"iat\": $stamp, \"exp\": $stamp90 }"
+    local payload_serv="{ \"role\": \"service_role\", \"iss\": \"supabase\", \"iat\": $stamp, \"exp\": $stamp90 }"
+    local secret=$(tnGenerateJWTSecret)
+
+    # Install nodejs, npm, jsrsasign and signer script
+    chmod +x "$installFile" > /dev/null 2>&1
+    source "$installFile" > /dev/null 2>&1
+
     
     # Debug
     echo "----------------------"
     echo "SUPABASE DIR : $dir"
     echo "SUPABASE STAMP : $stamp"
     echo "SUPABASE DIR : $stamp90"
+    echo "SUPABASE ANON : $payload_anon"
+    echo "SUPABASE SERV : $payload_serv"
+    echo "SUPABASE SECRET : $secret"
 }
 
 # CHECK FOR ACTIONS
