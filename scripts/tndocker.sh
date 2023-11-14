@@ -22,9 +22,10 @@ function tnSupabase(){
     local dir="$1"
     local installFile="$dir/jwt.sh"
     local stamp=$(date +%s)
+    local stamp48=$((stamp - 48 * 3600))
     local stamp90=$((stamp + 90 * 365 * 24 * 3600))
-    local payload_anon="{ \"role\": \"anon\", \"iss\": \"supabase\", \"iat\": $stamp, \"exp\": $stamp90 }"
-    local payload_serv="{ \"role\": \"service_role\", \"iss\": \"supabase\", \"iat\": $stamp, \"exp\": $stamp90 }"
+    local payload_anon="{ \"role\": \"anon\", \"iss\": \"supabase\", \"iat\": $stamp48, \"exp\": $stamp90 }"
+    local payload_serv="{ \"role\": \"service_role\", \"iss\": \"supabase\", \"iat\": $stamp48, \"exp\": $stamp90 }"
     local secret=$(tnGenerateJWTSecret)
     local replaceFile="$dir/.env"
 
@@ -42,13 +43,13 @@ function tnSupabase(){
     tnReplaceStringInFile "\\[SERVICE_ROLE_KEY\\]" "$serv_key" $replaceFile
 
     # Debug
-    echo "----------------------"
-    echo "SUPABASE DIR : $dir"
-    echo "SUPABASE ENV : $replaceFile"
-    echo "SUPABASE SECRET : $secret"
-    echo "SUPABASE ANON : $anon_key"
-    echo "SUPABASE SERV : $serv_key"
-    echo "nano \"$replaceFile\""
+    #echo "----------------------"
+    #echo "SUPABASE DIR : $dir"
+    #echo "SUPABASE ENV : $replaceFile"
+    #echo "SUPABASE SECRET : $secret"
+    #echo "SUPABASE ANON : $anon_key"
+    #echo "SUPABASE SERV : $serv_key"
+    #echo "nano \"$replaceFile\""
 }
 
 # CHECK FOR ACTIONS
