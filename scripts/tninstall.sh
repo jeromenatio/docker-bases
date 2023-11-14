@@ -42,7 +42,7 @@ LOG_FILE="$DOCKER_HOME/install.log"
 [ -e "$LOG_FILE" ] && rm "$LOG_FILE"
 touch "$LOG_FILE"
 
-# INSTALL DEPENDENCIES
+# INSTALL DEPENDENCIES #
 # tnAreCommandsMissing "$DEPENDENCIES" && 
 sleep 0.1 & tnSpin "UPDATED EPIC 34"
 (tnExec "apt-get update && apt-get install -y curl util-linux coreutils uuid-runtime xxd openssl jq" "$LOG_FILE" & tnSpin "Installing script dependencies")
