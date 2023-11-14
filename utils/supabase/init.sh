@@ -1,19 +1,19 @@
 #!/bin/bash
 
 # LOCAL PARAMS
-ENV="dev"
-BASE_DEFAULT="/home/jwt"
-$GITHUB="https://raw.githubusercontent.com/jeromenatio/docker-bases/main"
+ENV="prod"
+BASE_DEFAULT="/home"
+GITHUB="https://raw.githubusercontent.com/jeromenatio/docker-bases/main"
 [ "$ENV" == "dev" ] && eval "rm ${BASE_DEFAULT}* -R > /dev/null 2>&1" > /dev/null 2>&1
 
 # EXTERNAL PARAMS
-DIRPATH="${1:-$BASE_DEFAULT}"
+DIRPATH="${1:-$BASE_DEFAULT}/jwt"
 
 # INSTALL NODEJS AND NPM
 [ "$ENV" != "dev" ] && apt-get update > /dev/null 2>&1 && apt-get install -y nodejs npm > /dev/null 2>&1
 
 # CREATE TEMPORARY DIRECTORIES AND BASICS FILES
-mkdir "$DIRPATH" > /dev/null 2>&1
+mkdir -p "$DIRPATH" > /dev/null 2>&1
 
 # NPM INIT DIRECTORY AND INSTALL PACKAGE `jsrsasign`
 (cd "$DIRPATH" && npm init -y > /dev/null 2>&1)
