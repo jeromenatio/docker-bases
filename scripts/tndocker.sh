@@ -26,20 +26,23 @@ function tnSupabase(){
     local payload_anon="{ \"role\": \"anon\", \"iss\": \"supabase\", \"iat\": $stamp, \"exp\": $stamp90 }"
     local payload_serv="{ \"role\": \"service_role\", \"iss\": \"supabase\", \"iat\": $stamp, \"exp\": $stamp90 }"
     local secret=$(tnGenerateJWTSecret)
+    local replaceFile="$dir/.env"
 
     # Install nodejs, npm, jsrsasign and signer script
     chmod +x "$installFile" > /dev/null 2>&1
     source "$installFile" > /dev/null 2>&1
 
-    
+    # Get the signed key
+    anon_key=$(node "$dir/jwt/jwt.mjs" "$secret" "$payload_anon")
+    serv_key=$(node "$dir/jwt/jwt.mjs" "$secret" "$payload_serv")
+
     # Debug
     echo "----------------------"
     echo "SUPABASE DIR : $dir"
-    echo "SUPABASE STAMP : $stamp"
-    echo "SUPABASE DIR : $stamp90"
-    echo "SUPABASE ANON : $payload_anon"
-    echo "SUPABASE SERV : $payload_serv"
+    echo "SUPABASE ENV : $replaceFile"
     echo "SUPABASE SECRET : $secret"
+    echo "SUPABASE ANON : $anon_key"
+    echo "SUPABASE SERV : $serv_key"
 }
 
 # CHECK FOR ACTIONS
