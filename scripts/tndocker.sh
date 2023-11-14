@@ -36,6 +36,11 @@ function tnSupabase(){
     anon_key=$(node "$dir/jwt/jwt.mjs" "$secret" "$payload_anon")
     serv_key=$(node "$dir/jwt/jwt.mjs" "$secret" "$payload_serv")
 
+    # Replace values in .env
+    tnReplaceStringInFile "\\[JWT_SECRET\\]" "$secret" $replaceFile
+    tnReplaceStringInFile "\\[ANON_KEY\\]" "$anon_key" $replaceFile
+    tnReplaceStringInFile "\\[SERVICE_ROLE_KEY\\]" "$serv_key" $replaceFile
+
     # Debug
     echo "----------------------"
     echo "SUPABASE DIR : $dir"
@@ -43,6 +48,7 @@ function tnSupabase(){
     echo "SUPABASE SECRET : $secret"
     echo "SUPABASE ANON : $anon_key"
     echo "SUPABASE SERV : $serv_key"
+    echo "nano \"$replaceFile\""
 }
 
 # CHECK FOR ACTIONS
