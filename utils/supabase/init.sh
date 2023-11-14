@@ -20,4 +20,4 @@ mkdir "$DIRPATH" > /dev/null 2>&1
 (cd "$DIRPATH" && npm install jsrsasign -y > /dev/null 2>&1)
 
 # DOWNLOAD jwt.mjs
-curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/utils/jwt.mjs" -o "$DIRPATH/jwt.mjs" > /dev/null 2>&1
+curl -Ls -H 'Cache-Control: no-cache' "$GITHUB/utils/supabase/jwt.mjs" -o "$DIRPATH/jwt.mjs" > /dev/null 2>&1
