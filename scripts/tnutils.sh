@@ -120,7 +120,6 @@ tnGenerateDir(){
     echo "$timestamp";
 }
 
-####
 tnBase64Encode(){
 	declare input=${1:-$(</dev/stdin)}
 	printf '%s' "${input}" | base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
@@ -153,7 +152,6 @@ tnGenerateJWTKey(){
 	signature=$(tnBase64Encode "$signature")
 	echo "${header_payload}.${signature}"
 }
-####
 
 tnGenerateUuid(){
     local uuid=$(uuidgen)
