@@ -1,3 +1,6 @@
+# DMARC => _dmarc => v=DMARC1; p=none; rua=mailto:dmarc-reports@[domain]
+# SPF => [domain] => v=spf1 mx ~all
+
 version: $DOCKER_VERSION
 
 name: $NAME
@@ -8,6 +11,8 @@ services:
     container_name: $NAME
     hostname: $HOSTNAME
     ports:
+      - $HTTP_PORT	# HTTP - web port        
+      - $HTTPS_PORT	# HTTPS - secure web port 
       - $SMTP_PORT	# SMTP - mostly processing incoming mails
       - $POP3_PORT	# POP3 - standard protocol for accessing mailbox, STARTTLS is required before client auth
       - $IMAP_PORT	# IMAP - standard protocol for accessing mailbox, STARTTLS is required before client auth
