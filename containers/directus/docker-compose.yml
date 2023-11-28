@@ -57,8 +57,8 @@ services:
       - $UPLOADS_VOLUME
       - $EXTENSIONS_VOLUME      
     depends_on:
-      - cache-[PUBLIC_URL]
-      - db-[PUBLIC_URL]
+      - cache-[PUBLIC_URL_CLEAN]
+      - db-[PUBLIC_URL_CLEAN]
     networks:
       - admin
     restart: $RESTART_POLICY
