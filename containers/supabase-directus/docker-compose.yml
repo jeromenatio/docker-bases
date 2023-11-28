@@ -1,24 +1,10 @@
 version: $DOCKER_VERSION
-services:
-  
-  db-[PUBLIC_URL_CLEAN]:
-    image: $DB_IMAGE
-    container_name: $DB_NAME
-    hostname: $DB_NAME
-    environment:
-      PUID: $DOCKER_UID
-      PGID: $DOCKER_GID
-      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
-      MYSQL_DATABASE: $DB_DATABASE
-      MYSQL_USER: $DB_USER
-      MYSQL_PASSWORD: $DB_PASSWORD
-    volumes:
-      - $DB_MYSQL_VOLUME 
-    networks:
-      - datas
-    restart: $DB_RESTART_POLICY
 
-  cache-[PUBLIC_URL_CLEAN]:
+name: supabase-directus
+
+services:
+
+  directus-cache:
     image: $CACHE_IMAGE
     container_name: $CACHE_NAME
     hostname: $CACHE_NAME
@@ -26,10 +12,10 @@ services:
       PUID: $DOCKER_UID
       PGID: $DOCKER_GID
     networks:
-      - datas
+      - admin
     restart: $CACHE_RESTART_POLICY
 
-  directus-[PUBLIC_URL_CLEAN]:
+  directus:
     image: $IMAGE
     container_name: $NAME
     hostname: $NAME
@@ -40,23 +26,22 @@ services:
       SECRET: $SECRET
       ADMIN_EMAIL: $ADMIN_EMAIL
       ADMIN_PASSWORD: $ADMIN_PASSWORD
-      PUBLIC_URL: $PUBLIC_URL
       
       DB_CLIENT: $DB_TYPE
-      DB_HOST: $DB_NAME
-      DB_DATABASE: $DB_DATABASE
+      DB_HOST: $DB_HOST
+      DB_DATABASE: $DB_NAME
       DB_USER: $DB_USER
-      DB_PASSWORD: $DB_PASSWORD
+      DB_PASSWORD: $DB_PASS
+      DB_PORT: $DB_PORT
 
       CACHE_ENABLED: $CACHE_ENABLED
       CACHE_STORE: $CACHE_STORE
-      CACHE_REDIS: $CACHE_HOST
+      REDIS: $CACHE_HOST
     volumes:
       - $UPLOADS_VOLUME
       - $EXTENSIONS_VOLUME      
     depends_on:
-      - cache-[PUBLIC_URL]
-      - db-[PUBLIC_URL]
+      - directus-cache
     networks:
       - admin
     restart: $RESTART_POLICY
