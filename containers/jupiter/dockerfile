@@ -2,14 +2,12 @@ FROM debian:stable
 
 ENV RUST_LOG=info
 
-RUN mkdir -p /home/app
-
-COPY [DOCKER_HOME]/jupiter/[PUBLIC_URL_CLEAN]/jupiter /home/app/jupiter
-
-WORKDIR /home/app
+COPY ./jupiter /app/jupiter
 
 RUN apt-get update && apt-get install -y
 
-RUN chmod +x /home/app/jupiter
+RUN apt-get install libssl-dev openssl -y
 
-CMD ["/home/app/jupiter", "--rpc-url", "[RPC_URL]" ]
+RUN chmod +x /app/jupiter
+
+CMD ["/app/jupiter", "--rpc-url", "[RPC_URL]" ]
