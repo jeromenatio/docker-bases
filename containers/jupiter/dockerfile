@@ -1,1 +1,13 @@
-# JUPITER
+FROM debian:stable
+
+RUN mkdir /home/app
+
+COPY ./jupiter /home/app/jupiter
+
+WORKDIR /home/app
+
+RUN apt-get update && apt-get install -y
+
+RUN chmod +x /home/app/jupiter
+
+CMD ["RUST_LOG=info", "/home/app/jupiter", "--rpc-url", "[RPC_URL]" ]
