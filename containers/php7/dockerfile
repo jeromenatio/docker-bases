@@ -1,0 +1,46 @@
+# Use an official PHP and Apache runtime as the base image
+FROM php:7.4-apache-buster
+
+# Replace obsolete source list
+RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
+
+# Empty the sources.list file
+RUN echo > /etc/apt/sources.list
+
+# Create a new sources.list with the desired repositories
+RUN echo "deb http://archive.debian.org/debian/ buster main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian/ buster-proposed-updates main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian-security buster/updates main contrib non-free" >> /etc/apt/sources.list
+
+# Install required system dependencies
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libicu-dev \
+    libxml2-dev \
+    libmagickwand-dev \
+    default-mysql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Enable Apache modules
+RUN a2enmod rewrite
+
+# Enable necessary PHP extensions
+RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
+    docker-php-ext-install gd pdo_mysql intl xml && \
+    docker-php-ext-install mysqli
+
+# Set the ServerName directive to suppress the warning
+RUN echo "ServerName php7-[PUBLIC_URL_CLEAN]" >> /etc/apache2/apache2.conf
+
+# AllowOverride Configuration for WordPress
+# RUN echo "<Directory /var/www/html>" >> /etc/apache2/conf-available/wordpress.conf
+# RUN echo "    AllowOverride All" >> /etc/apache2/conf-available/wordpress.conf
+# RUN echo "</Directory>" >> /etc/apache2/conf-available/wordpress.conf
+# RUN a2enconf wordpress
+
+# Start Apache
+CMD ["apache2-foreground"]
+
+# Always leave an empty line at the end
