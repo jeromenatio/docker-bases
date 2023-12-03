@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Enable necessary PHP extensions
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ && \
+RUN docker-php-ext-configure gd && \
     docker-php-ext-install gd pdo_mysql intl xml && \
     docker-php-ext-install mysqli
 
