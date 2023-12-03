@@ -1,0 +1,29 @@
+version: $DOCKER_VERSION
+
+name: mariadb-[PUBLIC_URL_CLEAN]
+
+services:  
+  mariadb-[PUBLIC_URL_CLEAN]:
+    image: $MYSQL_IMAGE
+    container_name: $MYSQL_NAME
+    hostname: $MYSQL_NAME
+    user: [_UID]:[_GID]
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    volumes:
+      - $MYSQL_VOLUME
+    networks:
+      - admin
+    restart: $MYSQL_RESTART_POLICY
+    
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
