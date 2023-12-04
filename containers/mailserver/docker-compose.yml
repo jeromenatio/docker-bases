@@ -11,8 +11,6 @@ services:
     container_name: $NAME
     hostname: $HOSTNAME
     ports:
-      - $HTTP_PORT	# HTTP - web port        
-      - $HTTPS_PORT	# HTTPS - secure web port 
       - $SMTP_PORT	# SMTP - mostly processing incoming mails
       - $POP3_PORT	# POP3 - standard protocol for accessing mailbox, STARTTLS is required before client auth
       - $IMAP_PORT	# IMAP - standard protocol for accessing mailbox, STARTTLS is required before client auth
