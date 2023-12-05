@@ -451,7 +451,7 @@ tnSetVars(){
     while read line; do
         name=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\1/p')
         data=$(echo "$line" | sed -n 's/^\([^=]*\)=\[\(.*\)\]$/\2/p')
-        tnReplaceVarInFile $name $data $file
+        tnReplaceVarInFile "$name" "$data" "$file"
     done < "$varsFile"
 }
 
