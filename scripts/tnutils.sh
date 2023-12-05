@@ -191,6 +191,9 @@ tnDefaultValue(){
         done < "$varsFile"
         dv=$(tnGenerateJWTKey $JWT_SECRET $extra)
     fi
+    if [[ "$dv" == "RANDOMHASH"  ]]; then
+        dv=$(openssl rand -base64 48)
+    fi
     echo $dv
 }
 
@@ -211,6 +214,9 @@ tnDefaultDisplay(){
     fi
     if [[ "$dv" == "MANDATORY" ]]; then
         dp="This answer is mandatory and must be unique"
+    fi
+    if [[ "$dv" == "RANDOMHASH" ]]; then
+        dp="leave blank to generate random hash"
     fi
     echo $dp
 }
