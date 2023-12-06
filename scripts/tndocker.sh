@@ -19,6 +19,7 @@ option="$3"
 
 # SUPABASE JWT SECRET AND JWT KEY CREATION
 function tnSupabase(){
+
     local dir="$1"
     local installFile="$dir/jwt.sh"
     local stamp=$(date +%s)
@@ -52,7 +53,19 @@ function tnSupabase(){
     #echo "nano \"$replaceFile\""
 }
 
-# CHECK FOR ACTIONS
+# VAULTWARDEN ADMIN TOKEN
+function tnVaultwarden(){
+    local dir="$1"
+    local replaceFile="$dir/.env"
+    local token_clear=$(openssl rand -base64 48)
+    local token=$(echo -n "$token_clear" | argon2 "$(openssl rand -base64 32)" -e -id -k 65540 -t 3 -p 4)
+
+    # Replace values in .env
+    tnReplaceStringInFile "\\[ADMIN_TOKEN\\]" "$token" $replaceFile
+    tnReplaceStringInFile "\\[ADMIN_TOKEN_CLEAR\\]" "$token_clear" $replaceFile
+}
+
+# CHECK FOR ACTIONS #
 if [ "$action" == "up" ]; then
 
     # Base paths to install and download
@@ -286,6 +299,13 @@ elif [ "$action" == "install" ]; then
     if [ "$id" == "mailserver" ]; then 
         apt-get remove --purge exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
         sleep 0.1 & tnSpin "Removing exim to replace by mailserver"
+    fi
+
+    # -- Vautwarden
+    if [ "$id" == "vaultwarden" ]; then 
+        tnVaultwardenDir=$(tnIsMultiInstance "$locEnvTemp" && echo "$instanceDir" || echo "$locBaseDir")
+        tnVaultwarden "$tnVaultwardenDir" #> /dev/null 2>&1
+        sleep 0.1 & tnSpin "Creating Admin Token for vaultwarden"
     fi
 
     # Change instance owner to docker
