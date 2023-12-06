@@ -59,13 +59,14 @@ function tnVaultwarden(){
     local replaceFile="$dir/.env"
     local token_clear=$(openssl rand -base64 48)
     local token=$(echo -n "$token_clear" | argon2 "$(openssl rand -base64 32)" -e -id -k 65540 -t 3 -p 4)
+    token=$(echo "$token" | sed 's/\$/\$\$/g')
 
     # Replace values in .env
     tnReplaceStringInFile "\\[ADMIN_TOKEN\\]" "$token" $replaceFile
     tnReplaceStringInFile "\\[ADMIN_TOKEN_CLEAR\\]" "$token_clear" $replaceFile
 }
 
-# CHECK FOR ACTIONS #
+# CHECK FOR ACTIONS
 if [ "$action" == "up" ]; then
 
     # Base paths to install and download
