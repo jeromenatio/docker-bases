@@ -20,7 +20,7 @@
 --
 -- Table of connection groups. Each connection group has a name.
 --
-USE `[DB_DATABASE]`;
+USE `guacamole`;
 
 
 CREATE TABLE IF NOT EXISTS `guacamole_connection_group` (
