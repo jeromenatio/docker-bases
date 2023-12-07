@@ -1,0 +1,65 @@
+version: $DOCKER_VERSION
+
+name: guacamole
+
+services:
+
+  guacamole:
+    image: $IMAGE
+    container_name: $NAME
+    hostname: $NAME
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      GUACD_HOSTNAME: $GUACD_NAME
+      GUACD_PORT: $GUACD_PORT
+      MYSQL_HOSTNAME: $DB_NAME
+      MYSQL_PORT: $DB_PORT
+      MYSQL_DATABASE: $DB_DATABASE
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+    depends_on:
+      - $DB_NAME
+      - $GUACD_NAME
+    networks:
+      - admin   
+    restart: $RESTART_POLICY
+
+  guacamole-guacd:
+    image: $GUACD_IMAGE
+    container_name: $GUACD_NAME
+    hostname: $GUACD_NAME
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID      
+    volumes:      
+      - $GUACD_DRIVE_VOLUME
+      - $GUACD_RECORD_VOLUME
+    networks:
+      - admin   
+    restart: $GUACD_RESTART_POLICY
+
+  guacamole-db:
+    image: $DB_IMAGE
+    container_name: $DB_NAME
+    hostname: $DB_NAME
+    environment:
+      PUID: $DOCKER_UID
+      PGID: $DOCKER_GID
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+      MYSQL_DATABASE: $DB_DATABASE
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD
+    volumes:
+      - $DB_VOLUME
+      - $DB_INIT_VOLUME
+    networks:
+      - admin    
+    restart: $DB_RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
