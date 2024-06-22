@@ -45,6 +45,7 @@ services:
           DATABASE_NAME: $DB_NAME
           DATABASE_USER: $DB_USER
           DATABASE_PASSWORD: $DB_PASSWORD
+          DATABASE_SSL: $DATABASE_SSL
         volumes:
           - $FLOW_VOLUME
         depends_on:
