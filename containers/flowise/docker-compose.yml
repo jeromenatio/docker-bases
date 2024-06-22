@@ -1,0 +1,60 @@
+version: $DOCKER_VERSION
+
+name: flowiseai
+
+services:
+    flowiseai-postgres:
+      image: $DB_IMAGE
+      container_name: $DB_NAME
+      hostname: $DB_NAME
+      environment:
+        POSTGRES_USER: $DB_USER
+        POSTGRES_PASSWORD: $DB_PASSWORD
+        POSTGRES_DB: $DB_DATABASE
+        POSTGRES_NON_ROOT_USER: $DB_USER
+        POSTGRES_NON_ROOT_PASSWORD: $DB_PASSWORD
+      volumes:         
+        - $DB_VOLUME
+      networks:
+        - admin    
+      restart: $DB_RESTART_POLICY
+
+    flowiseai:
+        image: $IMAGE
+        container_name: $NAME
+        hostname: $NAME
+        environment:
+          PORT: $PORT          
+          CORS_ORIGINS: $CORS_ORIGINS
+          IFRAME_ORIGINS: $IFRAME_ORIGINS
+          FLOWISE_USERNAME: $FLOWISE_USERNAME
+          FLOWISE_PASSWORD: $FLOWISE_PASSWORD          
+          FLOWISE_FILE_SIZE_LIMIT: $FLOWISE_FILE_SIZE_LIMIT
+          FLOWISE_SECRETKEY_OVERWRITE: $FLOWISE_SECRETKEY_OVERWRITE
+          DISABLE_FLOWISE_TELEMETRY: $DISABLE_FLOWISE_TELEMETRY            
+          DEBUG: $DEBUG
+          LOG_LEVEL: $LOG_LEVEL          
+          LOG_PATH: $LOG_PATH
+          DATABASE_PATH: $DATABASE_PATH
+          APIKEY_PATH: $APIKEY_PATH
+          SECRETKEY_PATH: $SECRETKEY_PATH                
+          BLOB_STORAGE_PATH: $BLOB_STORAGE_PATH          
+          DATABASE_TYPE: $DB_TYPE
+          DATABASE_PORT: $DB_PORT
+          DATABASE_HOST: $DB_HOST
+          DATABASE_NAME: $DB_NAME
+          DATABASE_USER: $DB_USER
+          DATABASE_PASSWORD: $DB_PASSWORD
+        volumes:
+          - $FLOW_VOLUME
+        depends_on:
+          - flowiseai-postgres
+        networks:
+          - admin    
+        restart: $RESTART_POLICY
+        entrypoint: /bin/sh -c "sleep 3; flowise start"
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
