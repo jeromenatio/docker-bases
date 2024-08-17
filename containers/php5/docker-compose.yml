@@ -11,6 +11,7 @@ services:
     hostname: $NAME
     volumes:
       - $SITE_VOLUME
+      - $APACHE_VOLUME
     networks:
       - admin
     restart: $RESTART_POLICY
