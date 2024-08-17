@@ -28,6 +28,11 @@ RUN pecl install imagick \
 # Set the ServerName directive to suppress the warning
 RUN echo "ServerName php7-[PUBLIC_URL_CLEAN]" >> /etc/apache2/apache2.conf
 
+# Enable KeepAlive for persistent connections
+RUN echo "KeepAlive On" >> /etc/apache2/apache2.conf && \
+    echo "MaxKeepAliveRequests 500" >> /etc/apache2/apache2.conf && \
+    echo "KeepAliveTimeout 20" >> /etc/apache2/apache2.conf
+
 # AllowOverride Configuration for WordPress
 # RUN echo "<Directory /var/www/html>" >> /etc/apache2/conf-available/wordpress.conf
 # RUN echo "    AllowOverride All" >> /etc/apache2/conf-available/wordpress.conf
