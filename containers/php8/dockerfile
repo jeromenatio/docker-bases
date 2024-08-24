@@ -1,9 +1,10 @@
 # Use an official PHP and Apache runtime as the base image
 FROM php:8.3-apache
 
-# Install required system dependencies
-RUN apt-get update && apt-get install -y \
+# Install required system dependencies, including oniguruma for mbstring
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    git \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
@@ -14,18 +15,23 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zlib1g-dev \
     libzip-dev \
+    zip \
     unzip \
+    libonig-dev \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
 RUN a2enmod rewrite headers
 
-# Enable necessary PHP extensions
-RUN docker-php-ext-configure gd && \
-    docker-php-ext-install gd pdo_mysql intl xml mysqli pgsql pdo_pgsql zip bcmath
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo_mysql intl xml mysqli pgsql pdo_pgsql zip bcmath mbstring
 
+# Install imagick via PECL and enable it
 RUN pecl install imagick \
- && docker-php-ext-enable imagick
+    && docker-php-ext-enable imagick \
+    && rm -rf /tmp/pear
 
 # Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
