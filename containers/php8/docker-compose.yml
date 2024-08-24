@@ -1,0 +1,25 @@
+version: $DOCKER_VERSION
+
+name: php8-[PUBLIC_URL_CLEAN]
+
+services:
+  php8-[PUBLIC_URL_CLEAN]:
+    build:
+      context: $CONTEXT
+      dockerfile: $DOCKER_FILE
+    container_name: $NAME
+    hostname: $NAME
+    volumes:
+      - $SITE_VOLUME
+      - $APACHE_SA_VOLUME
+      - $APACHE_SE_VOLUME
+    networks:
+      - admin
+    restart: $RESTART_POLICY
+
+networks:
+  admin:
+    external: true
+    name: $DOCKER_NETWORK
+
+# ALWAYS LEAVE BLANK LINE AT THE END
