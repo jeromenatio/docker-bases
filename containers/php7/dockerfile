@@ -3,6 +3,7 @@ FROM php:7.4.1-apache
 
 # Install required system dependencies
 RUN apt-get update && apt-get install -y \
+    curl \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
@@ -11,33 +12,26 @@ RUN apt-get update && apt-get install -y \
     libmagickwand-dev \
     default-mysql-client \
     libpq-dev \
+    zlib1g-dev \
+    libzip-dev \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
-RUN a2enmod rewrite
+RUN a2enmod rewrite headers
 
 # Enable necessary PHP extensions
 RUN docker-php-ext-configure gd && \
-    docker-php-ext-install gd pdo_mysql intl xml && \
-    docker-php-ext-install mysqli && \
-    docker-php-ext-install pgsql pdo_pgsql
+    docker-php-ext-install gd pdo_mysql intl xml mysqli pgsql pdo_pgsql zip bcmath
 
 RUN pecl install imagick \
  && docker-php-ext-enable imagick
 
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
 # Set the ServerName directive to suppress the warning
 RUN echo "ServerName php7-[PUBLIC_URL_CLEAN]" >> /etc/apache2/apache2.conf
-
-# Enable KeepAlive for persistent connections
-RUN echo "KeepAlive On" >> /etc/apache2/apache2.conf && \
-    echo "MaxKeepAliveRequests 500" >> /etc/apache2/apache2.conf && \
-    echo "KeepAliveTimeout 20" >> /etc/apache2/apache2.conf
-
-# AllowOverride Configuration for WordPress
-# RUN echo "<Directory /var/www/html>" >> /etc/apache2/conf-available/wordpress.conf
-# RUN echo "    AllowOverride All" >> /etc/apache2/conf-available/wordpress.conf
-# RUN echo "</Directory>" >> /etc/apache2/conf-available/wordpress.conf
-# RUN a2enconf wordpress
 
 # Start Apache
 CMD ["apache2-foreground"]
