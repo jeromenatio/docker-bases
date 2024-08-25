@@ -36,6 +36,12 @@ RUN pecl install imagick \
 # Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Install Laravel Installer globally via Composer
+RUN composer global require laravel/installer
+
+# Add Composer's global binaries to the system PATH
+ENV PATH="$PATH:/root/.composer/vendor/bin"
+
 # Set the ServerName directive to suppress the warning
 RUN echo "ServerName php8-[PUBLIC_URL_CLEAN]" >> /etc/apache2/apache2.conf
 
