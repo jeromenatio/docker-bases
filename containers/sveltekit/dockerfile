@@ -15,5 +15,5 @@ RUN npm ci
 # Set environment variables if necessary
 ENV NODE_ENV=production
 
-# Build the app using the 'npm build' command
-CMD ["npm", "build"]
+# Run the app using the correct command
+CMD ["node", "build/index.js"]
