@@ -9,8 +9,7 @@ services:
       dockerfile: $DOCKER_FILE
     container_name: $NAME
     hostname: $NAME
-    volumes:
-      - $APP_VOLUME
+    user: "node"
     networks:
       - admin
     restart: $RESTART_POLICY

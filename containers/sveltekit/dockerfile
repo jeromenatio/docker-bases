@@ -1,16 +1,19 @@
-FROM node:22-alpine
+# Dockerfile
 
-# Étape de construction
+# Use this image as the platform to run the app
+FROM node:20.11-alpine
+
+# Set the working directory for everything that will happen next
 WORKDIR /app
-COPY code/package*.json ./
+
+# Copy all application files into the image
+COPY . .
+
+# Install all dependencies (including development dependencies)
 RUN npm ci
 
-COPY code/ ./
-RUN npm run build
-
-# Supprimer les dépendances de développement pour garder une image plus légère
-RUN npm prune --production
-
-# Configuration pour la production
+# Set environment variables if necessary
 ENV NODE_ENV=production
-CMD ["node", "build"]
+
+# Build the app using the 'npm build' command
+CMD ["npm", "build"]
